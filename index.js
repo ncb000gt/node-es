@@ -1,5 +1,5 @@
-var es = require('./lib/elasticsearch'),
-query = require('./lib/query');
+var elasticsearch = require('./lib/elasticsearch'),
+    query = require('./lib/query');
 
-module.exports['search'] = es;
+module.exports['search'] = elasticsearch;
 module.exports['query'] = query;
