@@ -1,5 +1,8 @@
 var elasticsearch = require('./lib/elasticsearch'),
-    query = require('./lib/query');
+    query = require('./lib/query')
+    exports = module.exports;
 
-module.exports['search'] = elasticsearch;
-module.exports['query'] = query;
+exports.createClient = function() {
+    return new elasticsearch(arguments);
+}
+exports.query = query;
