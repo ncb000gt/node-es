@@ -1,0 +1,22 @@
+{
+  "name": "elasticsearch",
+  "description": "API around the ElasticSearch RESTful API- mostly convenience.",
+  "main": "./index",
+  "version": "0.1.0",
+  "author": "Nick Campbell (http://github.com/ncb000gt)",
+  "engines": { "node": ">= 0.2.0" },
+  "keywords": ["elastic","search","elastic search","elasticsearch","lucene"],
+  "repository": {
+        "type": "git",
+        "url": "http://github.com/ncb000gt/node-elasticsearch.git"
+   },
+   "licenses": [
+     {
+        "type": "MIT"
+     }
+   ],
+   "bugs": {
+     "web" : "http://github.com/ncb000gt/node-elasticsearch/issues"
+   }
+}
+
