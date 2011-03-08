@@ -10,6 +10,20 @@ module.exports = testCase({
             assert.done();
         });
     },
+    'add and get document': function(assert) {
+        assert.expect(3);
+        var self = this,
+            config = {type:'info', id:'1', refresh: true},
+            doc = {field1: 'test field', field2: 'second test field'};
+        this.client.add(config, doc, function(err, result) {
+            assert.ok(result.ok);
+            self.client.get(config, function(err, result) {
+                assert.ifError(err);
+                assert.deepEqual(result._source, doc);
+                assert.done();
+            });
+        });
+    },
     'add and find document': function(assert) {
         assert.expect(3);
         var self = this,
@@ -23,6 +37,27 @@ module.exports = testCase({
                 assert.equal(result.hits.total, 1);
                 assert.deepEqual(result.hits.hits[0]._source, doc);
                 assert.done();
+            });
+        });
+    },
+    'add, get and delete a document': function(assert) {
+        assert.expect(6);
+        var self = this,
+            config = {type:'info', id:'1', refresh: true},
+            doc = {field1: 'test field', field2: 'second test field'}; 
+        this.client.add(config, doc, function(err, result) {
+            assert.ifError(err);
+            assert.ok(result.ok);
+            self.client.get(config, function(err, result) {
+                assert.ifError(err);
+                assert.deepEqual(result._source, doc);
+                self.client.delete(config, function(err, result) {
+                    assert.ifError(err);
+                    self.client.get(config, function(err, result) {
+                        assert.ok(err);
+                        assert.done();
+                    });
+                });
             });
         });
     }
