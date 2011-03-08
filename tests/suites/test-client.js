@@ -1,6 +1,6 @@
 var lib = require('../../index'),
     sys = require('sys'),
-    testCase = require('../utils').testCase;
+    testCase = require('../utils').clientTestCase;
 
 module.exports = testCase({
     'test client connection': function(assert) {
