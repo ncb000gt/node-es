@@ -1,4 +1,5 @@
 var elasticsearch = require('./lib/elasticsearch'),
+    cluster = require('./lib/cluster'),
     query = require('./lib/query'),
     utils = require('./lib/utils'),
     exports = module.exports;
@@ -6,5 +7,5 @@ var elasticsearch = require('./lib/elasticsearch'),
 exports.createClient = function() {
     return new elasticsearch(arguments);
 }
-exports.deleteAllIndices = utils.deleteAllIndices(this);
 exports.query = query;
+exports.cluster = cluster;
