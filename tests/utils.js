@@ -13,9 +13,9 @@ function testCase(suite) {
         });
     }
     suite.tearDown = function(done) {
-        //this.client.index.delete(function() {
+        this.client.index.delete(function() {
             done();
-        //});
+        });
     }
 
     return testCase.super_.call(this, suite);
