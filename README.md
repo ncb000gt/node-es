@@ -32,6 +32,7 @@ Requirements
 
 * NodeJS
 * Elastic Search
+* nodeunit (for testing)
 * The need for search
 
 
