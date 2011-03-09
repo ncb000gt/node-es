@@ -36,6 +36,7 @@ function indexTestCase(suite) {
     }
     suite.tearDown = function(done) {
         this.index.delete(function() {
+            //ignore errors here, i don't much care about them as this should all be tested elsewhere.
             done();
         });
     }
