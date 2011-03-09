@@ -1,5 +1,4 @@
-var sys = require('sys'),
-    testCase = require('../utils').indexTestCase;
+var testCase = require('../utils').indexTestCase;
 
 module.exports = testCase({
     'check index status': function(assert) {

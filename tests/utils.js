@@ -1,7 +1,7 @@
 var nodeunit = require('nodeunit'),
-    sys = require('sys'),
     lib = require('../index'), //library index (more for noding this piece)
     Index = require('../lib/index'), //search index
+    util = (process.version.match(/v0\.2/))?require('sys'):require('util'), //this needs to work in both 0.2.x and 0.4.x
     exports = module.exports;
 
 function clientTestCase(suite) {
@@ -22,7 +22,7 @@ function clientTestCase(suite) {
     return clientTestCase.super_.call(this, suite);
 }
 
-sys.inherits(clientTestCase, nodeunit.testCase);
+util.inherits(clientTestCase, nodeunit.testCase);
 exports.clientTestCase = clientTestCase;
 
 function indexTestCase(suite) {
@@ -44,5 +44,5 @@ function indexTestCase(suite) {
     return indexTestCase.super_.call(this, suite);
 }
 
-sys.inherits(indexTestCase, nodeunit.testCase);
+util.inherits(indexTestCase, nodeunit.testCase);
 exports.indexTestCase = indexTestCase;

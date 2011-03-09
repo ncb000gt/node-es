@@ -1,5 +1,4 @@
-var sys = require('sys'),
-    Index = require('../../lib/index'),
+var Index = require('../../lib/index'),
     ES = require('../../lib/elasticsearch'),
     lib = require('../../index');
 
