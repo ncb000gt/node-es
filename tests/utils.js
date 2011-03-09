@@ -27,9 +27,9 @@ exports.clientTestCase = clientTestCase;
 
 function indexTestCase(suite) {
     suite.setUp = function(done) {
-        var self = this,
-            idx_name = 'test'+(new Date()).getTime();
-        this.index = new Index({name: idx_name});
+        var self = this;
+        this.idx_name = 'test'+(new Date()).getTime();
+        this.index = new Index({name: this.idx_name});
         this.index.create(function(err, res) {
             done();
         });

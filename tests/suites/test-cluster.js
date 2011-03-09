@@ -13,11 +13,15 @@ module.exports = testCase({
         });
     },
     'delete cluster indices': function(assert) {
-        assert.expect(2);
+        assert.expect(4);
+        var self = this;
+
         var cluster = new Cluster();
         cluster.deleteIndices(function(err, status) {
             assert.ifError(err);
             assert.ok(status.success);
+            assert.equal(status.indices.length, 1);
+            assert.deepEqual(status.indices, [self.idx_name]);
             assert.done();
         });
     }
