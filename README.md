@@ -1,13 +1,13 @@
 node-elasticsearch
 ============
 
-This is a module around the REST API for [http://www.elasticsearch.org/](Elastic Search) built for NodeJS.
+This is a module around the REST API for [Elastic Search](http://www.elasticsearch.org/ title="Elastic Search") built for NodeJS.
 
 
 Details
 =============
 
-This works with node 0.4.x and with 0.2.x. I needed it for both and so wrote an [http://github.com/ncb000gt/node-http_compat](http compatability) layer.
+This works with node 0.4.x and with 0.2.x. I needed it for both and so wrote an [http compatability layer](http://github.com/ncb000gt/node-http_compat).
 
 
 Usage
