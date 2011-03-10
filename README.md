@@ -1,7 +1,7 @@
 node-elasticsearch
 ============
 
-This is a module around the REST API for [Elastic Search](http://www.elasticsearch.org/ title="Elastic Search") built for NodeJS.
+This is a module around the REST API for [Elastic Search](http://www.elasticsearch.org/) built for NodeJS.
 
 
 Details
