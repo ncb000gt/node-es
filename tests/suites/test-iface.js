@@ -8,7 +8,7 @@ module.exports = {
     'check init index': function(assert) {
         assert.expect(2);
         var idx_name = 'test'+(new Date()).getTime();
-        var index = new Index({name: idx_name}); 
+        var index = new Index({name: idx_name});
         assert.equal(index.name, idx_name);
         assert.deepEqual(index.idx_config, {});
         assert.done();

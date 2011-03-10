@@ -8,7 +8,10 @@ function clientTestCase(suite) {
     suite.setUp = function(done) {
         var self = this,
             idx_name = 'test'+(new Date()).getTime();
-        lib.createClient({index: idx_name}, function(client) {
+        lib.createClient({index: idx_name}, function(err, client) {
+            if (err) {
+                self.fail(err);
+            }
             self.client = client;
             done();
         });
@@ -21,7 +24,6 @@ function clientTestCase(suite) {
 
     return clientTestCase.super_.call(this, suite);
 }
-
 util.inherits(clientTestCase, nodeunit.testCase);
 exports.clientTestCase = clientTestCase;
 
@@ -43,6 +45,5 @@ function indexTestCase(suite) {
 
     return indexTestCase.super_.call(this, suite);
 }
-
 util.inherits(indexTestCase, nodeunit.testCase);
 exports.indexTestCase = indexTestCase;
