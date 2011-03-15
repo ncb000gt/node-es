@@ -12,6 +12,16 @@ module.exports = testCase({
             assert.done();
         });
     },
+    'check cluster health': function(assert) {
+        assert.expect(3);
+        var cluster = new Cluster();
+        cluster.health({}, function(err, health) {
+            assert.ifError(err);
+            assert.ok(health.cluster_name);
+            assert.ok(health.status);
+            assert.done();
+        });
+    },
     'delete cluster indices': function(assert) {
         assert.expect(4);
         var self = this;
