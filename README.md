@@ -40,3 +40,9 @@ License
 =============
 
 MIT
+
+
+Trademarks?
+============
+
+Node.js™ is an official trademark of Joyent. This module is not formally related to or endorsed by the official Joyent Node.js open source or commercial project
