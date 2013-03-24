@@ -1,9 +1,15 @@
-var elasticsearch = require('./lib/elasticsearch'),
-    cluster = require('./lib/cluster'),
-    utils = require('./lib/utils'),
-    exports = module.exports;
+var Client = require('./lib/elasticsearch');
 
-exports.createClient = function() {
-    return new elasticsearch(arguments);
+function createClient () {
+  return new Client(arguments);
 }
-exports.cluster = cluster;
+
+// Make createClient the default function
+exports = module.exports = createClient;
+
+// Expose constructors
+exports.Client = Client;
+exports.Cluster = require('./lib/cluster');
+
+// For backwards compatibility
+exports.createClient = createClient;
