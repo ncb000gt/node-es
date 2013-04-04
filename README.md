@@ -3,6 +3,8 @@ node-elasticsearch
 
 This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) REST API.
 
+[![Build Status](https://travis-ci.org/ncb000gt/node-elasticsearch.png)](https://travis-ci.org/ncb000gt/node-elasticsearch)
+
 
 Usage
 =====
