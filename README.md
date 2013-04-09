@@ -34,6 +34,8 @@ Returns a new client object.
 
 Options:
 * `index`: The name of the index to act upon.
+* `host`: The hostname of the elasticsearch server (defaults to localhost)
+* `port`: The port of the elasticsearch server (defaults to 9200)
 
 We'll call the returned client `es`.
 
