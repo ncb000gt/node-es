@@ -19,9 +19,9 @@
   "homepage": "http://github.com/ncb000gt/node-elasticsearch",
   "bugs": "http://github.com/ncb000gt/node-elasticsearch/issues",
   "devDependencies": {
-    "nodeunit": "~0.7.4"
+    "tap": "~0.4.1"
   },
   "scripts": {
-    "test": "nodeunit tests/suites"
+    "test": "tap test/*.js"
   }
 }
