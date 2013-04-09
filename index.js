@@ -10,6 +10,7 @@ exports = module.exports = createClient;
 // Expose constructors
 exports.Client = Client;
 exports.Cluster = require('./lib/cluster');
+exports.Index = require('./lib/index');
 
 // For backwards compatibility
 exports.createClient = createClient;
