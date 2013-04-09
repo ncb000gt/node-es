@@ -16,6 +16,7 @@
   ],
   "repository": "git://github.com/ncb000gt/node-elasticsearch.git",
   "license": "MIT",
+  "homepage": "http://github.com/ncb000gt/node-elasticsearch",
   "bugs": "http://github.com/ncb000gt/node-elasticsearch/issues",
   "devDependencies": {
     "nodeunit": "~0.7.4"
