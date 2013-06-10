@@ -30,12 +30,15 @@ Shortcut for `elasticsearch.createClient(opts)`.
 
 elasticsearch.createClient(opts)
 --------------------------------
-Returns a new client object. 
+Returns a new client object.
 
 Options:
-* `index`: The name of the index to act upon.
+* `auth`: Basic authentication for elasticsearch in 'username:password' format
+* `index`: The name of the index to act upon
 * `host`: The hostname of the elasticsearch server (defaults to localhost)
 * `port`: The port of the elasticsearch server (defaults to 9200)
+* `rejectUnauthorized`: If specifying secure this may be set to false to bypass certificate validation
+* `secure`: Specify true if the elasticsearch server requires TLS/SSL
 
 We'll call the returned client `es`.
 
@@ -116,7 +119,7 @@ Delete a mapping. Maps to *DELETE /index/name/_mapping*.
 
 new elasticsearch.Index(opts)
 -----------------------------
-Returns a new index object. 
+Returns a new index object.
 
 Options:
 * `name`: The name of the index to act upon.
@@ -141,7 +144,7 @@ Delete the index. Maps to *DELETE /index*.
 
 new elasticsearch.Cluster()
 ---------------------------
-Returns a new cluster object. 
+Returns a new cluster object.
 
 We'll call the returned cluster `cluster`.
 
@@ -166,7 +169,7 @@ Testing
 ```
 npm install
 npm test
-```    
+```
 
 
 Requirements
