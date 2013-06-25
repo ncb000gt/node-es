@@ -352,6 +352,67 @@ describe('core', function () {
 		});
 	});
 
+	describe('#multiSearch', function () {
+		var queries = [
+			{},
+			{ query : { match_all : {} }, from : 0, size : 100 },
+			{ search_type : 'count' },
+			{ query : { field : { breed : 'manx' } } }
+		];
+
+		it('should allow options to be optional', function (done) {
+			core.multiSearch(queries, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_msearch');
+
+				done();
+			});
+		});
+
+		it('should require queries to be an array', function (done) {
+			core.multiSearch(queries[0], function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should only apply index to url with passed with options', function (done) {
+			core.multiSearch({ _index : 'dieties' }, queries, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('dieties/_msearch');
+
+				done();
+			});
+		});
+
+		it('should only apply type to url when index and type are passed with options', function (done) {
+			core.multiSearch({ _index : 'dieties', _type : 'kitteh' }, queries, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('dieties/kitteh/_msearch');
+
+				done();
+			});
+		});
+
+		it('should properly format out as newline delimited text', function (done) {
+			core.multiSearch(queries, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.inputData.match(/\n/g).should.have.length(4);
+
+				done();
+			});
+		});
+	});
+
 	describe('#search', function () {
 		var query = {
 			query : {
