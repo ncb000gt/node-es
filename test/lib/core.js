@@ -352,6 +352,47 @@ describe('core', function () {
 		});
 	});
 
+	describe('#search', function () {
+		var query = {
+			query : {
+				breed : 'manx'
+			}
+		};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			core.search({}, query, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should allow options to be optional', function (done) {
+			core.search({}, query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh/_search');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it('should allow search without type', function (done) {
+			delete defaultOptions._type;
+			core.search(query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/_search');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+	});
+
 	describe('#update', function () {
 		var
 			doc1 = {
