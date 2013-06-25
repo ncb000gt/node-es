@@ -5,8 +5,8 @@ describe('core', function () {
 
 	var stubMethod = function (method, options, data, callback) {
 		options.method = method;
-		if (returnError) {
-			return callback(returnError);
+		if (requestError) {
+			return callback(requestError);
 		}
 
 		return callback(null, {
@@ -20,7 +20,7 @@ describe('core', function () {
 		defaultOptions,
 		doc,
 		req,
-		returnError;
+		requestError;
 
 	beforeEach(function () {
 		defaultOptions = {
@@ -56,7 +56,7 @@ describe('core', function () {
 			}
 		};
 
-		returnError = null;
+		requestError = null;
 
 		core = coreLib(defaultOptions, req);
 	});
@@ -103,7 +103,46 @@ describe('core', function () {
 	});
 
 	describe('#exists', function () {
+		it('should require index', function (done) {
+			delete defaultOptions.index;
+			core.exists({}, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
 
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', function (done) {
+			core.exists({ id : 1 }, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.method.should.equals('HEAD');
+
+				done();
+			});
+		});
+
+		it('should allow options to be optional', function (done) {
+			core.exists(function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh');
+				data.options.method.should.equals('HEAD');
+
+				done();
+			});
+		});
+
+		it('should properly return request errors', function (done) {
+			requestError = new Error('should return to me');
+			core.exists(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+				err.should.equals(requestError);
+
+				done();
+			});
+		});
 	});
 
 	describe('#get', function () {
