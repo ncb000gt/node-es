@@ -184,6 +184,17 @@ describe('core', function () {
 				done();
 			});
 		});
+
+		// not sure I like this behavior... it's not explicit as to the purpose of the method
+		it('should make request a multiGet if id is passed as an array', function (done) {
+			core.get({ id : [1, 2, 3] }, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('_mget');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
 	});
 
 	describe('#index', function () {
@@ -267,6 +278,83 @@ describe('core', function () {
 				should.not.exist(err);
 				data.options.method.should.equals('POST');
 				data.inputData.should.equals(doc);
+
+				done();
+			});
+		});
+	});
+
+	describe('#multiGet', function () {
+		var docs = [{
+			_id : 1,
+			_index : 'testIndex',
+			_type : 'testType'
+		}, {
+			_id : 2,
+			_index : 'testIndex',
+			_type : 'testType'
+		}, {
+			_id : 3,
+			_index : 'testIndex',
+			_type : 'testType'
+		}];
+
+		it('should require index', function (done) {
+			delete defaultOptions.index;
+			delete docs[0]._index;
+			core.multiGet(docs, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				docs[0]._index = 'testIndex';
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
+			delete defaultOptions.type;
+			delete docs[0]._type;
+			core.multiGet(docs, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				docs[0]._type = 'testType';
+
+				done();
+			});
+		});
+
+		it('should require docs', function (done) {
+			core.multiGet(function(err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method', function (done) {
+			core.multiGet(docs, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('_mget');
+				data.options.method.should.equals('POST');
+				data.inputData[0]._index.should.equals('testIndex');
+				data.inputData[0]._type.should.equals('testType');
+
+				done();
+			});
+		});
+
+		it('should have correct index and type when omitted', function (done) {
+			delete docs[0]._index;
+			delete docs[0]._type;
+			core.multiGet(docs, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('_mget');
+				data.options.method.should.equals('POST');
+				data.inputData[0]._index.should.equals('dieties');
+				data.inputData[0]._type.should.equals('kitteh');
 
 				done();
 			});
