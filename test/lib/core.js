@@ -24,13 +24,13 @@ describe('core', function () {
 
 	beforeEach(function () {
 		defaultOptions = {
+			_index : 'dieties',
+			_type : 'kitteh',
 			auth : '',
 			hostname : 'localhost',
-			index : 'dieties',
 			port : 9200,
 			rejectUnauthorized : true,
-			secure : false,
-			type : 'kitteh'
+			secure : false
 		};
 
 		doc = {
@@ -63,7 +63,7 @@ describe('core', function () {
 
 	describe('#delete', function () {
 		it('should require index', function (done) {
-			delete defaultOptions.index;
+			delete defaultOptions._index;
 			core.delete({}, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -83,7 +83,7 @@ describe('core', function () {
 		});
 
 		it('should have correct path and method when id is supplied', function (done) {
-			core.delete({ id : 1 }, function (err, data) {
+			core.delete({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('dieties/kitteh/1');
 				data.options.method.should.equals('DELETE');
@@ -104,7 +104,7 @@ describe('core', function () {
 
 	describe('#exists', function () {
 		it('should require index', function (done) {
-			delete defaultOptions.index;
+			delete defaultOptions._index;
 			core.exists({}, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -114,7 +114,7 @@ describe('core', function () {
 		});
 
 		it('should have correct path and method when id is supplied', function (done) {
-			core.exists({ id : 1 }, function (err, data) {
+			core.exists({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('dieties/kitteh/1');
 				data.options.method.should.equals('HEAD');
@@ -147,7 +147,7 @@ describe('core', function () {
 
 	describe('#get', function () {
 		it('should require index', function (done) {
-			delete defaultOptions.index;
+			delete defaultOptions._index;
 			core.get({}, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -157,7 +157,7 @@ describe('core', function () {
 		});
 
 		it('should require type', function (done) {
-			delete defaultOptions.type;
+			delete defaultOptions._type;
 			core.get({}, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -176,7 +176,7 @@ describe('core', function () {
 		});
 
 		it('should have correct path and method when id is supplied', function (done) {
-			core.get({ id : 1 }, function (err, data) {
+			core.get({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('dieties/kitteh/1');
 				data.options.method.should.equals('GET');
@@ -187,7 +187,7 @@ describe('core', function () {
 
 		// not sure I like this behavior... it's not explicit as to the purpose of the method
 		it('should make request a multiGet if id is passed as an array', function (done) {
-			core.get({ id : [1, 2, 3] }, function (err, data) {
+			core.get({ _id : [1, 2, 3] }, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('_mget');
 				data.options.method.should.equals('POST');
@@ -199,7 +199,7 @@ describe('core', function () {
 
 	describe('#index', function () {
 		it('should require index', function (done) {
-			delete defaultOptions.index;
+			delete defaultOptions._index;
 			core.index({}, doc, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -209,7 +209,7 @@ describe('core', function () {
 		});
 
 		it('should require type', function (done) {
-			delete defaultOptions.type;
+			delete defaultOptions._type;
 			core.index({}, doc, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -229,7 +229,7 @@ describe('core', function () {
 		});
 
 		it('should have correct path and method when id is supplied', function (done) {
-			core.index({ id : 1 }, doc, function (err, data) {
+			core.index({ _id : 1 }, doc, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('dieties/kitteh/1');
 				data.options.method.should.equals('PUT');
@@ -300,7 +300,7 @@ describe('core', function () {
 		}];
 
 		it('should require index', function (done) {
-			delete defaultOptions.index;
+			delete defaultOptions._index;
 			delete docs[0]._index;
 			core.multiGet(docs, function (err, data) {
 				should.exist(err);
@@ -313,22 +313,13 @@ describe('core', function () {
 		});
 
 		it('should require type', function (done) {
-			delete defaultOptions.type;
+			delete defaultOptions._type;
 			delete docs[0]._type;
 			core.multiGet(docs, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
 
 				docs[0]._type = 'testType';
-
-				done();
-			});
-		});
-
-		it('should require docs', function (done) {
-			core.multiGet(function(err, data) {
-				should.exist(err);
-				should.not.exist(data);
 
 				done();
 			});
@@ -355,6 +346,84 @@ describe('core', function () {
 				data.options.method.should.equals('POST');
 				data.inputData[0]._index.should.equals('dieties');
 				data.inputData[0]._type.should.equals('kitteh');
+
+				done();
+			});
+		});
+	});
+
+	describe('#update', function () {
+		var
+			doc1 = {
+				script : 'ctx._source.field1 = updateData',
+				params : {
+					updateData : 'testing'
+				}
+			},
+			doc2 = {
+				doc : {
+					field1 : 'new value'
+				}
+			};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			core.update({ _id : 1 }, doc1, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
+			delete defaultOptions._type;
+			core.update({ _id : 1 }, doc1, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it ('should require id', function (done) {
+			core.update(doc1, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it ('should require script or doc', function (done) {
+			delete doc1.script;
+			core.update({ _id : 1 }, doc1, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				doc1.script = 'ctx._source.field1 = updateData';
+
+				done();
+			});
+		});
+
+		it ('should accept script', function (done) {
+			core.update({ _id : 1 }, doc1, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh/1/_update');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it ('should accept doc', function (done) {
+			core.update({ _id : 2 }, doc2, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh/2/_update');
+				data.options.method.should.equals('POST');
 
 				done();
 			});

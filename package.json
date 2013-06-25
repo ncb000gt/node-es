@@ -2,7 +2,7 @@
   "name": "elasticsearch",
   "description": "API around the ElasticSearch RESTful API -- mostly convenience.",
   "main": "index.js",
-  "version": "0.2.6",
+  "version": "0.3.1",
   "author": "Nick Campbell (http://github.com/ncb000gt)",
   "engines": {
     "node": ">= 0.6.0"
@@ -25,8 +25,8 @@
     "mocha" : "*"
   },
   "scripts": {
-    "pretest" : "jshint *.js lib/*.js test/*.js ; jscoverage lib lib-cov",
+    "pretest" : "jshint *.js ./lib/*.js ./test/*.js ; jscoverage ./lib ./lib-cov",
     "test": "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/lib",
-    "posttest" : "rm -rf reports ; mkdir -p reports ; NODE_ELASTICSEARCH_COVERAGE=true mocha -R html-cov -r ./test/common.js -u bdd ./test/lib > reports/coverage.html"
+    "posttest" : "rm -rf ./reports ; mkdir -p ./reports ; NODE_ELASTICSEARCH_COVERAGE=true mocha -R html-cov -r ./test/common.js -u bdd ./test/lib > reports/coverage.html"
   }
 }
