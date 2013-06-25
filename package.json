@@ -4,6 +4,11 @@
   "main": "index.js",
   "version": "0.3.1",
   "author": "Nick Campbell (http://github.com/ncb000gt)",
+  "contributors" : [
+    "Nick Campbell (http://github.com/ncb000gt)",
+    "Gabriel Farrel (http://github.com/gsf)",
+    "Richard Marr (http://github.com/richmarr)",
+    "Joshua Thomas (http://github.com/brozeph)"],
   "engines": {
     "node": ">= 0.6.0"
   },
