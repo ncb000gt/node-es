@@ -124,6 +124,62 @@ describe('core', function () {
 		});
 	});
 
+	describe('#count', function () {
+		var query = {
+			query : {
+				breed : 'manx'
+			}
+		};
+
+		it('should allow options to be optional', function (done) {
+			core.count({}, query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh/_count');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it('should allow count without index', function (done) {
+			delete defaultOptions._index;
+			core.count({}, query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('_count');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it('should allow count without type', function (done) {
+			delete defaultOptions._type;
+			core.count(query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/_count');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it('should allow count without query', function (done) {
+			delete defaultOptions._index;
+			delete defaultOptions._type;
+			core.count(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('_count');
+				data.options.method.should.equals('GET');
+
+				done();
+			});
+		});
+	});
+
 	describe('#delete', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
