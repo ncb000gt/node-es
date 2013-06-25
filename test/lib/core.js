@@ -61,6 +61,69 @@ describe('core', function () {
 		core = coreLib(defaultOptions, req);
 	});
 
+	describe('#bulk', function () {
+		var commands = [
+			{ index : { _index : 'dieties', _type : 'kitteh' } },
+			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
+			{ index : { _index : 'dieties', _type : 'kitteh' } },
+			{ name : 'dugald', breed : 'siamese', color : 'white' },
+			{ index : { _index : 'dieties', _type : 'kitteh' } },
+			{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+		];
+
+		it('should allow options to be optional', function (done) {
+			core.bulk(commands, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_bulk');
+
+				done();
+			});
+		});
+
+		it('should require commands to be an array', function (done) {
+			core.bulk(commands[0], function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should only apply index to url with passed with options', function (done) {
+			core.bulk({ _index : 'dieties' }, commands, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('dieties/_bulk');
+
+				done();
+			});
+		});
+
+		it('should only apply type to url when index and type are passed with options', function (done) {
+			core.bulk({ _index : 'dieties', _type : 'kitteh' }, commands, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('dieties/kitteh/_bulk');
+
+				done();
+			});
+		});
+
+		it('should properly format out as newline delimited text', function (done) {
+			core.bulk(commands, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.inputData.match(/\n/g).should.have.length(6);
+
+				done();
+			});
+		});
+	});
+
 	describe('#delete', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
