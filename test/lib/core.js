@@ -10,6 +10,7 @@ describe('core', function () {
 		}
 
 		return callback(null, {
+				inputData : data,
 				options : options
 			});
 	}
@@ -44,6 +45,9 @@ describe('core', function () {
 			get : function (options, callback) {
 				stubMethod('GET', options, null, callback);
 			},
+			head : function (options, callback) {
+				stubMethod('HEAD', options, null, callback);
+			},
 			post : function (options, data, callback) {
 				stubMethod('POST', options, data, callback);
 			},
@@ -57,9 +61,10 @@ describe('core', function () {
 		core = coreLib(defaultOptions, req);
 	});
 
-	describe('#index', function () {
-		it('should require doc', function (done) {
-			core.index({}, function (err, data) {
+	describe('#delete', function () {
+		it('should require index', function (done) {
+			delete defaultOptions.index;
+			core.delete({}, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -67,8 +72,84 @@ describe('core', function () {
 			});
 		});
 
-		it('should require options.type', function (done) {
+		it('should have correct path and method', function (done) {
+			core.delete({}, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh');
+				data.options.method.should.equals('DELETE');
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', function (done) {
+			core.delete({ id : 1 }, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.method.should.equals('DELETE');
+
+				done();
+			});
+		});
+
+		it('should treat options as optional', function (done) {
+			core.delete(function(err, data) {
+				should.not.exist(err);
+				data.options.method.should.equals('DELETE');
+
+				done();
+			});
+		});
+	});
+
+	describe('#exists', function () {
+
+	});
+
+	describe('#get', function () {
+		it('should require index', function (done) {
+			delete defaultOptions.index;
+			core.get({}, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
 			delete defaultOptions.type;
+			core.get({}, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require id', function (done) {
+			core.get(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', function (done) {
+			core.get({ id : 1 }, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.method.should.equals('GET');
+
+				done();
+			});
+		});
+	});
+
+	describe('#index', function () {
+		it('should require index', function (done) {
+			delete defaultOptions.index;
 			core.index({}, doc, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -77,8 +158,8 @@ describe('core', function () {
 			});
 		});
 
-		it('should require index', function (done) {
-			delete defaultOptions.index;
+		it('should require type', function (done) {
+			delete defaultOptions.type;
 			core.index({}, doc, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -122,16 +203,31 @@ describe('core', function () {
 				version : 1
 			};
 
-			var querystring = '';
-			Object.keys(options).forEach(function (key) {
-				querystring += key + '=' + options[key] + '&';
-			});
-			querystring = querystring.substr(0, querystring.length - 1);
-
 			core.index(options, doc, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh?' + querystring);
+				data.options.path.should.contain('dieties/kitteh?');
+				data.options.path.should.contain('consistency=quorum');
+				data.options.path.should.contain('distributed=true');
+				data.options.path.should.contain('op_type=create');
+				data.options.path.should.contain('parent=1');
+				data.options.path.should.contain('percolate=*');
+				data.options.path.should.contain('refresh=true');
+				data.options.path.should.contain('replication=async');
+				data.options.path.should.contain('routing=kimchy');
+				data.options.path.should.contain('timeout=5m');
+				data.options.path.should.contain('ttl=1d');
+				data.options.path.should.contain('version=1');
 				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it('should treat options as optional', function (done) {
+			core.index(doc, function(err, data) {
+				should.not.exist(err);
+				data.options.method.should.equals('POST');
+				data.inputData.should.equals(doc);
 
 				done();
 			});
