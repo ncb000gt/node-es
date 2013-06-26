@@ -6,7 +6,7 @@ var
 
 	defaults = {
 		server : {
-			hostname : 'localhost',
+			host : 'localhost',
 			port : 9200
 		}
 	};

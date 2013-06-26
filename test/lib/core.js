@@ -42,7 +42,7 @@ describe('core', function () {
 			core.search(options, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties,hellions/kitteh/_search');
+				data.options.path.should.equals('/dieties,hellions/kitteh/_search');
 
 				done();
 			});
@@ -55,7 +55,7 @@ describe('core', function () {
 			core.search(options, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh,squirrel/_search');
+				data.options.path.should.equals('/dieties/kitteh,squirrel/_search');
 
 				done();
 			});
@@ -66,7 +66,7 @@ describe('core', function () {
 			core.search(query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties,hellions/kitteh/_search');
+				data.options.path.should.equals('/dieties,hellions/kitteh/_search');
 
 				delete defaultOptions._indices;
 
@@ -79,7 +79,7 @@ describe('core', function () {
 			core.search(query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh,squirrel/_search');
+				data.options.path.should.equals('/dieties/kitteh,squirrel/_search');
 
 				delete defaultOptions._types;
 
@@ -91,7 +91,7 @@ describe('core', function () {
 			core.get({ _id : 1, _types : ['kitteh', 'squirrel'], _source : true }, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh,squirrel/1/_source');
+				data.options.path.should.equals('/dieties/kitteh,squirrel/1/_source');
 
 				done();
 			});
@@ -113,7 +113,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_bulk');
+				data.options.path.should.equals('/_bulk');
 
 				done();
 			});
@@ -133,7 +133,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('dieties/_bulk');
+				data.options.path.should.equals('/dieties/_bulk');
 
 				done();
 			});
@@ -144,7 +144,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('dieties/kitteh/_bulk');
+				data.options.path.should.equals('/dieties/kitteh/_bulk');
 
 				done();
 			});
@@ -172,7 +172,7 @@ describe('core', function () {
 			core.count({}, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh/_count');
+				data.options.path.should.equals('/dieties/kitteh/_count');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -184,7 +184,7 @@ describe('core', function () {
 			core.count({}, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('_count');
+				data.options.path.should.equals('/_count');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -196,7 +196,7 @@ describe('core', function () {
 			core.count(query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/_count');
+				data.options.path.should.equals('/dieties/_count');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -209,7 +209,7 @@ describe('core', function () {
 			core.count(function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('_count');
+				data.options.path.should.equals('/_count');
 				data.options.method.should.equals('GET');
 
 				done();
@@ -231,7 +231,7 @@ describe('core', function () {
 		it('should have correct path and method', function (done) {
 			core.delete({}, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh');
+				data.options.path.should.equals('/dieties/kitteh');
 				data.options.method.should.equals('DELETE');
 
 				done();
@@ -241,7 +241,7 @@ describe('core', function () {
 		it('should have correct path and method when id is supplied', function (done) {
 			core.delete({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.path.should.equals('/dieties/kitteh/1');
 				data.options.method.should.equals('DELETE');
 
 				done();
@@ -278,7 +278,7 @@ describe('core', function () {
 		it('should have correct path and method', function (done) {
 			core.deleteByQuery(query, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/_query');
+				data.options.path.should.equals('/dieties/kitteh/_query');
 				data.options.method.should.equals('DELETE');
 
 				done();
@@ -289,7 +289,7 @@ describe('core', function () {
 			delete defaultOptions._type;
 			core.deleteByQuery(query, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/_query');
+				data.options.path.should.equals('/dieties/_query');
 				data.options.method.should.equals('DELETE');
 
 				done();
@@ -311,7 +311,7 @@ describe('core', function () {
 		it('should have correct path and method when id is supplied', function (done) {
 			core.exists({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.path.should.equals('/dieties/kitteh/1');
 				data.options.method.should.equals('HEAD');
 
 				done();
@@ -321,7 +321,7 @@ describe('core', function () {
 		it('should allow options to be optional', function (done) {
 			core.exists(function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh');
+				data.options.path.should.equals('/dieties/kitteh');
 				data.options.method.should.equals('HEAD');
 
 				done();
@@ -381,7 +381,7 @@ describe('core', function () {
 		it('should have correct path and method when id is supplied', function (done) {
 			core.explain({ _id : 1 }, query, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/1/_explain');
+				data.options.path.should.equals('/dieties/kitteh/1/_explain');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -422,7 +422,7 @@ describe('core', function () {
 		it('should have correct path and method when id is supplied', function (done) {
 			core.get({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.path.should.equals('/dieties/kitteh/1');
 				data.options.method.should.equals('GET');
 
 				done();
@@ -433,7 +433,7 @@ describe('core', function () {
 		it('should make request a multiGet if id is passed as an array', function (done) {
 			core.get({ _id : [1, 2, 3] }, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('_mget');
+				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -465,7 +465,7 @@ describe('core', function () {
 		it('should have correct path and method', function (done) {
 			core.index({}, doc, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh');
+				data.options.path.should.equals('/dieties/kitteh');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -475,7 +475,7 @@ describe('core', function () {
 		it('should have correct path and method when id is supplied', function (done) {
 			core.index({ _id : 1 }, doc, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/1');
+				data.options.path.should.equals('/dieties/kitteh/1');
 				data.options.method.should.equals('PUT');
 
 				done();
@@ -561,7 +561,7 @@ describe('core', function () {
 		it('should have correct path and method when id is supplied', function (done) {
 			core.moreLikeThis({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('dieties/kitteh/1/_mlt');
+				data.options.path.should.equals('/dieties/kitteh/1/_mlt');
 				data.options.method.should.equals('GET');
 
 				done();
@@ -613,7 +613,7 @@ describe('core', function () {
 		it('should have correct path and method', function (done) {
 			core.multiGet(docs, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('_mget');
+				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
 				data.inputData[0]._index.should.equals('testIndex');
 				data.inputData[0]._type.should.equals('testType');
@@ -627,7 +627,7 @@ describe('core', function () {
 			delete docs[0]._type;
 			core.multiGet(docs, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('_mget');
+				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
 				data.inputData[0]._index.should.equals('dieties');
 				data.inputData[0]._type.should.equals('kitteh');
@@ -650,7 +650,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_msearch');
+				data.options.path.should.equals('/_msearch');
 
 				done();
 			});
@@ -670,7 +670,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('dieties/_msearch');
+				data.options.path.should.equals('/dieties/_msearch');
 
 				done();
 			});
@@ -681,7 +681,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('dieties/kitteh/_msearch');
+				data.options.path.should.equals('/dieties/kitteh/_msearch');
 
 				done();
 			});
@@ -730,7 +730,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('dieties/kitteh/_percolate');
+				data.options.path.should.equals('/dieties/kitteh/_percolate');
 
 				done();
 			});
@@ -770,7 +770,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('_percolator/dieties/furreh');
+				data.options.path.should.equals('/_percolator/dieties/furreh');
 
 				done();
 			});
@@ -798,7 +798,7 @@ describe('core', function () {
 			core.search({}, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh/_search');
+				data.options.path.should.equals('/dieties/kitteh/_search');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -810,7 +810,7 @@ describe('core', function () {
 			core.search(query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/_search');
+				data.options.path.should.equals('/dieties/_search');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -843,7 +843,7 @@ describe('core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('_percolator/dieties/furreh');
+				data.options.path.should.equals('/_percolator/dieties/furreh');
 
 				done();
 			});
@@ -909,7 +909,7 @@ describe('core', function () {
 			core.update({ _id : 1 }, doc1, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh/1/_update');
+				data.options.path.should.equals('/dieties/kitteh/1/_update');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -920,7 +920,7 @@ describe('core', function () {
 			core.update({ _id : 2 }, doc2, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh/2/_update');
+				data.options.path.should.equals('/dieties/kitteh/2/_update');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -949,7 +949,7 @@ describe('core', function () {
 			core.validate({}, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/kitteh/_validate/query');
+				data.options.path.should.equals('/dieties/kitteh/_validate/query');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -961,7 +961,7 @@ describe('core', function () {
 			core.validate(query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('dieties/_validate/query');
+				data.options.path.should.equals('/dieties/_validate/query');
 				data.options.method.should.equals('POST');
 
 				done();

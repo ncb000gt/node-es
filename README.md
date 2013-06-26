@@ -21,15 +21,9 @@ npm install elasticsearch
 ## Usage
 
 ```Javascript
+
 var elasticsearch = require('elasticsearch');
-var es = elasticsearch({index: 'kitteh'});
 
-es.query({query: {field: {field1: 'hai'}}}, function(err, results) {
-  console.log(results);
-});
-```
-
-```Javascript
 var config = {
 	// optional (defaults to undefined)
 	_index : 'kittehs',
@@ -39,18 +33,32 @@ var config = {
 	server : {
 		/*
 			Any configuration elements here are passed directly through
-			to http || https request
+			to http || https request, configure any keys to meet your need.
 		*/
+		agent : false, // optional
 		auth : '', // optional (defaults to undefined)
-		hostname : 'localhost',
+		host : 'localhost',
 		port : 9200,
 		rejectUnauthorized : true, // optional (defaults to true)
 		secure : false // optional (defaults to false)
 	}
 };
 
+var
+	es = elasticsearch(config),
+	cluster = es.cluster
+	core = es.core,
+	indices = es.indices;
 
-
+core.search({
+		query : {
+			field : {
+				animal : 'kitteh'
+			}
+		}
+	}, function (err, data) {
+		// work with data here
+	});
 ```
 
 

@@ -1,37 +1,37 @@
 {
-  "name": "elasticsearch",
-  "description": "API around the ElasticSearch RESTful API -- mostly convenience.",
-  "main": "index.js",
-  "version": "0.3.1",
-  "author": "Nick Campbell (http://github.com/ncb000gt)",
+  "name" : "elasticsearch",
+  "description" : "API around the ElasticSearch RESTful API -- mostly convenience.",
+  "main" : "index.js",
+  "version" : "0.3.1",
+  "author" : "Nick Campbell (http://github.com/ncb000gt)",
   "contributors" : [
     "Nick Campbell (http://github.com/ncb000gt)",
     "Gabriel Farrel (http://github.com/gsf)",
     "Richard Marr (http://github.com/richmarr)",
     "Joshua Thomas (http://github.com/brozeph)"],
-  "engines": {
-    "node": ">= 0.8.0"
+  "engines" : {
+    "node" : ">= 0.8.0"
   },
-  "keywords": [
+  "keywords" : [
     "elastic",
     "search",
     "elastic search",
     "elasticsearch",
     "lucene"
   ],
-  "repository": "git://github.com/ncb000gt/node-elasticsearch.git",
-  "license": "MIT",
-  "homepage": "http://github.com/ncb000gt/node-elasticsearch",
-  "bugs": "http://github.com/ncb000gt/node-elasticsearch/issues",
-  "devDependencies": {
+  "repository" : "git://github.com/ncb000gt/node-elasticsearch.git",
+  "license" : "MIT",
+  "homepage" : "http://github.com/ncb000gt/node-elasticsearch",
+  "bugs" : "http://github.com/ncb000gt/node-elasticsearch/issues",
+  "devDependencies" : {
     "chai" : "*",
     "jscoverage" : "*",
     "jshint" : "*",
     "mocha" : "*"
   },
-  "scripts": {
+  "scripts" : {
     "pretest" : "jshint *.js ./lib/*.js ./test/*.js ; jscoverage ./lib ./lib-cov",
-    "test": "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/lib",
+    "test" : "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/lib",
     "posttest" : "rm -rf ./reports ; mkdir -p ./reports ; NODE_ELASTICSEARCH_COVERAGE=true mocha -R html-cov -r ./test/common.js -u bdd ./test/lib > reports/coverage.html"
   }
 }

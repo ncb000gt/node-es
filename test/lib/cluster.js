@@ -32,7 +32,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_nodes/stats/indices/fielddata/breed');
+				data.options.path.should.equals('/_nodes/stats/indices/fielddata/breed');
 
 				done();
 			});
@@ -49,7 +49,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_nodes/stats/indices/fielddata/breed,name?os=true&process=true');
+				data.options.path.should.equals('/_nodes/stats/indices/fielddata/breed,name?os=true&process=true');
 
 				done();
 			});
@@ -71,7 +71,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/health');
+				data.options.path.should.equals('/_cluster/health');
 
 				done();
 			});
@@ -82,7 +82,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/health');
+				data.options.path.should.equals('/_cluster/health');
 
 				done();
 			});
@@ -95,7 +95,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_nodes/superman,batman/hot_threads');
+				data.options.path.should.equals('/_nodes/superman,batman/hot_threads');
 
 				done();
 			});
@@ -106,7 +106,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_nodes/hot_threads');
+				data.options.path.should.equals('/_nodes/hot_threads');
 
 				done();
 			});
@@ -119,7 +119,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes');
+				data.options.path.should.equals('/_cluster/nodes');
 
 				done();
 			});
@@ -130,7 +130,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes');
+				data.options.path.should.equals('/_cluster/nodes');
 
 				done();
 			});
@@ -145,7 +145,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/superman');
+				data.options.path.should.equals('/_cluster/nodes/superman');
 
 				done();
 			});
@@ -160,7 +160,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/superman,batman');
+				data.options.path.should.equals('/_cluster/nodes/superman,batman');
 
 				done();
 			});
@@ -172,7 +172,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/batman');
+				data.options.path.should.equals('/_cluster/nodes/batman');
 
 				delete defaultOptions.node;
 
@@ -186,7 +186,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/superman,batman');
+				data.options.path.should.equals('/_cluster/nodes/superman,batman');
 
 				delete defaultOptions.nodes;
 
@@ -201,7 +201,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/stats');
+				data.options.path.should.equals('/_cluster/nodes/stats');
 
 				done();
 			});
@@ -212,7 +212,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/stats');
+				data.options.path.should.equals('/_cluster/nodes/stats');
 
 				done();
 			});
@@ -227,7 +227,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/nodes/superman/stats');
+				data.options.path.should.equals('/_cluster/nodes/superman/stats');
 
 				done();
 			});
@@ -251,7 +251,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_cluster/reroute?dry_run=true');
+				data.options.path.should.equals('/_cluster/reroute?dry_run=true');
 
 				done();
 			});
@@ -262,7 +262,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_cluster/reroute');
+				data.options.path.should.equals('/_cluster/reroute');
 
 				done();
 			});
@@ -276,7 +276,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/settings');
+				data.options.path.should.equals('/_cluster/settings');
 
 				done();
 			});
@@ -287,7 +287,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/settings');
+				data.options.path.should.equals('/_cluster/settings');
 
 				done();
 			});
@@ -300,7 +300,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_cluster/nodes/_shutdown?delay=10s');
+				data.options.path.should.equals('/_cluster/nodes/_shutdown?delay=10s');
 
 				done();
 			});
@@ -311,7 +311,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_cluster/nodes/_master/_shutdown');
+				data.options.path.should.equals('/_cluster/nodes/_master/_shutdown');
 
 				done();
 			});
@@ -322,7 +322,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
-				data.options.path.should.equals('_cluster/nodes/_shutdown');
+				data.options.path.should.equals('/_cluster/nodes/_shutdown');
 
 				done();
 			});
@@ -335,7 +335,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/state?filter_nodes=true');
+				data.options.path.should.equals('/_cluster/state?filter_nodes=true');
 
 				done();
 			});
@@ -346,7 +346,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('_cluster/state');
+				data.options.path.should.equals('/_cluster/state');
 
 				done();
 			});
@@ -365,7 +365,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('_cluster/settings');
+				data.options.path.should.equals('/_cluster/settings');
 
 				done();
 			});
@@ -376,7 +376,7 @@ describe('cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('_cluster/settings');
+				data.options.path.should.equals('/_cluster/settings');
 
 				done();
 			});
