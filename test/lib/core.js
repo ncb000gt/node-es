@@ -524,6 +524,47 @@ describe('core', function () {
 		});
 	});
 
+	describe('#moreLikeThis', function () {
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			core.moreLikeThis({}, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
+			delete defaultOptions._type;
+			core.moreLikeThis({}, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require id', function (done) {
+			core.moreLikeThis(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', function (done) {
+			core.moreLikeThis({ _id : 1 }, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh/1/_mlt');
+				data.options.method.should.equals('GET');
+
+				done();
+			});
+		});
+	});
+
 	describe('#multiGet', function () {
 		var docs = [{
 			_id : 1,
