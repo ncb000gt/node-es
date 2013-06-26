@@ -234,6 +234,41 @@ describe('cluster', function () {
 		});
 	});
 
+	describe('#shutdown', function () {
+		it('should properly reflect method and path when called', function (done) {
+			cluster.shutdown({ delay : '10s' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_cluster/nodes/_shutdown?delay=10s');
+
+				done();
+			});
+		});
+
+		it('should properly target nodes when specified', function (done) {
+			cluster.shutdown({ node : '_master' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_cluster/nodes/_master/_shutdown');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.shutdown(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_cluster/nodes/_shutdown');
+
+				done();
+			});
+		});
+	});
+
 	describe('#state', function () {
 		it('should properly reflect method and path when called', function (done) {
 			cluster.state({ filter_nodes : true }, function (err, data) {

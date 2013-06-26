@@ -67,12 +67,22 @@ req.head = function (options, data, callback) {
 req.post = function (options, data, callback) {
 	'use strict';
 
+	if (!callback && typeof data === 'function') {
+		callback = data;
+		data = null;
+	}
+
 	stubMethod('POST', options, data, callback);
 };
 
 
 req.put = function (options, data, callback) {
 	'use strict';
+
+	if (!callback && typeof data === 'function') {
+		callback = data;
+		data = null;
+	}
 
 	stubMethod('PUT', options, data, callback);
 };
