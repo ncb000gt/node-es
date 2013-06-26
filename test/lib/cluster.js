@@ -22,6 +22,49 @@ describe('cluster', function () {
 		cluster = clusterLib(defaultOptions, req);
 	});
 
+	describe('#fieldStats', function () {
+		it('should allow field', function (done) {
+			var options = {
+				field : 'breed'
+			};
+
+			cluster.fieldStats(options, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_nodes/stats/indices/fielddata/breed');
+
+				done();
+			});
+		});
+
+		it('should allow field to an array', function (done) {
+			var options = {
+				fields : ['breed', 'name'],
+				os : true,
+				process : true
+			};
+
+			cluster.fieldStats(options, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_nodes/stats/indices/fielddata/breed,name?os=true&process=true');
+
+				done();
+			});
+		});
+
+		it('should require field to be present', function (done) {
+			cluster.fieldStats(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+	});
+
 	describe('#health', function () {
 		it('should properly reflect method and path when called', function (done) {
 			cluster.health({}, function (err, data) {
