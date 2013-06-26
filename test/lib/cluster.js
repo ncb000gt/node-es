@@ -45,4 +45,28 @@ describe('cluster', function () {
 			});
 		});
 	});
+
+	describe('#state', function () {
+		it('should properly reflect method and path when called', function (done) {
+			cluster.state({ filter_nodes : true }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/state?filter_nodes=true');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.state(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/state');
+
+				done();
+			});
+		});
+	});
 });
