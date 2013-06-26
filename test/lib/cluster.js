@@ -89,6 +89,30 @@ describe('cluster', function () {
 		});
 	});
 
+	describe('#hotThreads', function () {
+		it('should properly reflect method and path when called', function (done) {
+			cluster.hotThreads({ nodes : ['superman', 'batman'] }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_nodes/superman,batman/hot_threads');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.hotThreads(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_nodes/hot_threads');
+
+				done();
+			});
+		});
+	});
+
 	describe('#nodeInfo', function () {
 		it('should properly reflect method and path when called', function (done) {
 			cluster.nodeInfo({}, function (err, data) {
@@ -209,6 +233,42 @@ describe('cluster', function () {
 			});
 		});
 	});
+
+	describe('#reroute', function () {
+		var commands = {
+			commands : [{
+				move : {
+					index : 'test',
+					shard : 0,
+					from_node : 'node1',
+					to_node : 'node2'
+				}
+			}]
+		};
+
+		it('should properly reflect method and path when called', function (done) {
+			cluster.reroute({ dry_run : true }, commands, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_cluster/reroute?dry_run=true');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.reroute(commands, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('_cluster/reroute');
+
+				done();
+			});
+		});
+	});
+
 
 	describe('#settings', function () {
 		it('should properly reflect method and path when called', function (done) {
