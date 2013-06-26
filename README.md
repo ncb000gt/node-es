@@ -1,21 +1,26 @@
-node-elasticsearch
-==================
+# node-elasticsearch
 
 This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) REST API.
 
 [![Build Status](https://travis-ci.org/ncb000gt/node-elasticsearch.png)](https://travis-ci.org/ncb000gt/node-elasticsearch)
 
-IN PROGRESS
-===========
+## Development In Progress
 
 Working in a remote branch to add support for ES 0.90.1 API: <http://www.elasticsearch.org/guide/reference/api/>
 
+* Core - 100%
+* Indices - 0%
+* Cluster - 100%
 
+## Install
 
-Usage
-=====
+```Javascript
+npm install elasticsearch
+```
 
-```js
+## Usage
+
+```Javascript
 var elasticsearch = require('elasticsearch');
 var es = elasticsearch({index: 'kitteh'});
 
@@ -24,11 +29,94 @@ es.query({query: {field: {field1: 'hai'}}}, function(err, results) {
 });
 ```
 
+```Javascript
+var config = {
+	// optional (defaults to undefined)
+	_index : 'kittehs',
+	// optional (defaults to undefined)
+	_type : 'house',
+	// optional (defaults to localhost:9200)
+	server : {
+		/*
+			Any configuration elements here are passed directly through
+			to http || https request
+		*/
+		auth : '', // optional (defaults to undefined)
+		hostname : 'localhost',
+		port : 9200,
+		rejectUnauthorized : true, // optional (defaults to true)
+		secure : false // optional (defaults to false)
+	}
+};
 
-API
-===
 
-Unless otherwise stated, all callbacks are called with `cb(err, res)`, with `res` being the parsed JSON response from elasticsearch.
+
+```
+
+
+## API
+
+Unless otherwise stated, all callback signatures are `function (err, data)`, with `data` being the parsed JSON response from elasticsearch.
+
+### Core
+
+For more specifics and details regarding the core API for ElasticSearch, please refer to the documentation at <http://www.elasticsearch.org/guide/reference/api/>.
+
+#### Bulk
+
+#### Count
+
+#### Delete
+
+#### Delete By Query
+
+#### Exists
+
+#### Explain
+
+#### Get
+
+#### Index
+
+#### More Like This
+
+#### Multi Get
+
+#### Multi Search
+
+#### Percolate
+
+#### Search
+
+#### Update
+
+#### Validate
+
+
+### Indices
+
+
+
+### Cluster
+
+#### Health
+
+#### Hot Threads
+
+#### Node Info
+
+#### Node Status
+
+#### Reroute
+
+#### Settings
+
+#### Shutdown
+
+#### State
+
+#### Update Settings
+
 
 elasticsearch(opts)
 -------------------
@@ -169,24 +257,21 @@ Get health of the cluster. Maps to *GET _cluster/health*.
 Options map to query parameters.
 
 
-Testing
-=======
+# Testing
 
-```
+Note that a test coverage report is generated when running `npm test` located at `./reports/coverage.html`. Code coverage data generated from npm test is located in `./lib-cov` and is not included in the git repo.
+
+```Javascript
 npm install
 npm test
 ```
 
-
-Requirements
-============
+# Requirements
 
 * Node.js
 * elasticsearch
 * The need for search
 
-
-License
-=======
+# License
 
 MIT
