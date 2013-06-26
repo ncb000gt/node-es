@@ -46,6 +46,88 @@ describe('cluster', function () {
 		});
 	});
 
+	describe('#nodeInfo', function () {
+		it('should properly reflect method and path when called', function (done) {
+			cluster.nodeInfo({}, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.nodeInfo(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes');
+
+				done();
+			});
+		});
+
+		it('should reflect a single node when requested', function (done) {
+			var options = {
+				node : 'superman'
+			};
+
+			cluster.nodeInfo(options, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/superman');
+
+				done();
+			});
+		});
+
+		it('should reflect multiple nodes when requested', function (done) {
+			var options = {
+				nodes : ['superman', 'batman']
+			};
+
+			cluster.nodeInfo(options, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/superman,batman');
+
+				done();
+			});
+		});
+
+		it('should support node when indicated in default config', function (done) {
+			defaultOptions.node = 'batman';
+			cluster.nodeInfo(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/batman');
+
+				delete defaultOptions.node;
+
+				done();
+			});
+		});
+
+		it('should also support nodes when indicated in default config', function (done) {
+			defaultOptions.nodes = ['superman', 'batman'];
+			cluster.nodeInfo(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/superman,batman');
+
+				delete defaultOptions.nodes;
+
+				done();
+			});
+		});
+	});
+
 	describe('#settings', function () {
 		it('should properly reflect method and path when called', function (done) {
 			cluster.settings({}, function (err, data) {
