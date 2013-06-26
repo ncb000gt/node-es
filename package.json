@@ -10,7 +10,7 @@
     "Richard Marr (http://github.com/richmarr)",
     "Joshua Thomas (http://github.com/brozeph)"],
   "engines": {
-    "node": ">= 0.6.0"
+    "node": ">= 0.8.0"
   },
   "keywords": [
     "elastic",
