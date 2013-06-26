@@ -46,6 +46,30 @@ describe('cluster', function () {
 		});
 	});
 
+	describe('#settings', function () {
+		it('should properly reflect method and path when called', function (done) {
+			cluster.settings({}, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/settings');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.settings(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/settings');
+
+				done();
+			});
+		});
+	});
+
 	describe('#state', function () {
 		it('should properly reflect method and path when called', function (done) {
 			cluster.state({ filter_nodes : true }, function (err, data) {
@@ -64,6 +88,36 @@ describe('cluster', function () {
 				should.exist(data);
 				data.options.method.should.equals('GET');
 				data.options.path.should.equals('_cluster/state');
+
+				done();
+			});
+		});
+	});
+
+	describe('#updateSettings', function () {
+		var update = {
+			transient : {
+				'discovery.zen.minimum_master_nodes' : 2
+			}
+		};
+
+		it('should properly reflect method and path when called', function (done) {
+			cluster.updateSettings({}, update, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('_cluster/settings');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.updateSettings(update, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('_cluster/settings');
 
 				done();
 			});
