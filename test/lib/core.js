@@ -39,14 +39,26 @@ describe('core', function () {
 		};
 
 		req = {
-			delete : function (options, callback) {
-				stubMethod('DELETE', options, null, callback);
+			delete : function (options, data, callback) {
+				if (!callback && typeof data === 'function') {
+					callback = data;
+					data = null;
+				}
+				stubMethod('DELETE', options, data, callback);
 			},
-			get : function (options, callback) {
-				stubMethod('GET', options, null, callback);
+			get : function (options, data, callback) {
+				if (!callback && typeof data === 'function') {
+					callback = data;
+					data = null;
+				}
+				stubMethod('GET', options, data, callback);
 			},
-			head : function (options, callback) {
-				stubMethod('HEAD', options, null, callback);
+			head : function (options, data, callback) {
+				if (!callback && typeof data === 'function') {
+					callback = data;
+					data = null;
+				}
+				stubMethod('HEAD', options, data, callback);
 			},
 			post : function (options, data, callback) {
 				stubMethod('POST', options, data, callback);
@@ -284,6 +296,45 @@ describe('core', function () {
 		it('should treat options as optional', function (done) {
 			core.delete(function(err, data) {
 				should.not.exist(err);
+				data.options.method.should.equals('DELETE');
+
+				done();
+			});
+		});
+	});
+
+	describe('#deleteByQuery', function () {
+		var query = {
+			query : {
+				term : { tag : 'indoor' }
+			}
+		};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			core.deleteByQuery({}, query, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method', function (done) {
+			core.deleteByQuery(query, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh/_query');
+				data.options.method.should.equals('DELETE');
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when type is not supplied', function (done) {
+			delete defaultOptions._type;
+			core.deleteByQuery(query, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/_query');
 				data.options.method.should.equals('DELETE');
 
 				done();
