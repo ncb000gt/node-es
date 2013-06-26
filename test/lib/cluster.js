@@ -128,6 +128,45 @@ describe('cluster', function () {
 		});
 	});
 
+	describe('#nodeStats', function () {
+		it('should properly reflect method and path when called', function (done) {
+			cluster.nodeStats({}, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/stats');
+
+				done();
+			});
+		});
+
+		it('options should be optional', function (done) {
+			cluster.nodeStats(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/stats');
+
+				done();
+			});
+		});
+
+		it('should reflect a node when requested', function (done) {
+			var options = {
+				node : 'superman'
+			};
+
+			cluster.nodeStats(options, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('_cluster/nodes/superman/stats');
+
+				done();
+			});
+		});
+	});
+
 	describe('#settings', function () {
 		it('should properly reflect method and path when called', function (done) {
 			cluster.settings({}, function (err, data) {
