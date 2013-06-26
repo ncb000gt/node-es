@@ -385,6 +385,55 @@ describe('core', function () {
 		});
 	});
 
+	describe('#explain', function () {
+		var query = {
+			query : {
+				field : {
+					breed : 'manx'
+				}
+			}
+		};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			core.explain({}, query, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
+			delete defaultOptions._type;
+			core.explain({}, query, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require id', function (done) {
+			core.explain(query, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', function (done) {
+			core.explain({ _id : 1 }, query, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('dieties/kitteh/1/_explain');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+	});
+
 	describe('#get', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
