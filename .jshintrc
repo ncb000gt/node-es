@@ -24,6 +24,8 @@
 		"before" : true,
 		"describe" : true,
 		"it" : true,
+		"req" : true,
+		"requestError" : true,
 		"requireWithCoverage" : true,
 		"should" : true
 	}

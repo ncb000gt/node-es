@@ -2,25 +2,10 @@ var coreLib = requireWithCoverage('core');
 
 
 describe('core', function () {
-
-	var stubMethod = function (method, options, data, callback) {
-		options.method = method;
-		if (requestError) {
-			return callback(requestError);
-		}
-
-		return callback(null, {
-				inputData : data,
-				options : options
-			});
-	}
-
 	var
 		core,
 		defaultOptions,
-		doc,
-		req,
-		requestError;
+		doc;
 
 	beforeEach(function () {
 		defaultOptions = {
@@ -36,36 +21,6 @@ describe('core', function () {
 		doc = {
 			breed : 'manx',
 			color : 'tortoise'
-		};
-
-		req = {
-			delete : function (options, data, callback) {
-				if (!callback && typeof data === 'function') {
-					callback = data;
-					data = null;
-				}
-				stubMethod('DELETE', options, data, callback);
-			},
-			get : function (options, data, callback) {
-				if (!callback && typeof data === 'function') {
-					callback = data;
-					data = null;
-				}
-				stubMethod('GET', options, data, callback);
-			},
-			head : function (options, data, callback) {
-				if (!callback && typeof data === 'function') {
-					callback = data;
-					data = null;
-				}
-				stubMethod('HEAD', options, data, callback);
-			},
-			post : function (options, data, callback) {
-				stubMethod('POST', options, data, callback);
-			},
-			put : function (options, data, callback) {
-				stubMethod('PUT', options, data, callback);
-			}
 		};
 
 		requestError = null;
