@@ -58,6 +58,7 @@ core.search({
 		}
 	}, function (err, data) {
 		// work with data here
+		// response data is according to ElasticSearch spec
 	});
 ```
 
@@ -71,6 +72,25 @@ Unless otherwise stated, all callback signatures are `function (err, data)`, wit
 For more specifics and details regarding the core API for ElasticSearch, please refer to the documentation at <http://www.elasticsearch.org/guide/reference/api/>.
 
 #### Bulk
+
+```Javascript
+var
+	elasticsearch = require('elasticsearch');
+	core = elasticsearch().core;
+
+var commands = [
+	{ index : { _index : 'dieties', _type : 'kitteh' } },
+	{ name : 'hamish', breed : 'manx', color : 'tortoise' },
+	{ index : { _index : 'dieties', _type : 'kitteh' } },
+	{ name : 'dugald', breed : 'siamese', color : 'white' },
+	{ index : { _index : 'dieties', _type : 'kitteh' } },
+	{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+];
+
+core.bulk(commands, function (err, data) {
+	// teh datas
+});
+```
 
 #### Count
 
