@@ -61,6 +61,76 @@ describe('core', function () {
 		core = coreLib(defaultOptions, req);
 	});
 
+	describe('_index and _type syntax', function () {
+		var query = {
+			query : {
+				breed : 'manx'
+			}
+		};
+
+		it('should favor _indices over _index', function (done) {
+			var options = {
+				_indices : ['dieties', 'hellions']
+			}
+			core.search(options, query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties,hellions/kitteh/_search');
+
+				done();
+			});
+		});
+
+		it('should favor _types over _type', function (done) {
+			var options = {
+				_types : ['kitteh', 'squirrel']
+			}
+			core.search(options, query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh,squirrel/_search');
+
+				done();
+			});
+		});
+
+		it('should favor _indices over _index in defaultConfig if supplied', function (done) {
+			defaultOptions._indices = ['dieties', 'hellions'];
+			core.search(query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties,hellions/kitteh/_search');
+
+				delete defaultOptions._indices;
+
+				done();
+			});
+		});
+
+		it('should favor _types over _type in defaultConfig if supplied', function (done) {
+			defaultOptions._types = ['kitteh', 'squirrel'];
+			core.search(query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh,squirrel/_search');
+
+				delete defaultOptions._types;
+
+				done();
+			});
+		});
+
+		it('should allow _types and _indices when requiring _type and _index', function (done) {
+			core.get({ _id : 1, _types : ['kitteh', 'squirrel'], _source : true }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('dieties/kitteh,squirrel/1/_source');
+
+				done();
+			});
+		});
+	});
+
 	describe('#bulk', function () {
 		var commands = [
 			{ index : { _index : 'dieties', _type : 'kitteh' } },
