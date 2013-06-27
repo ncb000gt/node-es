@@ -638,6 +638,31 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#segments', function () {
+		it('should have proper path and method when index is omitted', function (done) {
+			delete defaultOptions._index;
+			indices.segments(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/_segments');
+
+				done();
+			});
+		});
+
+		it('should have proper path and method', function (done) {
+			indices.segments({ recovery : true }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/dieties/_segments');
+
+				done();
+			});
+		});
+	});
+
 	describe('#settings', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
