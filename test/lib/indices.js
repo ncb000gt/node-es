@@ -686,6 +686,32 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#stats', function () {
+		it('should have proper index and path when index and type are omitted', function (done) {
+			delete defaultOptions._index;
+			delete defaultOptions._type;
+			indices.stats(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/_stats');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.stats({ _indices : ['dieties', 'devils'], indexing : true, clear : true }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/dieties,devils/_stats/kitteh?indexing=true&clear=true');
+
+				done();
+			});
+		});
+	});
+
 	describe('#templates', function () {
 		it('should require name', function (done) {
 			indices.templates(function (err, data) {
