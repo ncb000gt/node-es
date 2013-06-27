@@ -249,6 +249,39 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#deleteMapping', function () {
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.deleteMapping(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
+			delete defaultOptions._type;
+			indices.deleteMapping(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path when type is supplied', function (done) {
+			indices.deleteMapping({ _indices : ['dieties', 'devils'] }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('DELETE');
+				data.options.path.should.equals('/dieties,devils/kitteh');
+
+				done();
+			});
+		});
+	});
+
 	describe('#getAliases', function () {
 		it('should require alias to retrieve alias details', function (done) {
 			indices.getAliases(function (err, data) {
