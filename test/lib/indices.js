@@ -546,4 +546,35 @@ describe('indices', function () {
 			});
 		});
 	});
+
+	describe('#updateSettings', function () {
+		var settings = {
+			index : {
+				number_of_replicas : 4
+			}
+		};
+
+		it('should have proper method and path when index is not supplied', function (done) {
+			delete defaultOptions._index;
+			indices.updateSettings(settings, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('/_settings');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.updateSettings({ _index : 'kitteh' }, settings, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('/kitteh/_settings');
+
+				done();
+			});
+		});
+	});
 });
