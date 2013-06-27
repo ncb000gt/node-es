@@ -461,6 +461,16 @@ describe('indices', function () {
 				done();
 			});
 		});
+
+		it('should properly capture error', function (done) {
+			requestError = new Error('throw me like a frisbee');
+			indices.exists(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
 	});
 
 	describe('#flush', function () {
