@@ -4,14 +4,6 @@ This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) 
 
 [![Build Status](https://travis-ci.org/ncb000gt/node-elasticsearch.png)](https://travis-ci.org/ncb000gt/node-elasticsearch)
 
-## Development In Progress
-
-Working in a remote branch to add support for ES 0.90.1 API: <http://www.elasticsearch.org/guide/reference/api/>
-
-* Core - 100%
-* Indices - 68%
-* Cluster - 100%
-
 ## Install
 
 ```Javascript
