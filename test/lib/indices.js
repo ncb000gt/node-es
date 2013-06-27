@@ -310,4 +310,27 @@ describe('indices', function () {
 			});
 		});
 	});
+
+	describe('#settings', function () {
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.settings(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.settings({ _index : 'kitteh' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/kitteh/_settings');
+
+				done();
+			});
+		});
+	});
 });
