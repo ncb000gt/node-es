@@ -737,6 +737,25 @@ describe('core', function () {
 		});
 	});
 
+	describe('#query', function () {
+		var query = {
+			query : {
+				breed : 'manx'
+			}
+		};
+
+		it('should do what .search does (backwards compat check)', function (done) {
+			core.query(query, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('/dieties/kitteh/_search');
+				data.options.method.should.equals('GET');
+
+				done();
+			});
+		});
+	});
+
 	describe('#registerPercolator', function () {
 		var query = {
 			query : {

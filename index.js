@@ -25,13 +25,22 @@ function createClient (options) {
 		}
 	});
 
+	// backwards compatibility helper... remaps 'index' to '_index'
+	if (options.index) {
+		options._index = options.index;
+		delete options.index;
+	}
+
 	var req = request.initialize(options.server);
 
 	// this is breaking from v0.2.x
 	return {
 		core : core(options, req),
 		cluster : cluster(options, req),
-		indices : indices(options, req)
+		indices : indices(options, req),
+
+		// backwards compatibility helper
+		index : indices
 	};
 }
 
