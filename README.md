@@ -19,9 +19,17 @@ var elasticsearch = require('elasticsearch');
 var config = {
 	// optional (defaults to undefined)
 	_index : 'kittehs',
+
 	// optional (defaults to undefined)
 	_type : 'house',
-	// optional (defaults to localhost:9200)
+
+	/*
+		optional - when not supplied, defaults to the following:
+			server : {
+				host : 'localhost',
+				port : 9200
+			}
+	*/
 	server : {
 		/*
 			Any configuration elements here are passed directly through
