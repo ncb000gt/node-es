@@ -2,7 +2,7 @@
 
 This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) REST API.
 
-[![Build Status](https://travis-ci.org/ncb000gt/node-elasticsearch.png)](https://travis-ci.org/ncb000gt/node-elasticsearch) [!https://coveralls.io/repos/ncb000gt/node-elasticsearch/badge.png?branch=v0.3.1(Coverage Status)!:https://coveralls.io/r/ncb000gt/node-elasticsearch?branch=v0.3.1
+[![Build Status](https://travis-ci.org/ncb000gt/node-elasticsearch.png)](https://travis-ci.org/ncb000gt/node-elasticsearch) [!https://coveralls.io/repos/ncb000gt/node-elasticsearch/badge.png?branch=v0.3.1(Coverage Status)!:https://coveralls.io/r/ncb000gt/node-elasticsearch?branch=v0.3.1]
 
 ## Install
 
