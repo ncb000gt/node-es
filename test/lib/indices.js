@@ -189,6 +189,36 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#createTemplate', function () {
+		var template = {
+			template : '*',
+			settings : {
+				number_of_shards : 3,
+				number_of_replicas : 2
+			}
+		};
+
+		it('should require name', function (done) {
+			indices.createTemplate(template, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.createTemplate({ name : 'cat' }, template, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('/_template/cat');
+
+				done();
+			});
+		});
+	});
+
 	describe('#deleteAlias', function () {
 		it('should require alias', function (done) {
 			indices.deleteAlias(function (err, data) {
@@ -226,7 +256,7 @@ describe('indices', function () {
 		});
 	});
 
-	describe('#deleteAlias', function () {
+	describe('#deleteIndex', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
 			indices.deleteIndex(function (err, data) {
@@ -276,6 +306,28 @@ describe('indices', function () {
 				should.exist(data);
 				data.options.method.should.equals('DELETE');
 				data.options.path.should.equals('/dieties,devils/kitteh');
+
+				done();
+			});
+		});
+	});
+
+	describe('#deleteTemplate', function () {
+		it('should require name', function (done) {
+			indices.deleteTemplate(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper path and method', function (done) {
+			indices.deleteTemplate({ name : 'cat' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('DELETE');
+				data.options.path.should.equals('/_template/cat');
 
 				done();
 			});
@@ -541,6 +593,28 @@ describe('indices', function () {
 				should.exist(data);
 				data.options.method.should.equals('POST');
 				data.options.path.should.equals('/dieties,devils/_gateway/snapshot');
+
+				done();
+			});
+		});
+	});
+
+	describe('#templates', function () {
+		it('should require name', function (done) {
+			indices.templates(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper path and method', function (done) {
+			indices.templates({ name : 'cat' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/_template/cat');
 
 				done();
 			});
