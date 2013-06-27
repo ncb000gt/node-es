@@ -23,7 +23,7 @@ describe('indices', function () {
 	});
 
 	describe('#alias', function () {
-		var data = {
+		var commands = {
 			actions : [{
 				add : {
 					index : 'kitteh',
@@ -33,7 +33,7 @@ describe('indices', function () {
 		};
 
 		it('should have proper path and method for creating aliases', function (done) {
-			indices.alias(data, function (err, data) {
+			indices.alias(commands, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
@@ -49,7 +49,7 @@ describe('indices', function () {
 				alias : 'cat'
 			};
 
-			indices.alias(options, data, function (err, data) {
+			indices.alias(options, commands, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
@@ -104,17 +104,10 @@ describe('indices', function () {
 		});
 	});
 
-	describe('#createIndex', function () {
-		var data = {
-			settings : {
-				number_of_shards : 3,
-				number_of_replicas : 2
-			}
-		};
-
+	describe('#closeIndex', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
-			indices.createIndex(data, function (err, data) {
+			indices.closeIndex(function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -123,7 +116,37 @@ describe('indices', function () {
 		});
 
 		it('should have proper method and path', function (done) {
-			indices.createIndex({ _index : 'kitteh' }, data, function (err, data) {
+			indices.closeIndex({ _index : 'kitteh' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/kitteh/_close');
+
+				done();
+			});
+		});
+	});
+
+	describe('#createIndex', function () {
+		var settings = {
+			settings : {
+				number_of_shards : 3,
+				number_of_replicas : 2
+			}
+		};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.createIndex(settings, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.createIndex({ _index : 'kitteh' }, settings, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
@@ -145,7 +168,7 @@ describe('indices', function () {
 		});
 
 		it('should support creating a mapping during index create', function (done) {
-			data.mappings = {
+			settings.mappings = {
 				kitteh : {
 					_source : { enabled : true },
 					properties : {
@@ -155,7 +178,7 @@ describe('indices', function () {
 				}
 			};
 
-			indices.createIndex(data, function (err, data) {
+			indices.createIndex(settings, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('POST');
@@ -259,6 +282,29 @@ describe('indices', function () {
 				should.exist(data);
 				data.options.method.should.equals('GET');
 				data.options.path.should.equals('/devils,dieties/_alias/cat');
+
+				done();
+			});
+		});
+	});
+
+	describe('#openIndex', function () {
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.openIndex(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.openIndex({ _index : 'kitteh' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/kitteh/_open');
 
 				done();
 			});
