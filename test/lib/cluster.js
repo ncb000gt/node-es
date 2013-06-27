@@ -113,9 +113,9 @@ describe('cluster', function () {
 		});
 	});
 
-	describe('#nodeInfo', function () {
+	describe('#nodesInfo', function () {
 		it('should properly reflect method and path when called', function (done) {
-			cluster.nodeInfo({}, function (err, data) {
+			cluster.nodesInfo({}, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -126,7 +126,7 @@ describe('cluster', function () {
 		});
 
 		it('options should be optional', function (done) {
-			cluster.nodeInfo(function (err, data) {
+			cluster.nodesInfo(function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -141,7 +141,7 @@ describe('cluster', function () {
 				node : 'superman'
 			};
 
-			cluster.nodeInfo(options, function (err, data) {
+			cluster.nodesInfo(options, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -156,7 +156,7 @@ describe('cluster', function () {
 				nodes : ['superman', 'batman']
 			};
 
-			cluster.nodeInfo(options, function (err, data) {
+			cluster.nodesInfo(options, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -168,7 +168,7 @@ describe('cluster', function () {
 
 		it('should support node when indicated in default config', function (done) {
 			defaultOptions.node = 'batman';
-			cluster.nodeInfo(function (err, data) {
+			cluster.nodesInfo(function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -182,7 +182,7 @@ describe('cluster', function () {
 
 		it('should also support nodes when indicated in default config', function (done) {
 			defaultOptions.nodes = ['superman', 'batman'];
-			cluster.nodeInfo(function (err, data) {
+			cluster.nodesInfo(function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -195,9 +195,9 @@ describe('cluster', function () {
 		});
 	});
 
-	describe('#nodeStats', function () {
+	describe('#nodesStats', function () {
 		it('should properly reflect method and path when called', function (done) {
-			cluster.nodeStats({}, function (err, data) {
+			cluster.nodesStats({}, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -208,7 +208,7 @@ describe('cluster', function () {
 		});
 
 		it('options should be optional', function (done) {
-			cluster.nodeStats(function (err, data) {
+			cluster.nodesStats(function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
@@ -223,7 +223,7 @@ describe('cluster', function () {
 				node : 'superman'
 			};
 
-			cluster.nodeStats(options, function (err, data) {
+			cluster.nodesStats(options, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
