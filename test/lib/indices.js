@@ -288,6 +288,43 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#getMapping', function () {
+		it('should have proper method and path without index', function (done) {
+			delete defaultOptions._index;
+			indices.getMapping(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/_mapping');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			delete defaultOptions._type;
+			indices.getMapping(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/dieties/_mapping');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path when type is supplied', function (done) {
+			indices.getMapping({ _index : 'kitteh', _types : ['evil', 'kind'] }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/kitteh/evil,kind/_mapping');
+
+				done();
+			});
+		});
+	});
+
 	describe('#openIndex', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
