@@ -4,6 +4,8 @@ var
 	indices = require('./lib/indices'),
 	request = require('./lib/request'),
 
+	// defaults applied to request if
+	// not supplied on instantiation
 	defaults = {
 		server : {
 			host : 'localhost',
@@ -25,6 +27,7 @@ function createClient (options) {
 
 	var req = request.initialize(options.server);
 
+	// this is breaking from v0.2.x
 	return {
 		core : core(options, req),
 		cluster : cluster(options, req),
