@@ -424,6 +424,31 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#refresh', function () {
+		it('should have proper index and path when index is omitted', function (done) {
+			delete defaultOptions._index;
+			indices.refresh(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/_refresh');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.refresh({ _indices : ['dieties', 'devils'] }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/dieties,devils/_refresh');
+
+				done();
+			});
+		});
+	});
+
 	describe('#settings', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
