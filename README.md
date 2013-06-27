@@ -35,12 +35,11 @@ var config = {
 			Any configuration elements here are passed directly through
 			to http || https request, configure any keys to meet your need.
 		*/
-		agent : false, // optional
-		auth : '', // optional (defaults to undefined)
+		agent : false,
+		auth : 'user:pass',
 		host : 'localhost',
 		port : 9200,
-		rejectUnauthorized : true, // optional (defaults to true)
-		secure : false // optional (defaults to false)
+		secure : false // toggles between https and http
 	}
 };
 

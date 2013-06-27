@@ -203,6 +203,29 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#deleteAlias', function () {
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.deleteIndex(function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper path and method', function (done) {
+			indices.deleteIndex(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('DELETE');
+				data.options.path.should.equals('/dieties');
+
+				done();
+			});
+		});
+	});
+
 	describe('#getAliases', function () {
 		it('should require alias to retrieve alias details', function (done) {
 			indices.getAliases(function (err, data) {
