@@ -104,6 +104,68 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#createIndex', function () {
+		var data = {
+			settings : {
+				number_of_shards : 3,
+				number_of_replicas : 2
+			}
+		};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.createIndex(data, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.createIndex({ _index : 'kitteh' }, data, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('/kitteh');
+
+				done();
+			});
+		});
+
+		it('should allow data and options to be optional', function (done) {
+			indices.createIndex(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('/dieties');
+
+				done();
+			});
+		});
+
+		it('should support creating a mapping during index create', function (done) {
+			data.mappings = {
+				kitteh : {
+					_source : { enabled : true },
+					properties : {
+						breed : { type : 'string' },
+						name : { type : 'string' }
+					}
+				}
+			};
+
+			indices.createIndex(data, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/dieties');
+
+				done();
+			});
+		});
+	});
+
 	describe('#deleteAlias', function () {
 		it('should require alias', function (done) {
 			indices.deleteAlias(function (err, data) {
