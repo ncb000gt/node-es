@@ -712,6 +712,31 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#status', function () {
+		it('should have proper path and method when index is omitted', function (done) {
+			delete defaultOptions._index;
+			indices.status(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/_status');
+
+				done();
+			});
+		});
+
+		it('should have proper path and method', function (done) {
+			indices.status({ recovery : true }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/dieties/_status?recovery=true');
+
+				done();
+			});
+		});
+	});
+
 	describe('#templates', function () {
 		it('should require name', function (done) {
 			indices.templates(function (err, data) {
