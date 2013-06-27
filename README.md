@@ -9,7 +9,7 @@ This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) 
 Working in a remote branch to add support for ES 0.90.1 API: <http://www.elasticsearch.org/guide/reference/api/>
 
 * Core - 100%
-* Indices - 0%
+* Indices - 68%
 * Cluster - 100%
 
 ## Install
