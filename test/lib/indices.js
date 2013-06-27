@@ -430,6 +430,39 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#exists', function () {
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.exists({}, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path when type is omitted', function (done) {
+			delete defaultOptions._type;
+			indices.exists(function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('/dieties');
+				data.options.method.should.equals('HEAD');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.exists({ _types : ['kitteh', 'cat'] }, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('/dieties/kitteh,cat');
+				data.options.method.should.equals('HEAD');
+
+				done();
+			});
+		});
+	});
+
 	describe('#flush', function () {
 		it('should have proper index and path when index is omitted', function (done) {
 			delete defaultOptions._index;
