@@ -143,6 +143,31 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#clearCache', function () {
+		it('should have proper index and path when index is omitted', function (done) {
+			delete defaultOptions._index;
+			indices.clearCache(function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/_cache/clear');
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', function (done) {
+			indices.clearCache({ _indices : ['dieties', 'devils'], bloom : true }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/dieties,devils/_cache/clear?bloom=true');
+
+				done();
+			});
+		});
+	});
+
 	describe('#closeIndex', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
