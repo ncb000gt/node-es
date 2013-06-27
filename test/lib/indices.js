@@ -348,6 +348,49 @@ describe('indices', function () {
 		});
 	});
 
+	describe('#putMapping', function () {
+		var mapping = {
+			kitteh : {
+				_source : { enabled : true },
+				properties : {
+					breed : { type : 'string' },
+					name : { type : 'string' }
+				}
+			}
+		};
+
+		it('should require index', function (done) {
+			delete defaultOptions._index;
+			indices.putMapping(mapping, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', function (done) {
+			delete defaultOptions._type;
+			indices.putMapping(mapping, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path when type is supplied', function (done) {
+			indices.putMapping({ _indices : ['dieties', 'devils'] }, mapping, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('PUT');
+				data.options.path.should.equals('/dieties,devils/kitteh/_mapping');
+
+				done();
+			});
+		});
+	});
+
 	describe('#settings', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
