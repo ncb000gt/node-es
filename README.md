@@ -394,13 +394,27 @@ Requires `_index` be specified either via lib config or via options when calling
 
 #### Stats
 
+`es.indices.stats(options, callback)`
+
 #### Status
+
+`es.indices.status(options, callback`
 
 #### Templates
 
+Requires `name`, but this must be specified via options.
+
+`es.indices.templates(options, callback)`
+
 #### Update Settings
 
+`es.indices.updateSettings(options, settings, callback)`
+
 #### Warmers
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.warmers(options, callback)`
 
 ### Cluster
 
