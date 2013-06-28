@@ -252,64 +252,145 @@ Also requires `name`, but this must be specified via options.
 
 Requires `_index` be specified either via lib config or via options when calling the operation.
 
+`es.search(options, query, callback)`
+
 #### Update
 
 Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
 Also requires `_id`, but this must be specified via options.
 
+`es.update(options, doc, callback)`
+
 #### Validate
 
 Requires `_index` be specified either via lib config or via options when calling the operation.
 
-
+`es.validate(options, query, callback)`
 
 ### Indices
 
+All operations here interact with the indices segment of the Elasticsearch API.
+
 #### Alias
+
+`es.indices.alias(options, data, callback)`
 
 #### Aliases
 
+Requires `alias`, but this must be specified via options.
+
+`es.indices.aliases(options, callback)`
+
 #### Analyze
+
+`es.indices.analyze(options, data, callback)`
 
 #### Clear Cache
 
+`es.indices.clearCache(options, callback)`
+
 #### Close Index
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.closeIndex(options, callback)`
 
 #### Create Index
 
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.createIndex(options, data, callback)`
+
 #### Create Template
+
+Requires `name`, but this must be specified via options.
+
+`es.indices.createTemplate(options, template, callback)`
 
 #### Delete Alias
 
+Requires `_index` and `_alias` be specified either via lib config or via options when calling the operation.
+
+`es.indices.deleteAlias(opitons, callback)`
+
 #### Delete Index
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.deleteIndex(options, callback)`
 
 #### Delete Mapping
 
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+
+`es.indices.deleteMapping(options, callback)`
+
 #### Delete Template
+
+Requires `name`, but this must be specified via options.
+
+`es.indices.deleteTemplate(options, callback)`
 
 #### Delete Warmer
 
+Requires `_index` be specified either via lib config or via options when calling the operation.
+Also requires `name`, but this must be specified via options.
+
+`es.indices.deleteWarmer(options, callback)`
+
 #### Exists
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.exists(options, callback)`
 
 #### Flush
 
+`es.indices.flush(options, callback)`
+
 #### Mappings
+
+`es.indices.mappings(options, callback)`
 
 #### Open Index
 
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.openIndex(options, callback)`
+
 #### Optimize
+
+`es.indices.optimize(options, callback)`
 
 #### Put Mapping
 
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+
+`es.indices.putMapping(options, mapping, callback)`
+
 #### Put Warmer
+
+Requires `name`, but this must be specified via options.
+
+`es.indices.putWarmer(options, warmer, callback)`
 
 #### Refresh
 
+`es.indices.refresh(options, callback)`
+
 #### Segments
+
+`es.indices.segments(options, callback)`
 
 #### Settings
 
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.indices.settings(options, callback)`
+
 #### Snapshot
+
+`es.indices.snapshot(options, callback)`
 
 #### Stats
 
