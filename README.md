@@ -13,15 +13,11 @@ npm install elasticsearch
 ## Usage
 
 ```Javascript
-
 var elasticsearch = require('elasticsearch');
 
 var config = {
 	// optional (defaults to undefined)
 	_index : 'kittehs',
-
-	// optional (defaults to undefined)
-	_type : 'house',
 
 	/*
 		optional - when not supplied, defaults to the following:
@@ -44,12 +40,9 @@ var config = {
 };
 
 var
-	es = elasticsearch(config),
-	cluster = es.cluster
-	core = es.core,
-	indices = es.indices;
+	es = elasticsearch(config);
 
-core.search({
+es.search({
 		query : {
 			field : {
 				animal : 'kitteh'
@@ -66,16 +59,49 @@ core.search({
 
 Unless otherwise stated, all callback signatures are `function (err, data)`, with `data` being the parsed JSON response from elasticsearch.
 
+#### createClient
+
+Calling `elasticsearch.createClient(config)` is the same as `elasticsearch(config)`.
+
+```Javascript
+var
+	elasticsearch = require('elasticsearch'),
+	es = elasticsearch.createClient(config);
+```
+
+#### options
+
+For each ES operation, options may be specified as the first argument to the function. In most cases, these are entirely optional, but when supplied, the values specified will take precident over the config values passed to the library constructor.
+Additionally, if there are extra option keys supplied beyond what is required for the operation, they are mapped directly to the querystring.
+
+```
+var options = {
+	_index : 'bawss',
+	_type : 'man',
+	refresh : true
+};
+
+var doc = {
+	field1 : 'test value'
+};
+
+es.index(options, doc, function (err, data) {
+	// this will result in a POST with path /bawss/man?refresh=true
+});
+```
+
 ### Core
 
 For more specifics and details regarding the core API for ElasticSearch, please refer to the documentation at <http://www.elasticsearch.org/guide/reference/api/>.
 
 #### Bulk
 
+`es.bulk(options, commands, callback)`
+
 ```Javascript
 var
 	elasticsearch = require('elasticsearch');
-	core = elasticsearch().core;
+	es = elasticsearch();
 
 var commands = [
 	{ index : { _index : 'dieties', _type : 'kitteh' } },
@@ -86,43 +112,214 @@ var commands = [
 	{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
 ];
 
-core.bulk(commands, function (err, data) {
+es.bulk(commands, function (err, data) {
 	// teh datas
 });
 ```
 
 #### Count
 
+`es.count(options, callback)`
+
+```Javascript
+var
+	elasticsearch = require('elasticsearch');
+	es = elasticsearch();
+
+es.count(function (err, data) {
+	// teh datas
+});
+
+// count docs in a specific index/type
+var options = {
+	_index : 'bawss',
+	_type : 'kitteh'
+}
+
+es.count(options, function (err, data) {
+	// counted... like a bawss
+});
+```
+
 #### Delete
+
+Requires `_index` be specified either via lib config (as shown below) or via options when calling the operation.
+
+`es.count(options, callback)`
+
+```Javascript
+var
+	elasticsearch = require('elasticsearch');
+	es = elasticsearch();
+
+core.count(function (err, data) {
+	// teh datas
+});
+```
 
 #### Delete By Query
 
+Requires `_index` be specified either via lib config (as shown below) or via options when calling the operation.
+
+`es.deleteByQuery(options, query, callback)`
+
+```Javascript
+var
+	elasticsearch = require('elasticsearch');
+	es = elasticsearch({ _index : 'kitteh' });
+
+var query = {
+	query : {
+		field : { breed : 'siamese' }
+	}
+};
+
+es.deleteByQuery(query, function (err, data) {
+	// teh datas
+});
+```
+
 #### Exists
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
+`es.exists(options, callback)`
+
+```Javascript
+var
+	elasticsearch = require('elasticsearch');
+	es = elasticsearch();
+
+es.exists({ _index : 'kitteh' }, function (err, data) {
+	// teh datas
+});
+```
 
 #### Explain
 
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Also requires `_id`, but this must be specified via options.
+
+`es.explain(options, query, callback)`
+
 #### Get
+
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Also requires `_id`, but this must be specified via options.
+
+`es.get(options, callback)`
 
 #### Index
 
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+
+`es.index(options, doc, callback)`
+
 #### More Like This
+
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Also requires `_id`, but this must be specified via options.
+
+`es.moreLikeThis(options, callback)`
 
 #### Multi Get
 
+If `_index` and/or `_type` are supplied via options (or lib config), the will applied to the doc that is transmitted for the operation.
+
+`es.multiGet(options, docs, callback)`
+
 #### Multi Search
+
+`es.multiSearch(options, queries, callback)`
 
 #### Percolate
 
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+
+`es.percolate(options, doc, callback)`
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+Also requires `name`, but this must be specified via options.
+
+`es.registerPercolator(options, query, callback)`
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+Also requires `name`, but this must be specified via options.
+
+`es.unregisterPercolator(options, callback)`
+
 #### Search
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
 
 #### Update
 
+Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Also requires `_id`, but this must be specified via options.
+
 #### Validate
+
+Requires `_index` be specified either via lib config or via options when calling the operation.
+
 
 
 ### Indices
 
+#### Alias
 
+#### Aliases
+
+#### Analyze
+
+#### Clear Cache
+
+#### Close Index
+
+#### Create Index
+
+#### Create Template
+
+#### Delete Alias
+
+#### Delete Index
+
+#### Delete Mapping
+
+#### Delete Template
+
+#### Delete Warmer
+
+#### Exists
+
+#### Flush
+
+#### Mappings
+
+#### Open Index
+
+#### Optimize
+
+#### Put Mapping
+
+#### Put Warmer
+
+#### Refresh
+
+#### Segments
+
+#### Settings
+
+#### Snapshot
+
+#### Stats
+
+#### Status
+
+#### Templates
+
+#### Update Settings
+
+#### Warmers
 
 ### Cluster
 
@@ -149,146 +346,6 @@ core.bulk(commands, function (err, data) {
 #### State
 
 #### Update Settings
-
-
-elasticsearch(opts)
--------------------
-Shortcut for `elasticsearch.createClient(opts)`.
-
-elasticsearch.createClient(opts)
---------------------------------
-Returns a new client object.
-
-Options:
-* `auth`: Basic authentication for elasticsearch in 'username:password' format
-* `index`: The name of the index to act upon
-* `host`: The hostname of the elasticsearch server (defaults to localhost)
-* `port`: The port of the elasticsearch server (defaults to 9200)
-* `rejectUnauthorized`: If specifying secure this may be set to false to bypass certificate validation
-* `secure`: Specify true if the elasticsearch server requires TLS/SSL
-
-We'll call the returned client `es`.
-
-es.status(opts, cb)
--------------------
-Get the status of the index. Maps to *GET /index/_status*.
-
-es.add(opts, doc, cb)
----------------------
-Add a document to the index. Maps to *PUT /index/type/id* or *POST /index/type*.
-
-Options:
-* `id`: Optional ID for the document. A UUID will be chosen by elasticsearch if no ID is specified.
-* `type`: Optional type for the document (default: `doc`).
-* `refresh`: Set this to true to refresh the index after add.
-
-es.delete(opts, cb)
--------------------
-Delete a document or documents from the index. Maps to *DELETE /index/type/id*.
-
-Options:
-* `id`: Optional ID for the document. All documents of this type will be deleted if no ID is specified.
-* `type`: Optional type for the document (default: `doc`).
-* `refresh`: Set this to true to refresh the index after delete.
-
-es.get(opts, cb)
-----------------
-Get a document from the index. Maps to *GET /index/type/id*.
-
-Options:
-* `id`: ID for the document.
-* `type`: Optional type for the document (default: `doc`).
-
-es.query(opts, query, cb)
--------------------------
-Query the index. Maps to *POST /index/_search*.
-
-es.count(opts, query, cb)
--------------------------
-Get the count of a query result set. Maps to *POST /index/_count*.
-
-es.queryAll(opts, query, cb)
-----------------------------
-Query all indexes. Maps to *POST /_search*.
-
-es.putRiver(opts, river, cb)
-----------------------------
-Put a new or updated river. Maps to *PUT /_river/name/_meta*.
-
-Options:
-* `name`: Name for the river.
-
-es.getRiver(opts, name, cb)
----------------------------
-Get a river. Maps to *GET /_river/name/_meta*.
-
-es.deleteRiver(opts, name, cb)
--------------------------------
-Delete a river. Maps to *DELETE /_river/name/*.
-
-es.putMapping(opts, config, cb)
--------------------------------
-Put a new or updated mapping. Maps to *PUT /index/name/_mapping*.
-
-`name` is defined by `config.name` and `mapping` by `config.mapping`.
-
-es.getMapping(opts, type, cb)
------------------------------
-Get a mapping. Maps to *GET /index/type/_mapping*.
-
-If type is an array its values will be joined.
-
-es.deleteMapping(opts, config, cb)
-----------------------------------
-Delete a mapping. Maps to *DELETE /index/name/_mapping*.
-
-`name` is defined by `config.name`.
-
-new elasticsearch.Index(opts)
------------------------------
-Returns a new index object.
-
-Options:
-* `name`: The name of the index to act upon.
-
-We'll call the returned index `index`.
-
-index.status(opts, cb)
-----------------------
-Get the status of the index. Maps to *GET /index/_status*.
-
-index.refresh(opts, cb)
------------------------
-Refresh the index. Maps to *POST /index/_refresh*.
-
-index.create(opts, config, cb)
-------------------------------
-Create the index. Maps to *PUT /index/* or *POST /index/* depending on the existence of `config.mappings`.
-
-index.delete(cb)
-----------------
-Delete the index. Maps to *DELETE /index*.
-
-new elasticsearch.Cluster()
----------------------------
-Returns a new cluster object.
-
-We'll call the returned cluster `cluster`.
-
-cluster.status(opts, cb)
-------------------------
-Get the status of the cluster. Maps to *GET /_status*.
-
-cluster.deleteIndices(opts, cb)
--------------------------------
-Delete all indices in this cluster. Maps to multiple calls to *DELETE /index/*.
-
-cluster.health(opts, cb)
-------------------------
-Get health of the cluster. Maps to *GET _cluster/health*.
-
-Options map to query parameters.
-
 
 # Testing
 
