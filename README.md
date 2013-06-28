@@ -126,15 +126,21 @@ core.bulk(commands, function (err, data) {
 
 ### Cluster
 
+#### Delete River
+
 #### Health
 
 #### Hot Threads
 
-#### Node Info
+#### Nodes Info
 
-#### Node Status
+#### Nodes Status
+
+#### Put River
 
 #### Reroute
+
+#### Rivers
 
 #### Settings
 

@@ -98,6 +98,18 @@ describe('core', function () {
 		});
 	});
 
+	describe('#add', function () {
+		it('should do what .index does (backwards compat check)', function (done) {
+			core.add(doc, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('/dieties/kitteh');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+	});
+
 	describe('#bulk', function () {
 		var commands = [
 			{ index : { _index : 'dieties', _type : 'kitteh' } },

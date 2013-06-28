@@ -31,17 +31,14 @@ function createClient (options) {
 		delete options.index;
 	}
 
-	var req = request.initialize(options.server);
+	var
+		req = request.initialize(options.server),
+		client = core(options, req);
 
-	// this is breaking from v0.2.x
-	return {
-		core : core(options, req),
-		cluster : cluster(options, req),
-		indices : indices(options, req),
+	client.cluster = cluster(options, req);
+	client.indices = indices(options, req);
 
-		// backwards compatibility helper
-		index : indices
-	};
+	return client;
 }
 
 // exports
