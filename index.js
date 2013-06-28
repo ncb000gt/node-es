@@ -1,16 +1,46 @@
-var Client = require('./lib/elasticsearch');
+var
+	cluster = require('./lib/cluster'),
+	core = require('./lib/core'),
+	indices = require('./lib/indices'),
+	request = require('./lib/request'),
 
-function createClient () {
-  return new Client(arguments);
+	// defaults applied to request if
+	// not supplied on instantiation
+	defaults = {
+		server : {
+			host : 'localhost',
+			port : 9200
+		}
+	};
+
+
+// let the magic begin
+function createClient (options) {
+	'use strict';
+
+	options = options || {};
+	Object.keys(defaults).forEach(function (key) {
+		if (!options.hasOwnProperty(key)) {
+			options[key] = defaults[key];
+		}
+	});
+
+	// backwards compatibility helper... remaps 'index' to '_index'
+	if (options.index) {
+		options._index = options.index;
+		delete options.index;
+	}
+
+	var
+		req = request.initialize(options.server),
+		client = core(options, req);
+
+	client.cluster = cluster(options, req);
+	client.indices = indices(options, req);
+
+	return client;
 }
 
-// Make createClient the default function
+// exports
 exports = module.exports = createClient;
-
-// Expose constructors
-exports.Client = Client;
-exports.Cluster = require('./lib/cluster');
-exports.Index = require('./lib/index');
-
-// For backwards compatibility
 exports.createClient = createClient;

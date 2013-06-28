@@ -1,0 +1,32 @@
+{
+	"bitwise" : true,
+	"camelcase" : true,
+	"curly" : true,
+	"eqeqeq" : true,
+	"forin" : true,
+	"immed" : true,
+	"indent" : true,
+	"latedef" : true,
+	"maxdepth" : 4,
+	"maxparams" : 6,
+	"newcap" : true,
+	"noarg" : true,
+	"noempty" : true,
+	"node" : true,
+	"nonew" : true,
+	"quotmark" : "single",
+	"strict" : true,
+	"trailing" : true,
+	"undef" : true,
+	"unused" : true,
+	"globals" : {
+		"after" : true,
+		"before" : true,
+		"describe" : true,
+		"it" : true,
+		"req" : true,
+		"requestError" : true,
+		"requireWithCoverage" : true,
+		"should" : true
+	}
+}
