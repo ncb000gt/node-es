@@ -108,7 +108,7 @@ describe('indices', function () {
 			indices.analyze(options, 'kittehs be cray', function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.method.should.equals('GET');
+				data.options.method.should.equals('POST');
 				data.options.path.should.equals('/dieties/_analyze?tokenizer=keyword');
 
 				done();
@@ -124,7 +124,7 @@ describe('indices', function () {
 			indices.analyze(options, 'kittehs be cray', function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.method.should.equals('GET');
+				data.options.method.should.equals('POST');
 				data.options.path.should.equals('/_analyze?analyzer=standard');
 
 				done();
@@ -135,7 +135,7 @@ describe('indices', function () {
 			indices.analyze('kittehs be cray', function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.method.should.equals('GET');
+				data.options.method.should.equals('POST');
 				data.options.path.should.equals('/dieties/_analyze');
 
 				done();
