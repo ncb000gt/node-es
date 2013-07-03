@@ -112,6 +112,51 @@ var config = {
 };
 ```
 
+#### cluster support and failover
+
+Elasticsearch is pretty much rad at clustering. If you want to specify multiple servers to failover to, you may do so by either supplying an array as the value for the property `hosts` or `hostnames`:
+
+```Javascript
+var elasticsearch = require('elasticsearch');
+var config = {
+  _index : 'bawss',
+  server : {
+    hostnames : ['es1.myhost.com', 'es2.myhost.com', 'es3.myhost.com']
+    secure : true
+  }
+};
+
+var es = elasticsearch(config);
+```
+
+If you run on different ports for each server, use the `hosts` property:
+
+```Javascript
+var elasticsearch = require('elasticsearch');
+var config = {
+  _index : 'bawss',
+  server : {
+    hosts : ['localhost:9200', 'localhost:9201', 'localhost:9202']
+  }
+};
+
+var es = elasticsearch(config);
+```
+
+#### operation timeout
+
+The default timeout for any operation against Elasticsearch is set at 30 seconds. You can override this value by specifying a timeout property in the options for the operation:
+
+```Javascript
+var options = {
+	timeout : 60000 // 60 seconds
+};
+
+es.bulk(options, commands, function (err, data) {
+	// teh datas
+});
+```
+
 #### options for any operation
 
 For each ES operation, options may be specified as the first argument to the function. In most cases, these are entirely optional, but when supplied, the values specified will take precident over the config values passed to the library constructor.
@@ -138,6 +183,8 @@ es.index(options, doc, function (err, data) {
 For more specifics and details regarding the core API for ElasticSearch, please refer to the documentation at <http://www.elasticsearch.org/guide/reference/api/>.
 
 ##### Bulk
+
+*Please Note:* The default timeout is set at 30 seconds... if you are performing a large bulk insert you may need to increase this limit by specifying a higher value for `timeout` in the options parameter.
 
 `es.bulk(options, commands, callback)`
 
