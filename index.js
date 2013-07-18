@@ -20,7 +20,7 @@ function createClient (options) {
 
 	options = options || {};
 	Object.keys(defaults).forEach(function (key) {
-		if (!options.hasOwnProperty(key)) {
+		if (!options[key]) {
 			options[key] = defaults[key];
 		}
 	});
