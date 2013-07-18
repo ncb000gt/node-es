@@ -88,7 +88,7 @@ es.indices.exist({ _index : 'canine' }, function (err, data) {
 If omitted from configuration, the server settings default to the following:
 
 ```Javascript
-var config =
+var config = {
   // optional - when not supplied, defaults to the following:
   server : {
     host : 'localhost',
