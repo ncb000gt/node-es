@@ -235,7 +235,7 @@ es.bulk(commands, function (err, data) {
 
 This is not a core action for ElasticSearch, but is a convenience method added to this ElasticSearch client to make bulk indexing more straight forward. Simply supply an array of documents you wish to bulk index in ElasticSearch and the method will take of the details for you.
 
-`es.bulk(options, documents, callback)`
+`es.bulkIndex(options, documents, callback)`
 
 ```Javascript
 var
