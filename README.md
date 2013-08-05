@@ -186,6 +186,28 @@ For more specifics and details regarding the core API for ElasticSearch, please 
 
 *Please Note:* The default timeout is set at 30 seconds... if you are performing a large bulk insert you may need to increase this limit by specifying a higher value for `timeout` in the options parameter.
 
+At a high level, when performing a bulk update, you must supply an array with an action object followed by the object that the action will use during execution. In the following example, the first item in the array specifies the action is `index` and the second item represents the data to index:
+
+```Javascript
+[
+  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { name : 'hamish', breed : 'manx', color : 'tortoise' }
+]
+```
+
+In this example, two `index` actions will be performed on the 'dieties' index and 'kitteh' type in ElasticSearch:
+
+```Javascript
+[
+  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { name : 'dugald', breed : 'siamese', color : 'white' },
+  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+]
+```
+
+For more information regarding bulk, please see the ElasticSearch documentation at <http://www.elasticsearch.org/guide/reference/api/bulk/>
+
 `es.bulk(options, commands, callback)`
 
 ```Javascript
