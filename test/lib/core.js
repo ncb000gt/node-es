@@ -173,6 +173,64 @@ describe('core', function () {
 		});
 	});
 
+	describe('#bulkIndex', function () {
+		var commands = [
+			{ index : { _index : 'dieties', _type : 'kitteh' } },
+			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
+			{ index : { _index : 'dieties', _type : 'kitteh' } },
+			{ name : 'dugald', breed : 'siamese', color : 'white' },
+			{ index : { _index : 'dieties', _type : 'kitteh' } },
+			{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+		];
+
+		var documents = [
+			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
+			{ name : 'dugald', breed : 'siamese', color : 'white' },
+			{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+		];
+
+		it('should allow options to be optional', function (done) {
+			core.bulkIndex(documents, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/_bulk');
+
+				done();
+			});
+		});
+
+		it('should require documents to be an array', function (done) {
+			core.bulkIndex(documents[0], function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should only apply type to url when index and type are passed with options or config', function (done) {
+			core.bulkIndex({ _index : 'test', _type : 'test' }, documents, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('POST');
+				data.options.path.should.equals('/test/test/_bulk');
+
+				done();
+			});
+		});
+
+		it('should properly format out as newline delimited text', function (done) {
+			core.bulkIndex(documents, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.inputData.match(/\n/g).should.have.length(6);
+
+				done();
+			});
+		});
+	});
+
 	describe('#count', function () {
 		var query = {
 			query : {

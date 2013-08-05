@@ -79,7 +79,7 @@ var
   es = elasticsearch.createClient(config);
 
 es.indices.exist({ _index : 'canine' }, function (err, data) {
-	// will result in a HEAD request to /canine instead of /kitteh
+  // will result in a HEAD request to /canine instead of /kitteh
 });
 ```
 
@@ -108,7 +108,7 @@ var config = {
     port : 9243,
     rejectUnauthorized : false,
     secure : true // toggles between https and http
-	}
+  }
 };
 ```
 
@@ -149,11 +149,11 @@ The default timeout for any operation against Elasticsearch is set at 30 seconds
 
 ```Javascript
 var options = {
-	timeout : 60000 // 60 seconds
+  timeout : 60000 // 60 seconds
 };
 
 es.bulk(options, commands, function (err, data) {
-	// teh datas
+  // teh datas
 });
 ```
 
@@ -185,6 +185,8 @@ For more specifics and details regarding the core API for ElasticSearch, please 
 ##### Bulk
 
 *Please Note:* The default timeout is set at 30 seconds... if you are performing a large bulk insert you may need to increase this limit by specifying a higher value for `timeout` in the options parameter.
+
+This method doesn't take into account the underlying config that was used when instantiating the client. It requires index and type to be specified via the commands array or via the options parameter. Conflict will occur if one specifies a different index and type in the options than what is specified via the commands parameter.
 
 At a high level, when performing a bulk update, you must supply an array with an action object followed by the object that the action will use during execution. In the following example, the first item in the array specifies the action is `index` and the second item represents the data to index:
 
@@ -225,6 +227,33 @@ var commands = [
 ];
 
 es.bulk(commands, function (err, data) {
+  // teh datas
+});
+```
+
+##### Bulk Index
+
+This is not a core action for ElasticSearch, but is a convenience method added to this ElasticSearch client to make bulk indexing more straight forward. Simply supply an array of documents you wish to bulk index in ElasticSearch and the method will take of the details for you.
+
+`es.bulk(options, documents, callback)`
+
+```Javascript
+var
+  elasticsearch = require('elasticsearch'),
+  es = elasticsearch();
+
+var documents = [
+  { name : 'hamish', breed : 'manx', color : 'tortoise' },
+  { name : 'dugald', breed : 'siamese', color : 'white' },
+  { name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+];
+
+var options = {
+  _index : 'dieties',
+  _type : 'kitteh'
+}
+
+es.bulkIndex(options, documents, function (err, data) {
   // teh datas
 });
 ```
