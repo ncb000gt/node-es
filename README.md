@@ -286,14 +286,14 @@ es.count(options, function (err, data) {
 
 Requires `_index` be specified either via lib config (as shown below) or via options when calling the operation.
 
-`es.count(options, callback)`
+`es.delete(options, callback)`
 
 ```Javascript
 var
   elasticsearch = require('elasticsearch'),
   es = elasticsearch();
 
-core.count(function (err, data) {
+core.delete({ _id : 'mbQZc_XhQDWmNCQX5KwPeA' }, function (err, data) {
   // teh datas
 });
 ```
