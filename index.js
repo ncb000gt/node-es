@@ -2,7 +2,6 @@ var
 	cluster = require('./lib/cluster'),
 	core = require('./lib/core'),
 	indices = require('./lib/indices'),
-	request = require('./lib/request'),
 
 	// defaults applied to request if
 	// not supplied on instantiation
@@ -32,6 +31,7 @@ function createClient (options) {
 	}
 
 	var
+		request = options.request || require('./lib/request'),
 		req = request.initialize(options.server),
 		client = core(options, req);
 
