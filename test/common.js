@@ -8,7 +8,7 @@ var stubMethod = function (method, options, data, callback) {
 
 	return callback(null, {
 			inputData : data,
-			options : options
+			options : global.req.getRequestOptions(options)
 		});
 };
 
