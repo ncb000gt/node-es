@@ -212,10 +212,12 @@ describe('functional: core', function () {
     });
   });
 
-  it.skip('multiGet', function (done) {
-    client.multiGet({_type: 'book'}, [{_id: 'node1'}, {_id: 'node2'}], function (err, result) {
+  it('multiGet', function (done) {
+    client.multiGet({_type: 'book'}, [{_id: 'node1'}, {_id: 'fish1'}], function (err, result) {
       assert.ifError(err);
-      console.log(result);
+      assert.equal(result.docs.length, 2);
+      assert.equal(result.docs[0]._source.title, 'What Is Node?');
+      assert.equal(result.docs[1]._source.title, 'Fishing for Dummies');
       done();
     });
   });

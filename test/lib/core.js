@@ -685,8 +685,8 @@ describe('core', function () {
 				should.not.exist(err);
 				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
-				data.inputData[0]._index.should.equals('testIndex');
-				data.inputData[0]._type.should.equals('testType');
+				data.inputData.docs[0]._index.should.equals('testIndex');
+				data.inputData.docs[0]._type.should.equals('testType');
 
 				done();
 			});
@@ -699,8 +699,8 @@ describe('core', function () {
 				should.not.exist(err);
 				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
-				data.inputData[0]._index.should.equals('dieties');
-				data.inputData[0]._type.should.equals('kitteh');
+				data.inputData.docs[0]._index.should.equals('dieties');
+				data.inputData.docs[0]._type.should.equals('kitteh');
 
 				done();
 			});
