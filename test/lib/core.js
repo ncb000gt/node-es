@@ -349,7 +349,7 @@ describe('core', function () {
 			core.deleteByQuery(query, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('/dieties/kitteh/_query');
-				data.options.method.should.equals('POST');
+				data.options.method.should.equals('DELETE');
 
 				done();
 			});
@@ -360,7 +360,7 @@ describe('core', function () {
 			core.deleteByQuery(query, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('/dieties/_query');
-				data.options.method.should.equals('POST');
+				data.options.method.should.equals('DELETE');
 
 				done();
 			});

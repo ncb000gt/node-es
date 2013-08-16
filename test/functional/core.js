@@ -121,7 +121,7 @@ describe('functional: core', function () {
     });
   });
 
-  it.skip('deleteByQuery', function (done) {
+  it('deleteByQuery', function (done) {
     var stack = createStack(function (next) {
       client.index({_type: 'person', _id: this._id}, this, next);
     });
