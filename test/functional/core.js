@@ -243,9 +243,33 @@ describe('functional: core', function () {
     });
   });
 
-  it('percolate');
+  it('percolators', function (done) {
+    var
+      query = {query: { query_string: {query: 'fish'}}},
+      book = {
+        _id: 'fish2',
+        title: 'Fish & Shellfish: The Cook\'s Indispensable Companion',
+        author: 'James Peterson',
+        summary: 'Every few decades a chef or a teacher writes a cookbook that is so comprehensive and offers such depth of subject matter and cooking inspiration that it becomes a virtual bible for amateur and professional alike. Author James Peterson, who wrote the book Sauces, a James Beard Cookbook of the Year winner, and the incomparable Splendid Soups, once again demonstrates his connoisseurship with Fish & Shellfish, a monumental cookbook that will take its rightful place as the first and last word on seafood preparation and cooking.'
+      };
 
-  it('registerPercolator');
+    client.registerPercolator({name: 'fish_books'}, query, function (err, result) {
+      assert.ifError(err);
+      client.percolate({_type: 'book'}, book, function (err, result) {
+        assert.ifError(err);
+        assert.equal(result.matches.length, 1);
+        assert.equal(result.matches[0], 'fish_books');
+        client.unregisterPercolator({name: 'fish_books'}, function (err, result) {
+          assert.ifError(err);
+          client.percolate({_type: 'book'}, book, function (err, result) {
+            assert.ifError(err);
+            assert.equal(result.matches.length, 0);
+            done();
+          });
+        });
+      });
+    });
+  });
 
   it('search', function (done) {
     client.search({_type: 'book'}, {query: {match: {summary: 'javascript'}}}, function (err, result) {
