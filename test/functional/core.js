@@ -283,7 +283,44 @@ describe('functional: core', function () {
     });
   });
 
-  it('update');
+  it('update', function (done) {
+    var
+      review = {
+        _id: 'review1',
+        book_id: 'fish2',
+        author: 'Joe',
+        body: 'This recipies in this book literally saved my marriage! Now that I can whip up all manner of fancy fish delights, my wife is a very happy woman.',
+        views: 0
+      },
+      doc;
+
+    client.index({_type: 'review', _id: review._id}, review, function (err) {
+      assert.ifError(err);
+      doc = {
+        script: 'ctx._source.views += 1'
+      };
+      client.update({_type: 'review', _id: review._id}, doc, function (err) {
+        assert.ifError(err);
+        client.get({_type: 'review', _id: review._id}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result._source.views, 1);
+          doc = {
+            doc: {
+              replies: ['Glad to hear it!']
+            }
+          };
+          client.update({_type: 'review', _id: review._id}, doc, function (err) {
+            assert.ifError(err);
+            client.get({_type: 'review', _id: review._id}, function (err, result) {
+              assert.ifError(err);
+              assert.equal(result._source.replies.length, 1);
+              done();
+            });
+          })
+        });
+      });
+    });
+  });
 
   it('validate');
 
