@@ -1,7 +1,7 @@
 var coreLib = requireWithCoverage('core');
 
 
-describe('core', function () {
+describe('API: core', function () {
 	var
 		core,
 		defaultOptions,

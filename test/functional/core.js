@@ -2,7 +2,7 @@ var
   createClient = require('../../'),
   createStack = require('stact');
 
-describe('functional: core', function () {
+describe('Functional: core', function () {
   var
     index = 'elasticsearch_test_functional_' + Date.now(),
     client;
@@ -204,13 +204,7 @@ describe('functional: core', function () {
     });
   });
 
-  it.skip('moreLikeThis', function (done) {
-    client.moreLikeThis({_type: 'book', _id: 'node1', mlt_fields: 'summary'}, function (err, result) {
-      assert.ifError(err);
-      console.log(result);
-      done();
-    });
-  });
+  it('moreLikeThis');
 
   it('multiGet', function (done) {
     client.multiGet({_type: 'book'}, [{_id: 'node1'}, {_id: 'fish1'}], function (err, result) {

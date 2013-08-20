@@ -1,7 +1,7 @@
 var indicesLib = requireWithCoverage('indices');
 
 
-describe('indices', function () {
+describe('API: indices', function () {
 	var
 		indices,
 		defaultOptions;
