@@ -16,59 +16,115 @@ describe('Functional: indices', function () {
     client.indices.deleteIndex(done);
   });
 
-  it('#alias');
+  describe('#alias', function () {
+    it('works');
+  });
 
-  it('#aliases');
+  describe('#aliases', function () {
+    it('works');
+  });
 
-  it('#analyze');
+  describe('#analyze', function () {
+    it('works');
+  });
 
-  it('#clearCache');
+  describe('#clearCache', function () {
+    it('works');
+  });
 
-  it('#closeIndex');
+  describe('#closeIndex', function () {
+    it('works');
+  });
 
-  it('#createIndex');
+  describe('#createIndex', function () {
+    it('works');
+  });
 
-  it('#createTemplate');
+  describe('#createTemplate', function () {
+    it('works');
+  });
 
-  it('#deleteAlias');
+  describe('#deleteAlias', function () {
+    it('works');
+  });
 
-  it('#deleteIndex');
+  describe('#deleteIndex', function () {
+    it('works');
+  });
 
-  it('#deleteMapping');
+  describe('#deleteMapping', function () {
+    it('works');
+  });
 
-  it('#deleteTemplate');
+  describe('#deleteTemplate', function () {
+    it('works');
+  });
 
-  it('#deleteWarmer');
+  describe('#deleteWarmer', function () {
+    it('works');
+  });
 
-  it('#exists');
+  describe('#exists', function () {
+    it('works');
+  });
 
-  it('#flush');
+  describe('#flush', function () {
+    it('works');
+  });
 
-  it('#mappings');
+  describe('#mappings', function () {
+    it('works');
+  });
 
-  it('#openIndex');
+  describe('#openIndex', function () {
+    it('works');
+  });
 
-  it('#optimize');
+  describe('#optimize', function () {
+    it('works');
+  });
 
-  it('#putMapping');
+  describe('#putMapping', function () {
+    it('works');
+  });
 
-  it('#putWarmer');
+  describe('#putWarmer', function () {
+    it('works');
+  });
 
-  it('#refresh');
+  describe('#refresh', function () {
+    it('works');
+  });
 
-  it('#segments');
+  describe('#segments', function () {
+    it('works');
+  });
 
-  it('#settings');
+  describe('#settings', function () {
+    it('works');
+  });
 
-  it('#snapshot');
+  describe('#snapshot', function () {
+    it('works');
+  });
 
-  it('#stats');
+  describe('#stats', function () {
+    it('works');
+  });
 
-  it('#status');
+  describe('#status', function () {
+    it('works');
+  });
 
-  it('#templates');
+  describe('#templates', function () {
+    it('works');
+  });
 
-  it('#updateSettings');
+  describe('#updateSettings', function () {
+    it('works');
+  });
 
-  it('#warmers');
+  describe('#warmers', function () {
+    it('works');
+  });
 });

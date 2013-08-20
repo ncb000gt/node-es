@@ -73,79 +73,89 @@ describe('Functional: core', function () {
     client.indices.deleteIndex(done);
   });
 
-  it('bulk');
-
-  it('bulkIndex');
-
-  it('count', function (done) {
-    var stack = createStack(function (next) {
-      client.index({_type: 'number', _id: this}, {num: this}, next);
-    });
-    stack.add(1);
-    stack.add(2);
-    stack.add(3);
-    stack.add(4);
-    stack.add(5);
-    stack.run(function (err) {
-      assert.ifError(err);
-      client.indices.refresh(function (err) {
-        assert.ifError(err);
-        client.count({_type: 'foo'}, null, function (err, result) {
-          assert.ifError(err);
-          assert.equal(result.count, 0);
-          client.count({_type: 'number'}, null, function (err, result) {
-            assert.ifError(err);
-            assert.equal(result.count, 5);
-            done();
-          });
-        });
-      });
-    });
+  describe('#bulk', function () {
+    it('works');
   });
 
-  it('delete', function (done) {
-    client.index({_type: 'person', _id: 'joe'}, {name: 'Joe', color: 'red'}, function (err, result) {
-      assert.ifError(err);
-      client.get({_type: 'person', _id: 'joe'}, function (err, result) {
-        assert.ifError(err);
-        assert.equal(result._source.name, 'Joe');
-        client.delete({_type: 'person', _id: 'joe'}, function (err, result) {
-          assert.ifError(err);
-          client.get({_type: 'person', _id: 'joe'}, function (err, result) {
-            assert(err);
-            assert.equal(err.statusCode, 404);
-            done();
-          });
-        });
-      });
-    });
+  describe('#bulkIndex', function () {
+    it('works');
   });
 
-  it('deleteByQuery', function (done) {
-    var stack = createStack(function (next) {
-      client.index({_type: 'person', _id: this._id}, this, next);
-    });
-    stack.add({_id: 'bill', name: 'Bill', color: 'green'});
-    stack.add({_id: 'bob', name: 'Bob', color: 'blue'});
-    stack.add({_id: 'babe', name: 'Babe', color: 'green'});
-    stack.run(function (err) {
-      assert.ifError(err);
-      client.get({_type: 'person', _id: 'bob'}, function (err, result) {
+  describe('#count', function () {
+    it('works', function (done) {
+      var stack = createStack(function (next) {
+        client.index({_type: 'number', _id: this}, {num: this}, next);
+      });
+      stack.add(1);
+      stack.add(2);
+      stack.add(3);
+      stack.add(4);
+      stack.add(5);
+      stack.run(function (err) {
         assert.ifError(err);
-        assert.equal(result._source.name, 'Bob');
         client.indices.refresh(function (err) {
           assert.ifError(err);
-          client.deleteByQuery({}, {term: {color: 'green'}}, function (err, result) {
+          client.count({_type: 'foo'}, null, function (err, result) {
             assert.ifError(err);
-            client.indices.refresh(function (err) {
+            assert.equal(result.count, 0);
+            client.count({_type: 'number'}, null, function (err, result) {
               assert.ifError(err);
-              client.get({_type: 'person', _id: 'babe'}, function (err, result) {
-                assert(err);
-                assert(err.statusCode, 404);
-                client.get({_type: 'person', _id: 'bob'}, function (err, result) {
-                  assert.ifError(err);
-                  assert.equal(result._source.name, 'Bob');
-                  done();
+              assert.equal(result.count, 5);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('#delete', function () {
+    it('works', function (done) {
+      client.index({_type: 'person', _id: 'joe'}, {name: 'Joe', color: 'red'}, function (err, result) {
+        assert.ifError(err);
+        client.get({_type: 'person', _id: 'joe'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result._source.name, 'Joe');
+          client.delete({_type: 'person', _id: 'joe'}, function (err, result) {
+            assert.ifError(err);
+            client.get({_type: 'person', _id: 'joe'}, function (err, result) {
+              assert(err);
+              assert.equal(err.statusCode, 404);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('#deleteByQuery', function () {
+    it('works', function (done) {
+      var stack = createStack(function (next) {
+        client.index({_type: 'person', _id: this._id}, this, next);
+      });
+      stack.add({_id: 'bill', name: 'Bill', color: 'green'});
+      stack.add({_id: 'bob', name: 'Bob', color: 'blue'});
+      stack.add({_id: 'babe', name: 'Babe', color: 'green'});
+      stack.run(function (err) {
+        assert.ifError(err);
+        client.get({_type: 'person', _id: 'bob'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result._source.name, 'Bob');
+          client.indices.refresh(function (err) {
+            assert.ifError(err);
+            client.deleteByQuery({}, {term: {color: 'green'}}, function (err, result) {
+              assert.ifError(err);
+              client.indices.refresh(function (err) {
+                assert.ifError(err);
+                client.get({_type: 'person', _id: 'babe'}, function (err, result) {
+                  assert(err);
+                  assert(err.statusCode, 404);
+                  client.get({_type: 'person', _id: 'bob'}, function (err, result) {
+                    assert.ifError(err);
+                    assert.equal(result._source.name, 'Bob');
+                    done();
+                  });
                 });
               });
             });
@@ -155,89 +165,103 @@ describe('Functional: core', function () {
     });
   });
 
-  it('exists', function (done) {
-    client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
-      assert.ifError(err);
-      client.get({_type: 'person', _id: 'mary'}, function (err, result) {
+  describe('#exists', function () {
+    it('works', function (done) {
+      client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
         assert.ifError(err);
-        assert(result.exists);
-        done();
-      });
-    });
-  });
-
-  it('explain', function (done) {
-    client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
-      assert.ifError(err);
-      client.indices.refresh(function (err) {
-        assert.ifError(err);
-        client.explain({_type: 'person', _id: 'mary'}, {query: {term: {color: 'purple'}}}, function (err, result) {
+        client.get({_type: 'person', _id: 'mary'}, function (err, result) {
           assert.ifError(err);
-          assert.equal(result.ok, true);
-          assert.equal(result.matched, true);
-          assert(result.explanation.value);
+          assert(result.exists);
           done();
         });
       });
     });
   });
 
-  it('get', function (done) {
-    client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err, result) {
-      assert.ifError(err);
-      client.get({_type: 'person', _id: 'brian'}, function (err, result) {
+  describe('#explain', function () {
+    it('works', function (done) {
+      client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
         assert.ifError(err);
-        assert.equal(result._source.name, 'Brian');
+        client.indices.refresh(function (err) {
+          assert.ifError(err);
+          client.explain({_type: 'person', _id: 'mary'}, {query: {term: {color: 'purple'}}}, function (err, result) {
+            assert.ifError(err);
+            assert.equal(result.ok, true);
+            assert.equal(result.matched, true);
+            assert(result.explanation.value);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('#get', function () {
+    it('works', function (done) {
+      client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err, result) {
+        assert.ifError(err);
+        client.get({_type: 'person', _id: 'brian'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result._source.name, 'Brian');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#index', function () {
+    it('works', function (done) {
+      client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err, result) {
+        assert.ifError(err);
+        client.get({_type: 'person', _id: 'brian'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result._source.name, 'Brian');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#moreLike', function () {
+    it('works');
+  });
+
+  describe('#multiGet', function () {
+    it('works', function (done) {
+      client.multiGet({_type: 'book'}, [{_id: 'node1'}, {_id: 'fish1'}], function (err, result) {
+        assert.ifError(err);
+        assert.equal(result.docs.length, 2);
+        assert.equal(result.docs[0]._source.title, 'What Is Node?');
+        assert.equal(result.docs[1]._source.title, 'Fishing for Dummies');
         done();
       });
     });
   });
 
-  it('index', function (done) {
-    client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err, result) {
-      assert.ifError(err);
-      client.get({_type: 'person', _id: 'brian'}, function (err, result) {
+  describe('#multiSearch', function () {
+    it('works', function (done) {
+      var queries = [
+        {},
+        {query: {query_string: {query: 'fish'}}},
+        {},
+        {query: {match: {author: 'TJ Holowaychuk'}}}
+      ];
+      client.multiSearch({_index: index, _type: 'book'}, queries, function (err, result) {
+        var books = [];
         assert.ifError(err);
-        assert.equal(result._source.name, 'Brian');
+        assert.equal(result.responses.length, 2);
+        assert.equal(result.responses[0].hits.total, 1);
+        assert.equal(result.responses[1].hits.total, 1);
+        books.push(result.responses[0].hits.hits[0]._id);
+        books.push(result.responses[1].hits.hits[0]._id);
+        assert(books.indexOf('fish1') >= 0);
+        assert(books.indexOf('node2') >= 0);
         done();
       });
     });
   });
 
-  it('moreLikeThis');
-
-  it('multiGet', function (done) {
-    client.multiGet({_type: 'book'}, [{_id: 'node1'}, {_id: 'fish1'}], function (err, result) {
-      assert.ifError(err);
-      assert.equal(result.docs.length, 2);
-      assert.equal(result.docs[0]._source.title, 'What Is Node?');
-      assert.equal(result.docs[1]._source.title, 'Fishing for Dummies');
-      done();
-    });
-  });
-
-  it('multiSearch', function (done) {
-    var queries = [
-      {},
-      {query: {query_string: {query: 'fish'}}},
-      {},
-      {query: {match: {author: 'TJ Holowaychuk'}}}
-    ];
-    client.multiSearch({_index: index, _type: 'book'}, queries, function (err, result) {
-      var books = [];
-      assert.ifError(err);
-      assert.equal(result.responses.length, 2);
-      assert.equal(result.responses[0].hits.total, 1);
-      assert.equal(result.responses[1].hits.total, 1);
-      books.push(result.responses[0].hits.hits[0]._id);
-      books.push(result.responses[1].hits.hits[0]._id);
-      assert(books.indexOf('fish1') >= 0);
-      assert(books.indexOf('node2') >= 0);
-      done();
-    });
-  });
-
-  it('percolators', function (done) {
+  describe('Percolators', function () {
     var
       query = {query: { query_string: {query: 'fish'}}},
       book = {
@@ -247,69 +271,83 @@ describe('Functional: core', function () {
         summary: 'Every few decades a chef or a teacher writes a cookbook that is so comprehensive and offers such depth of subject matter and cooking inspiration that it becomes a virtual bible for amateur and professional alike. Author James Peterson, who wrote the book Sauces, a James Beard Cookbook of the Year winner, and the incomparable Splendid Soups, once again demonstrates his connoisseurship with Fish & Shellfish, a monumental cookbook that will take its rightful place as the first and last word on seafood preparation and cooking.'
       };
 
-    client.registerPercolator({name: 'fish_books'}, query, function (err, result) {
-      assert.ifError(err);
+    it('should be able to register a percolator', function (done) {
+      client.registerPercolator({name: 'fish_books'}, query, function (err, result) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should be able to percolate a document', function (done) {
       client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
         assert.ifError(err);
         assert.equal(result.matches.length, 1);
         assert.equal(result.matches[0], 'fish_books');
-        client.unregisterPercolator({name: 'fish_books'}, function (err, result) {
+        done();
+      });
+    });
+
+    it('should be able to unregister a percolator', function (done) {
+      client.unregisterPercolator({name: 'fish_books'}, function (err, result) {
+        assert.ifError(err);
+        client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
           assert.ifError(err);
-          client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
-            assert.ifError(err);
-            assert.equal(result.matches.length, 0);
-            done();
-          });
+          assert.equal(result.matches.length, 0);
+          done();
         });
       });
     });
   });
 
-  it('search', function (done) {
-    client.search({_type: 'book'}, {query: {match: {summary: 'javascript'}}}, function (err, result) {
-      assert.ifError(err);
-      assert.equal(result.hits.total, 3);
-      client.search({_type: 'book'}, {query: {match: {summary: 'fish'}}}, function (err, result) {
+  describe('#search', function () {
+    it('works', function (done) {
+      client.search({_type: 'book'}, {query: {match: {summary: 'javascript'}}}, function (err, result) {
         assert.ifError(err);
-        assert.equal(result.hits.total, 1);
-        done();
+        assert.equal(result.hits.total, 3);
+        client.search({_type: 'book'}, {query: {match: {summary: 'fish'}}}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.hits.total, 1);
+          done();
+        });
       });
     });
   });
 
-  it('update', function (done) {
-    var
-      review = {
-        _id: 'review1',
-        book_id: 'fish2',
-        author: 'Joe',
-        body: 'This recipies in this book literally saved my marriage! Now that I can whip up all manner of fancy fish delights, my wife is a very happy woman.',
-        date: '2013-08-20T10:11:12',
-        views: 0
-      },
-      doc;
+  describe('#update', function () {
+    it('works', function (done) {
+      var
+        review = {
+          _id: 'review1',
+          book_id: 'fish2',
+          author: 'Joe',
+          body: 'This recipies in this book literally saved my marriage! Now that I can whip up all manner of fancy fish delights, my wife is a very happy woman.',
+          date: '2013-08-20T10:11:12',
+          views: 0
+        },
+        doc;
 
-    client.index({_type: 'review', _id: review._id}, review, function (err) {
-      assert.ifError(err);
-      doc = {
-        script: 'ctx._source.views += 1'
-      };
-      client.update({_type: 'review', _id: review._id}, doc, function (err) {
+      client.index({_type: 'review', _id: review._id}, review, function (err) {
         assert.ifError(err);
-        client.get({_type: 'review', _id: review._id}, function (err, result) {
+        doc = {
+          script: 'ctx._source.views += 1'
+        };
+        client.update({_type: 'review', _id: review._id}, doc, function (err) {
           assert.ifError(err);
-          assert.equal(result._source.views, 1);
-          doc = {
-            doc: {
-              replies: ['Glad to hear it!']
-            }
-          };
-          client.update({_type: 'review', _id: review._id}, doc, function (err) {
+          client.get({_type: 'review', _id: review._id}, function (err, result) {
             assert.ifError(err);
-            client.get({_type: 'review', _id: review._id}, function (err, result) {
+            assert.equal(result._source.views, 1);
+            doc = {
+              doc: {
+                replies: ['Glad to hear it!']
+              }
+            };
+            client.update({_type: 'review', _id: review._id}, doc, function (err) {
               assert.ifError(err);
-              assert.equal(result._source.replies.length, 1);
-              done();
+              client.get({_type: 'review', _id: review._id}, function (err, result) {
+                assert.ifError(err);
+                assert.equal(result._source.replies.length, 1);
+                done();
+              });
             });
           });
         });
@@ -317,26 +355,28 @@ describe('Functional: core', function () {
     });
   });
 
-  it('validate', function (done) {
-    var review = {
-      _id: 'review2',
-      book_id: 'node2',
-      author: 'Jeff',
-      body: 'After reading and completing the excercises in the book, my level of Node.js proficiency skyrocketed!',
-      date: '2013-08-20T15:11:12',
-      views: 0
-    };
-    client.index({_type: 'review', _id: review._id}, review, function (err) {
-      assert.ifError(err);
-      client.validate({_type: 'review'}, {match: {author: 'Jeff'}}, function (err, result) {
+  describe('#validate', function () {
+    it('works', function (done) {
+      var review = {
+        _id: 'review2',
+        book_id: 'node2',
+        author: 'Jeff',
+        body: 'After reading and completing the excercises in the book, my level of Node.js proficiency skyrocketed!',
+        date: '2013-08-20T15:11:12',
+        views: 0
+      };
+      client.index({_type: 'review', _id: review._id}, review, function (err) {
         assert.ifError(err);
-        assert(result.valid);
-        client.validate({_type: 'review', explain: true}, {match: {date: 'foo'}}, function (err, result) {
+        client.validate({_type: 'review'}, {match: {author: 'Jeff'}}, function (err, result) {
           assert.ifError(err);
-          assert.equal(result.valid, false);
-          assert.equal(result.explanations.length, 1);
-          assert(result.explanations[0].error.indexOf('Invalid format: "foo"') > 0);
-          done();
+          assert(result.valid);
+          client.validate({_type: 'review', explain: true}, {match: {date: 'foo'}}, function (err, result) {
+            assert.ifError(err);
+            assert.equal(result.valid, false);
+            assert.equal(result.explanations.length, 1);
+            assert(result.explanations[0].error.indexOf('Invalid format: "foo"') > 0);
+            done();
+          });
         });
       });
     });
