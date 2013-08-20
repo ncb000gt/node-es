@@ -290,6 +290,7 @@ describe('functional: core', function () {
         book_id: 'fish2',
         author: 'Joe',
         body: 'This recipies in this book literally saved my marriage! Now that I can whip up all manner of fancy fish delights, my wife is a very happy woman.',
+        date: '2013-08-20T10:11:12',
         views: 0
       },
       doc;
@@ -316,12 +317,35 @@ describe('functional: core', function () {
               assert.equal(result._source.replies.length, 1);
               done();
             });
-          })
+          });
         });
       });
     });
   });
 
-  it('validate');
+  it('validate', function (done) {
+    var review = {
+      _id: 'review2',
+      book_id: 'node2',
+      author: 'Jeff',
+      body: 'After reading and completing the excercises in the book, my level of Node.js proficiency skyrocketed!',
+      date: '2013-08-20T15:11:12',
+      views: 0
+    };
+    client.index({_type: 'review', _id: review._id}, review, function (err) {
+      assert.ifError(err);
+      client.validate({_type: 'review'}, {match: {author: 'Jeff'}}, function (err, result) {
+        assert.ifError(err);
+        assert(result.valid);
+        client.validate({_type: 'review', explain: true}, {match: {date: 'foo'}}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.valid, false);
+          assert.equal(result.explanations.length, 1);
+          assert(result.explanations[0].error.indexOf('Invalid format: "foo"') > 0);
+          done();
+        });
+      });
+    });
+  });
 
 });
