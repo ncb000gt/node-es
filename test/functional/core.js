@@ -29,7 +29,7 @@ describe('functional: core', function () {
         properties: {
           title: {type: 'string', store: 'yes', boost: 5.0},
           author: {type: 'string', store: 'yes', index: 'not_analyzed'},
-          summary: {type: 'string', store: 'yes'}
+          summary: {type: 'string', index: 'analyzed', term_vector: 'with_positions_offsets'}
         }
       }
     }, done);
@@ -222,14 +222,23 @@ describe('functional: core', function () {
     });
   });
 
-  it.skip('multiSearch', function (done) {
+  it('multiSearch', function (done) {
     var queries = [
-      {query: {match: {summary: 'fish'}}},
-      {query: {match: {author: 'TJ'}}}
+      {},
+      {query: {query_string: {query: 'fish'}}},
+      {},
+      {query: {match: {author: 'TJ Holowaychuk'}}}
     ];
-    client.multiSearch({_type: 'book'}, queries, function (err, result) {
+    client.multiSearch({_index: index, _type: 'book'}, queries, function (err, result) {
+      var books = [];
       assert.ifError(err);
-      console.log(result.hits);
+      assert.equal(result.responses.length, 2);
+      assert.equal(result.responses[0].hits.total, 1);
+      assert.equal(result.responses[1].hits.total, 1);
+      books.push(result.responses[0].hits.hits[0]._id);
+      books.push(result.responses[1].hits.hits[0]._id);
+      assert(books.indexOf('fish1') >= 0);
+      assert(books.indexOf('node2') >= 0);
       done();
     });
   });
