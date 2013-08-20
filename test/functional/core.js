@@ -255,13 +255,13 @@ describe('functional: core', function () {
 
     client.registerPercolator({name: 'fish_books'}, query, function (err, result) {
       assert.ifError(err);
-      client.percolate({_type: 'book'}, book, function (err, result) {
+      client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
         assert.ifError(err);
         assert.equal(result.matches.length, 1);
         assert.equal(result.matches[0], 'fish_books');
         client.unregisterPercolator({name: 'fish_books'}, function (err, result) {
           assert.ifError(err);
-          client.percolate({_type: 'book'}, book, function (err, result) {
+          client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
             assert.ifError(err);
             assert.equal(result.matches.length, 0);
             done();
@@ -282,8 +282,6 @@ describe('functional: core', function () {
       });
     });
   });
-
-  it('unregisterPercolator');
 
   it('update');
 
