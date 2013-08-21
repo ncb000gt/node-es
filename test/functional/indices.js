@@ -66,14 +66,14 @@ describe('Functional: indices', function () {
 
     describe('#alias', function () {
       it('should be able to create an alias', function (done) {
-        client.indices.alias({alias: 'test'}, {}, function (err) {
+        client.indices.alias({alias: index + '_test'}, {}, function (err) {
           assert.ifError(err);
           done();
         });
       });
 
       it('should be able to query via alias', function (done) {
-        client.get({_index: 'test', _type: 'book', _id: 'node1'}, function (err, result) {
+        client.get({_index: index + '_test', _type: 'book', _id: 'node1'}, function (err, result) {
           assert.ifError(err);
           assert.equal(result._source.title, 'What Is Node?');
           done();
@@ -83,8 +83,8 @@ describe('Functional: indices', function () {
       it('should be able to create multiple aliases (with filters)', function (done) {
         var data = {
           actions: [
-            {add: {index: index, alias: 'functional_tests_indices'}},
-            {add: {index: index, alias: 'node_books', filter: {
+            {add: {index: index, alias: index + '_functional_tests_indices'}},
+            {add: {index: index, alias: index + '_node_books', filter: {
               and: [
                 {type: {value: 'book'}},
                 {query: {query_string: {query: 'Node.js'}}}
@@ -94,7 +94,7 @@ describe('Functional: indices', function () {
         };
         client.indices.alias(data, function (err) {
           assert.ifError(err);
-          client.search({_index: 'node_books'}, {query: {match_all: {}}}, function (err, result) {
+          client.search({_index: index + '_node_books'}, {query: {match_all: {}}}, function (err, result) {
             assert.ifError(err);
             assert.equal(result.hits.total, 3);
             done();
@@ -107,14 +107,14 @@ describe('Functional: indices', function () {
       it('should be able to list all aliases for the default index', function (done) {
         client.indices.aliases(function (err, result) {
           assert.ifError(err);
-          assert(result[index].aliases.test);
+          assert(result[index].aliases[index +  '_test']);
           done();
         });
       });
       it('should be able to find a specific alias', function (done) {
-        client.indices.aliases({alias: 'test'}, function (err, result) {
+        client.indices.aliases({alias: index + '_test'}, function (err, result) {
           assert.ifError(err);
-          assert(result[index].aliases.test);
+          assert(result[index].aliases[index + '_test']);
           done();
         });
       });
@@ -122,13 +122,13 @@ describe('Functional: indices', function () {
 
     describe('#deleteAlias', function () {
       it('should be able to delete an alias', function (done) {
-        client.indices.deleteAlias({alias: 'test'}, function (err) {
+        client.indices.deleteAlias({alias: index + '_test'}, function (err) {
           assert.ifError(err);
-          client.get({_index: 'test', _type: 'book', _id: 'node2'}, function (err, result) {
+          client.get({_index: index + '_test', _type: 'book', _id: 'node2'}, function (err, result) {
             assert.equal(err.statusCode, 404);
-            client.indices.deleteAlias({alias: 'functional_tests_indices'}, function (err) {
+            client.indices.deleteAlias({alias: index + '_functional_tests_indices'}, function (err) {
               assert.ifError(err);
-              client.indices.deleteAlias({alias: 'node_books'}, function (err) {
+              client.indices.deleteAlias({alias: index + '_node_books'}, function (err) {
                 assert.ifError(err);
                 done();
               });
@@ -142,7 +142,15 @@ describe('Functional: indices', function () {
   describe('Indexes', function () {
 
     describe('#createIndex', function () {
-      it('works');
+      it('should be able to create an index', function (done) {
+        client.indices.createIndex({_index: index + '_foo'}, {}, function (err) {
+          assert.ifError(err);
+          client.indices.createIndex({_index: index + '_foo'}, {}, function (err) {
+            assert(err);
+            done();
+          });
+        });
+      });
     });
 
     describe('#closeIndex', function () {
@@ -154,7 +162,15 @@ describe('Functional: indices', function () {
     });
 
     describe('#deleteIndex', function () {
-      it('works');
+      it('should be able to delete an index', function (done) {
+        client.indices.deleteIndex({_index: index + '_foo'}, function (err) {
+          assert.ifError(err);
+          client.indices.deleteIndex({_index: index + '_foo'}, function (err) {
+            assert(err);
+            done();
+          });
+        });
+      });
     });
 
   });
