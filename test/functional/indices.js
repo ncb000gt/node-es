@@ -384,7 +384,12 @@ describe('Functional: indices', function () {
     });
 
     describe('#flush', function () {
-      it('works');
+      it('should be able to flush an index', function (done) {
+        client.indices.flush(function (err) {
+          assert.ifError(err);
+          done();
+        });
+      });
     });
 
     describe('#optimize', function () {
