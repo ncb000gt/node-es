@@ -139,7 +139,13 @@ describe('Functional: indices', function () {
   });
 
   describe('#clearCache', function () {
-    it('works');
+    it('should be able to clear the cache', function (done) {
+      client.indices.clearCache(function (err) {
+        assert.ifError(err);
+        // @todo Not sure how to test if the cache clear worked.
+        done();
+      });
+    });
   });
 
   describe('#closeIndex', function () {
