@@ -393,7 +393,12 @@ describe('Functional: indices', function () {
     });
 
     describe('#optimize', function () {
-      it('works');
+      it('should be able to optimize an index', function (done) {
+        client.indices.optimize(function (err) {
+          assert.ifError(err);
+          done();
+        });
+      });
     });
 
     describe('#refresh', function () {
