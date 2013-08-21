@@ -428,7 +428,13 @@ describe('Functional: indices', function () {
     });
 
     describe('#segments', function () {
-      it('works');
+      it('should be able to get segment information', function (done) {
+        client.indices.segments(function (err, result) {
+          assert.ifError(err);
+          assert(result.indices[index]);
+          done();
+        });
+      });
     });
 
     describe('#settings', function () {
