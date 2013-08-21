@@ -278,6 +278,53 @@ describe('Functional: indices', function () {
     });
   });
 
+  describe('Warmers', function () {
+
+    describe('#putWarmer', function () {
+      it('should be able to put a warmer', function (done) {
+        var warmer = {
+          query: {
+            match_all: {}
+          },
+          facets: {
+            author: {
+              terms: {
+                field: 'author'
+              }
+            }
+          }
+        };
+        client.indices.putWarmer({name: index + '_warmer', _type: 'book'}, warmer, function (err) {
+          assert.ifError(err);
+          done();
+        });
+      });
+    });
+
+    describe('#warmers', function () {
+      it('should be able to list warmers', function (done) {
+        client.indices.warmers({_type: 'book'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result[index].warmers[index + '_warmer'].source.facets.author.terms.field, 'author');
+          done();
+        });
+      });
+    });
+
+    describe('#deleteWarmer', function () {
+      it('should be able to delete warmers', function (done) {
+        client.indices.deleteWarmer({name: index + '_warmer'}, function (err) {
+          assert.ifError(err);
+          client.indices.warmers({_type: 'book'}, function (err, result) {
+            assert.ifError(err);
+            assert.deepEqual(result, {});
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('Misc.', function () {
 
     describe('#analyze', function () {
@@ -310,10 +357,6 @@ describe('Functional: indices', function () {
       });
     });
 
-    describe('#deleteWarmer', function () {
-      it('works');
-    });
-
     describe('#exists', function () {
       it('works');
     });
@@ -323,10 +366,6 @@ describe('Functional: indices', function () {
     });
 
     describe('#optimize', function () {
-      it('works');
-    });
-
-    describe('#putWarmer', function () {
       it('works');
     });
 
@@ -355,10 +394,6 @@ describe('Functional: indices', function () {
     });
 
     describe('#updateSettings', function () {
-      it('works');
-    });
-
-    describe('#warmers', function () {
       it('works');
     });
 
