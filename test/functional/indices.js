@@ -63,7 +63,20 @@ describe('Functional: indices', function () {
   });
 
   describe('#alias', function () {
-    it('works');
+    it('should be able to create an alias', function (done) {
+      client.indices.alias({alias: 'books'}, {}, function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should be able to query via alias', function (done) {
+      client.get({_index: 'books', _type: 'book', _id: 'node1'}, function (err, result) {
+        assert.ifError(err);
+        assert.equal(result._source.title, 'What Is Node?');
+        done();
+      });
+    });
   });
 
   describe('#aliases', function () {
@@ -91,7 +104,15 @@ describe('Functional: indices', function () {
   });
 
   describe('#deleteAlias', function () {
-    it('works');
+    it('should be able to delete an alias', function (done) {
+      client.indices.deleteAlias({alias: 'books'}, function (err) {
+        assert.ifError(err);
+        client.get({_index: 'books', _type: 'book', _id: 'node2'}, function (err, result) {
+          assert.equal(err.statusCode, 404);
+          done();
+        });
+      });
+    });
   });
 
   describe('#deleteIndex', function () {
