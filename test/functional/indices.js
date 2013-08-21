@@ -188,7 +188,64 @@ describe('Functional: indices', function () {
         });
       });
     });
+  });
 
+  describe('Templates', function () {
+
+    describe('#createTemplate', function () {
+      it('should be able to create a template', function (done) {
+        var template = {
+          template: 'test*',
+          mappings: {
+            widget: {
+              _source: {enabled: false}
+            }
+          }
+        };
+        client.indices.createTemplate({name: index + '_template'}, template, function (err) {
+          assert.ifError(err);
+          done();
+        });
+      });
+    });
+
+    describe('#templates', function () {
+      it('should be able to list templates', function (done) {
+        client.indices.templates({name: index + '_template'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result[index + '_template'].template, 'test*');
+          done();
+        });
+      });
+    });
+
+    describe('#deleteTemplate', function () {
+      it('should be able to delete a template', function (done) {
+        client.indices.deleteTemplate({name: index + '_template'}, function (err) {
+          assert.ifError(err);
+          client.indices.templates({name: index + '_template'}, function (err, result) {
+            assert.ifError(err);
+            assert.deepEqual(result, {});
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('Mappings', function () {
+
+    describe('#putMapping', function () {
+      it('works');
+    });
+
+    describe('#mappings', function () {
+      it('works');
+    });
+
+    describe('#deleteMapping', function () {
+      it('works');
+    });
   });
 
   describe('Misc.', function () {
@@ -223,18 +280,6 @@ describe('Functional: indices', function () {
       });
     });
 
-    describe('#createTemplate', function () {
-      it('works');
-    });
-
-    describe('#deleteMapping', function () {
-      it('works');
-    });
-
-    describe('#deleteTemplate', function () {
-      it('works');
-    });
-
     describe('#deleteWarmer', function () {
       it('works');
     });
@@ -247,15 +292,7 @@ describe('Functional: indices', function () {
       it('works');
     });
 
-    describe('#mappings', function () {
-      it('works');
-    });
-
     describe('#optimize', function () {
-      it('works');
-    });
-
-    describe('#putMapping', function () {
       it('works');
     });
 
@@ -284,10 +321,6 @@ describe('Functional: indices', function () {
     });
 
     describe('#status', function () {
-      it('works');
-    });
-
-    describe('#templates', function () {
       it('works');
     });
 
