@@ -402,7 +402,29 @@ describe('Functional: indices', function () {
     });
 
     describe('#refresh', function () {
-      it('works');
+      it('should be able to refresh an index', function (done) {
+        var book = {
+          _id: 'short',
+          title: 'Short book',
+          author: 'Me',
+          summary: 'Short summary'
+        };
+        client.index({_type: 'book', _id: book._id}, book, function (err) {
+          assert.ifError(err);
+          client.search({_type: 'book'}, {query: {match: {title: 'Short book'}}}, function (err, result) {
+            assert.ifError(err);
+            assert.equal(result.hits.total, 0);
+            client.indices.refresh(function (err) {
+              assert.ifError(err);
+              client.search({_type: 'book'}, {query: {match: {title: 'Short book'}}}, function (err, result) {
+                assert.ifError(err);
+                assert.equal(result.hits.total, 1);
+                done();
+              });
+            });
+          });
+        });
+      });
     });
 
     describe('#segments', function () {
