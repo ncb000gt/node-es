@@ -119,7 +119,23 @@ describe('Functional: indices', function () {
   });
 
   describe('#analyze', function () {
-    it('works');
+    it('should be able to analyze text with a specific analyzer', function (done) {
+      client.indices.analyze({analyzer: 'standard'}, 'this is a test', function (err, result) {
+        assert.ifError(err);
+        assert.equal(result.tokens.length, 1);
+        assert.equal(result.tokens[0].token, 'test');
+        done();
+      });
+    });
+
+    it('should be able to analyze text using a field mapping', function (done) {
+      client.indices.analyze({field: 'book.summary'}, 'this is a test', function (err, result) {
+        assert.ifError(err);
+        assert.equal(result.tokens.length, 1);
+        assert.equal(result.tokens[0].token, 'test');
+        done();
+      });
+    });
   });
 
   describe('#clearCache', function () {
