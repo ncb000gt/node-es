@@ -80,7 +80,13 @@ describe('Functional: indices', function () {
   });
 
   describe('#aliases', function () {
-    it('works');
+    it('should be able to list all aliases for the default index', function (done) {
+      client.indices.aliases(function (err, result) {
+        assert.ifError(err);
+        assert(result[index].aliases.books);
+        done();
+      });
+    });
   });
 
   describe('#analyze', function () {
