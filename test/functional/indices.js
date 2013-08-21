@@ -62,200 +62,210 @@ describe('Functional: indices', function () {
     client.indices.deleteIndex(done);
   });
 
-  describe('#alias', function () {
-    it('should be able to create an alias', function (done) {
-      client.indices.alias({alias: 'test'}, {}, function (err) {
-        assert.ifError(err);
-        done();
-      });
-    });
+  describe('Aliases', function () {
 
-    it('should be able to query via alias', function (done) {
-      client.get({_index: 'test', _type: 'book', _id: 'node1'}, function (err, result) {
-        assert.ifError(err);
-        assert.equal(result._source.title, 'What Is Node?');
-        done();
-      });
-    });
-
-    it('should be able to create multiple aliases (with filters)', function (done) {
-      var data = {
-        actions: [
-          {add: {index: index, alias: 'functional_tests_indices'}},
-          {add: {index: index, alias: 'node_books', filter: {
-            and: [
-              {type: {value: 'book'}},
-              {query: {query_string: {query: 'Node.js'}}}
-            ]
-          }}}
-        ]
-      };
-      client.indices.alias(data, function (err) {
-        assert.ifError(err);
-        client.search({_index: 'node_books'}, {query: {match_all: {}}}, function (err, result) {
+    describe('#alias', function () {
+      it('should be able to create an alias', function (done) {
+        client.indices.alias({alias: 'test'}, {}, function (err) {
           assert.ifError(err);
-          assert.equal(result.hits.total, 3);
           done();
         });
       });
-    });
-  });
 
-  describe('#aliases', function () {
-    it('should be able to list all aliases for the default index', function (done) {
-      client.indices.aliases(function (err, result) {
-        assert.ifError(err);
-        assert(result[index].aliases.test);
-        done();
+      it('should be able to query via alias', function (done) {
+        client.get({_index: 'test', _type: 'book', _id: 'node1'}, function (err, result) {
+          assert.ifError(err);
+          assert.equal(result._source.title, 'What Is Node?');
+          done();
+        });
       });
-    });
-    it('should be able to find a specific alias', function (done) {
-      client.indices.aliases({alias: 'test'}, function (err, result) {
-        assert.ifError(err);
-        assert(result[index].aliases.test);
-        done();
-      });
-    });
-  });
 
-  describe('#analyze', function () {
-    it('should be able to analyze text with a specific analyzer', function (done) {
-      client.indices.analyze({analyzer: 'standard'}, 'this is a test', function (err, result) {
-        assert.ifError(err);
-        assert.equal(result.tokens.length, 1);
-        assert.equal(result.tokens[0].token, 'test');
-        done();
-      });
-    });
-
-    it('should be able to analyze text using a field mapping', function (done) {
-      client.indices.analyze({field: 'book.summary'}, 'this is a test', function (err, result) {
-        assert.ifError(err);
-        assert.equal(result.tokens.length, 1);
-        assert.equal(result.tokens[0].token, 'test');
-        done();
-      });
-    });
-  });
-
-  describe('#clearCache', function () {
-    it('should be able to clear the cache', function (done) {
-      client.indices.clearCache(function (err) {
-        assert.ifError(err);
-        // @todo Not sure how to test if the cache clear worked.
-        done();
-      });
-    });
-  });
-
-  describe('#closeIndex', function () {
-    it('works');
-  });
-
-  describe('#createIndex', function () {
-    it('works');
-  });
-
-  describe('#createTemplate', function () {
-    it('works');
-  });
-
-  describe('#deleteAlias', function () {
-    it('should be able to delete an alias', function (done) {
-      client.indices.deleteAlias({alias: 'test'}, function (err) {
-        assert.ifError(err);
-        client.get({_index: 'test', _type: 'book', _id: 'node2'}, function (err, result) {
-          assert.equal(err.statusCode, 404);
-          client.indices.deleteAlias({alias: 'functional_tests_indices'}, function (err) {
+      it('should be able to create multiple aliases (with filters)', function (done) {
+        var data = {
+          actions: [
+            {add: {index: index, alias: 'functional_tests_indices'}},
+            {add: {index: index, alias: 'node_books', filter: {
+              and: [
+                {type: {value: 'book'}},
+                {query: {query_string: {query: 'Node.js'}}}
+              ]
+            }}}
+          ]
+        };
+        client.indices.alias(data, function (err) {
+          assert.ifError(err);
+          client.search({_index: 'node_books'}, {query: {match_all: {}}}, function (err, result) {
             assert.ifError(err);
-            client.indices.deleteAlias({alias: 'node_books'}, function (err) {
-              assert.ifError(err);
-              done();
-            });
+            assert.equal(result.hits.total, 3);
+            done();
           });
         });
       });
     });
 
+    describe('#aliases', function () {
+      it('should be able to list all aliases for the default index', function (done) {
+        client.indices.aliases(function (err, result) {
+          assert.ifError(err);
+          assert(result[index].aliases.test);
+          done();
+        });
+      });
+      it('should be able to find a specific alias', function (done) {
+        client.indices.aliases({alias: 'test'}, function (err, result) {
+          assert.ifError(err);
+          assert(result[index].aliases.test);
+          done();
+        });
+      });
+    });
+
+    describe('#deleteAlias', function () {
+      it('should be able to delete an alias', function (done) {
+        client.indices.deleteAlias({alias: 'test'}, function (err) {
+          assert.ifError(err);
+          client.get({_index: 'test', _type: 'book', _id: 'node2'}, function (err, result) {
+            assert.equal(err.statusCode, 404);
+            client.indices.deleteAlias({alias: 'functional_tests_indices'}, function (err) {
+              assert.ifError(err);
+              client.indices.deleteAlias({alias: 'node_books'}, function (err) {
+                assert.ifError(err);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
-  describe('#deleteIndex', function () {
-    it('works');
+  describe('Indexes', function () {
+
+    describe('#createIndex', function () {
+      it('works');
+    });
+
+    describe('#closeIndex', function () {
+      it('works');
+    });
+
+    describe('#openIndex', function () {
+      it('works');
+    });
+
+    describe('#deleteIndex', function () {
+      it('works');
+    });
+
   });
 
-  describe('#deleteMapping', function () {
-    it('works');
-  });
+  describe('Misc.', function () {
 
-  describe('#deleteTemplate', function () {
-    it('works');
-  });
+    describe('#analyze', function () {
+      it('should be able to analyze text with a specific analyzer', function (done) {
+        client.indices.analyze({analyzer: 'standard'}, 'this is a test', function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.tokens.length, 1);
+          assert.equal(result.tokens[0].token, 'test');
+          done();
+        });
+      });
 
-  describe('#deleteWarmer', function () {
-    it('works');
-  });
+      it('should be able to analyze text using a field mapping', function (done) {
+        client.indices.analyze({field: 'book.summary'}, 'this is a test', function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.tokens.length, 1);
+          assert.equal(result.tokens[0].token, 'test');
+          done();
+        });
+      });
+    });
 
-  describe('#exists', function () {
-    it('works');
-  });
+    describe('#clearCache', function () {
+      it('should be able to clear the cache', function (done) {
+        client.indices.clearCache(function (err) {
+          assert.ifError(err);
+          // @todo Not sure how to test if the cache clear worked.
+          done();
+        });
+      });
+    });
 
-  describe('#flush', function () {
-    it('works');
-  });
+    describe('#createTemplate', function () {
+      it('works');
+    });
 
-  describe('#mappings', function () {
-    it('works');
-  });
+    describe('#deleteMapping', function () {
+      it('works');
+    });
 
-  describe('#openIndex', function () {
-    it('works');
-  });
+    describe('#deleteTemplate', function () {
+      it('works');
+    });
 
-  describe('#optimize', function () {
-    it('works');
-  });
+    describe('#deleteWarmer', function () {
+      it('works');
+    });
 
-  describe('#putMapping', function () {
-    it('works');
-  });
+    describe('#exists', function () {
+      it('works');
+    });
 
-  describe('#putWarmer', function () {
-    it('works');
-  });
+    describe('#flush', function () {
+      it('works');
+    });
 
-  describe('#refresh', function () {
-    it('works');
-  });
+    describe('#mappings', function () {
+      it('works');
+    });
 
-  describe('#segments', function () {
-    it('works');
-  });
+    describe('#optimize', function () {
+      it('works');
+    });
 
-  describe('#settings', function () {
-    it('works');
-  });
+    describe('#putMapping', function () {
+      it('works');
+    });
 
-  describe('#snapshot', function () {
-    it('works');
-  });
+    describe('#putWarmer', function () {
+      it('works');
+    });
 
-  describe('#stats', function () {
-    it('works');
-  });
+    describe('#refresh', function () {
+      it('works');
+    });
 
-  describe('#status', function () {
-    it('works');
-  });
+    describe('#segments', function () {
+      it('works');
+    });
 
-  describe('#templates', function () {
-    it('works');
-  });
+    describe('#settings', function () {
+      it('works');
+    });
 
-  describe('#updateSettings', function () {
-    it('works');
-  });
+    describe('#snapshot', function () {
+      it('works');
+    });
 
-  describe('#warmers', function () {
-    it('works');
+    describe('#stats', function () {
+      it('works');
+    });
+
+    describe('#status', function () {
+      it('works');
+    });
+
+    describe('#templates', function () {
+      it('works');
+    });
+
+    describe('#updateSettings', function () {
+      it('works');
+    });
+
+    describe('#warmers', function () {
+      it('works');
+    });
+
   });
 });
