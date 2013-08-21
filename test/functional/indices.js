@@ -438,7 +438,13 @@ describe('Functional: indices', function () {
     });
 
     describe('#settings', function () {
-      it('works');
+      it('should be able to get settings', function (done) {
+        client.indices.settings(function (err, result) {
+          assert.ifError(err);
+          assert(result[index].settings);
+          done();
+        });
+      });
     });
 
     describe('#snapshot', function () {
