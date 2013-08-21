@@ -154,11 +154,27 @@ describe('Functional: indices', function () {
     });
 
     describe('#closeIndex', function () {
-      it('works');
+      it('should be able to close an index', function (done) {
+        client.indices.closeIndex({_index: index + '_foo'}, function (err) {
+          assert.ifError(err);
+          client.index({_index: index + '_foo', _type: 'bar'}, {my: 'data'}, function (err) {
+            assert.equal(err.statusCode, 403);
+            done();
+          });
+        });
+      });
     });
 
     describe('#openIndex', function () {
-      it('works');
+      it('should be able to open an index', function (done) {
+        client.indices.openIndex({_index: index + '_foo'}, function (err) {
+          assert.ifError(err);
+          client.index({_index: index + '_foo', _type: 'bar', _id: 'thing'}, {_id: 'thing', my: 'data'}, function (err) {
+            assert.ifError(err);
+            done();
+          });
+        });
+      });
     });
 
     describe('#deleteIndex', function () {
