@@ -144,10 +144,17 @@ describe('Functional: indices', function () {
         assert.ifError(err);
         client.get({_index: 'test', _type: 'book', _id: 'node2'}, function (err, result) {
           assert.equal(err.statusCode, 404);
-          done();
+          client.indices.deleteAlias({alias: 'functional_tests_indices'}, function (err) {
+            assert.ifError(err);
+            client.indices.deleteAlias({alias: 'node_books'}, function (err) {
+              assert.ifError(err);
+              done();
+            });
+          });
         });
       });
     });
+
   });
 
   describe('#deleteIndex', function () {
