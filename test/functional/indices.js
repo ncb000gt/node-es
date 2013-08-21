@@ -236,15 +236,45 @@ describe('Functional: indices', function () {
   describe('Mappings', function () {
 
     describe('#putMapping', function () {
-      it('works');
+      it('should be able to put a mapping', function (done) {
+        var mapping = {
+          baz: {
+            properties: {
+              name: {
+                type: 'string',
+                index: 'analyzed'
+              }
+            }
+          }
+        };
+        client.indices.putMapping({_type: 'baz'}, mapping, function (err) {
+          assert.ifError(err);
+          done();
+        });
+      });
     });
 
     describe('#mappings', function () {
-      it('works');
+      it('should be able to list mappings', function (done) {
+        client.indices.mappings(function (err, result) {
+          assert.ifError(err);
+          assert(result[index].baz);
+          assert(result[index].baz.properties.name);
+          done();
+        });
+      });
     });
 
     describe('#deleteMapping', function () {
-      it('works');
+      it('should be able to delete mappings', function (done) {
+        client.indices.deleteMapping({_type: 'baz'}, function (err) {
+          assert.ifError(err);
+          client.indices.mappings({_type: 'baz'}, function (err) {
+            assert.equal(err.statusCode, 404);
+            done();
+          });
+        });
+      });
     });
   });
 
