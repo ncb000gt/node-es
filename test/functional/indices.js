@@ -358,7 +358,29 @@ describe('Functional: indices', function () {
     });
 
     describe('#exists', function () {
-      it('works');
+      it('should be able to check if an index exists', function(done){
+        client.indices.exists(function (err, result) {
+          assert.ifError(err);
+          assert(result.exists);
+          client.indices.exists({_index: index + '_doesnotexist'}, function (err, result) {
+            assert.ifError(err);
+            assert(result.exists === false);
+            done();
+          });
+        });
+      });
+
+      it('should be able to check if a type exists', function(done){
+        client.indices.exists({_type: 'book'}, function (err, result) {
+          assert.ifError(err);
+          assert(result.exists);
+          client.indices.exists({_type: index + '_doesnotexist'}, function (err, result) {
+            assert.ifError(err);
+            assert(result.exists === false);
+            done();
+          });
+        });
+      });
     });
 
     describe('#flush', function () {
