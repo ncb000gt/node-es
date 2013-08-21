@@ -4,7 +4,7 @@ var
 
 describe('Functional: core', function () {
   var
-    index = 'elasticsearch_test_functional_' + Date.now(),
+    index = 'elasticsearch_test_functional_core_' + Date.now(),
     client;
 
   before(function (done) {
