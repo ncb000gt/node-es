@@ -26,7 +26,13 @@ describe('Functional: cluster', function () {
   });
 
   describe('#health', function () {
-    it('works');
+    it('should be able to get the cluster health', function (done) {
+      client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
+        assert.ifError(err);
+        assert.equal(result.status, 'yellow');
+        done();
+      });
+    });
   });
 
   describe('#hotThreads', function () {
