@@ -46,7 +46,13 @@ describe('Functional: cluster', function () {
   });
 
   describe('#nodesInfo', function () {
-    it('works');
+    it('should be able to get nodes info', function (done) {
+      client.cluster.nodesInfo(function (err, result) {
+        assert.ifError(err);
+        assert(result.nodes);
+        done();
+      });
+    });
   });
 
   describe('#nodesStats', function () {
