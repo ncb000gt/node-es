@@ -462,7 +462,13 @@ describe('Functional: indices', function () {
     });
 
     describe('#status', function () {
-      it('works');
+      it('should be able to get the status', function (done) {
+        client.indices.status(function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.indices[index].docs.num_docs, 5);
+          done();
+        });
+      });
     });
 
     describe('#updateSettings', function () {
