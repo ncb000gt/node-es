@@ -42,7 +42,12 @@ describe('Functional: cluster', function () {
   });
 
   describe('#hotThreads', function () {
-    it('works');
+    it('should be able to get the hot threads', function (done) {
+      client.cluster.hotThreads(function (result) {
+        assert(result.message.indexOf('cpu usage') > 0);
+        done();
+      });
+    });
   });
 
   describe('#nodesInfo', function () {
