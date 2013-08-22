@@ -9,7 +9,13 @@ describe('Functional: core', function () {
 
   before(function (done) {
     client = createClient({_index: index});
-    client.indices.createIndex(done);
+    client.indices.createIndex(function (err) {
+      assert.ifError(err);
+      client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
+        assert.ifError(err);
+        done();
+      });
+    });
   });
 
   before(function (done) {
