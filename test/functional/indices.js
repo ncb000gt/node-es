@@ -452,7 +452,13 @@ describe('Functional: indices', function () {
     });
 
     describe('#stats', function () {
-      it('works');
+      it('should be able to get the stats', function (done) {
+        client.indices.stats(function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.indices[index].total.docs.count, 5);
+          done();
+        });
+      });
     });
 
     describe('#status', function () {
