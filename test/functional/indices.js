@@ -472,7 +472,21 @@ describe('Functional: indices', function () {
     });
 
     describe('#updateSettings', function () {
-      it('works');
+      it('should be able to update settings', function (done) {
+        var settings = {
+          index: {
+            refresh_interval: '24s'
+          }
+        };
+        client.indices.updateSettings(settings, function (err) {
+          assert.ifError(err);
+          client.indices.settings(function (err, result) {
+            assert.ifError(err);
+            assert.equal(result[index].settings['index.refresh_interval'], '24s');
+            done();
+          });
+        });
+      });
     });
 
   });
