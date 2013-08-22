@@ -91,7 +91,13 @@ describe('Functional: cluster', function () {
   });
 
   describe('#state', function () {
-    it('works');
+    it('should be able to get the state', function (done) {
+      client.cluster.state(function (err, result) {
+        assert.ifError(err);
+        assert(result.metadata);
+        done();
+      })
+    });
   });
 
   describe('#updateSettings', function () {
