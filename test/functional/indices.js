@@ -147,6 +147,10 @@ describe('Functional: indices', function () {
 
   describe('Indexes', function () {
 
+    afterEach(function (done) {
+      client.cluster.health({wait_for_status: 'yellow'}, done);
+    });
+
     describe('#createIndex', function () {
       it('should be able to create an index', function (done) {
         client.indices.createIndex({_index: index + '_foo'}, {}, function (err) {
