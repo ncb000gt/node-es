@@ -37,6 +37,7 @@ function createClient (options) {
 
 	client.cluster = cluster(options, req);
 	client.indices = indices(options, req);
+	client.request = req;
 
 	return client;
 }
