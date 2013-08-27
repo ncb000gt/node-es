@@ -1,7 +1,7 @@
 var coreLib = requireWithCoverage('core');
 
 
-describe('core', function () {
+describe('API: core', function () {
 	var
 		core,
 		defaultOptions,
@@ -349,7 +349,7 @@ describe('core', function () {
 			core.deleteByQuery(query, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('/dieties/kitteh/_query');
-				data.options.method.should.equals('POST');
+				data.options.method.should.equals('DELETE');
 
 				done();
 			});
@@ -360,7 +360,7 @@ describe('core', function () {
 			core.deleteByQuery(query, function (err, data) {
 				should.not.exist(err);
 				data.options.path.should.equals('/dieties/_query');
-				data.options.method.should.equals('POST');
+				data.options.method.should.equals('DELETE');
 
 				done();
 			});
@@ -685,8 +685,8 @@ describe('core', function () {
 				should.not.exist(err);
 				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
-				data.inputData[0]._index.should.equals('testIndex');
-				data.inputData[0]._type.should.equals('testType');
+				data.inputData.docs[0]._index.should.equals('testIndex');
+				data.inputData.docs[0]._type.should.equals('testType');
 
 				done();
 			});
@@ -699,8 +699,8 @@ describe('core', function () {
 				should.not.exist(err);
 				data.options.path.should.equals('/_mget');
 				data.options.method.should.equals('POST');
-				data.inputData[0]._index.should.equals('dieties');
-				data.inputData[0]._type.should.equals('kitteh');
+				data.inputData.docs[0]._index.should.equals('dieties');
+				data.inputData.docs[0]._type.should.equals('kitteh');
 
 				done();
 			});

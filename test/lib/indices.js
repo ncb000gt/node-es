@@ -1,7 +1,7 @@
 var indicesLib = requireWithCoverage('indices');
 
 
-describe('indices', function () {
+describe('API: indices', function () {
 	var
 		indices,
 		defaultOptions;
@@ -61,11 +61,10 @@ describe('indices', function () {
 	});
 
 	describe('#aliases', function () {
-		it('should require alias to retrieve alias details', function (done) {
+		it('should default alias to wildcard if not specified', function (done) {
 			indices.aliases(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
+				should.not.exist(err);
+				data.options.alias.should.equals('*');
 				done();
 			});
 		});
