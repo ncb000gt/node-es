@@ -2,7 +2,7 @@
   "name" : "elasticsearch",
   "description" : "API around the ElasticSearch RESTful API -- mostly convenience.",
   "main" : "index.js",
-  "version" : "0.3.8",
+  "version" : "0.3.9",
   "author" : "Nick Campbell (http://github.com/ncb000gt)",
   "contributors" : [
     "Nick Campbell (http://github.com/ncb000gt)",

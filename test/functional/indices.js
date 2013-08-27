@@ -234,8 +234,7 @@ describe('Functional: indices', function () {
         client.indices.deleteTemplate({name: index + '_template'}, function (err) {
           assert.ifError(err);
           client.indices.templates({name: index + '_template'}, function (err, result) {
-            assert.ifError(err);
-            assert.deepEqual(result, {});
+            assert.ok(err);
             done();
           });
         });
