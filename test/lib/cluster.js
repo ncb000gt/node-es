@@ -1,7 +1,7 @@
 var clusterLib = requireWithCoverage('cluster');
 
 
-describe('cluster', function () {
+describe('API: cluster', function () {
 	var
 		cluster,
 		defaultOptions;
