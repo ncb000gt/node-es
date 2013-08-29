@@ -233,8 +233,10 @@ describe('Functional: indices', function () {
       it('should be able to delete a template', function (done) {
         client.indices.deleteTemplate({name: index + '_template'}, function (err) {
           assert.ifError(err);
-          client.indices.templates({name: index + '_template'}, function (err, result) {
-            assert.ok(err);
+          client.cluster.state(function (err, result) {
+            assert.ifError(err);
+            assert.deepEqual(result.metadata.templates, {});
+
             done();
           });
         });
