@@ -31,13 +31,14 @@ function createClient (options) {
 	}
 
 	var
-		request = options.request || require('./lib/request'),
-		req = request.initialize(options.server),
-		client = core(options, req);
+		request =
+			(options.request || require('./lib/request'))
+			.initialize(options.server),
+		client = core(options, request);
 
-	client.cluster = cluster(options, req);
-	client.indices = indices(options, req);
-	client.request = req;
+	client.cluster = cluster(options, request);
+	client.indices = indices(options, request);
+	client.request = request;
 
 	return client;
 }
