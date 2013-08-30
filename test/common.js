@@ -27,6 +27,7 @@ global.requireWithCoverage = function (libName) {
 	}
 };
 
+global.clientOptions = {};
 
 global.req = require('../lib/request').initialize({});
 

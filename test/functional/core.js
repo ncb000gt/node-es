@@ -8,7 +8,8 @@ describe('Functional: core', function () {
     client;
 
   before(function (done) {
-    client = createClient({_index: index});
+    clientOptions._index = index;
+    client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
       client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
