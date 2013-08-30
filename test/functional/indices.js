@@ -149,6 +149,7 @@ describe('Functional: indices', function () {
   describe('Indexes', function () {
 
     afterEach(function (done) {
+      this.timeout(5000);
       client.cluster.health({wait_for_status: 'yellow'}, done);
     });
 
