@@ -14,7 +14,7 @@ var
 
 
 // let the magic begin
-function createClient (options, requestLogger) {
+function createClient (options) {
 	'use strict';
 
 	options = options || {};
@@ -33,7 +33,7 @@ function createClient (options, requestLogger) {
 	var
 		request =
 			(options.request || require('./lib/request'))
-			.initialize(options.server, requestLogger),
+			.initialize(options.server),
 		client = core(options, request);
 
 	client.cluster = cluster(options, request);

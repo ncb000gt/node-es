@@ -47,14 +47,6 @@ var
   es = elasticsearch.createClient(config);
 ```
 
-You may also supply a logger for each request by passing in an optional second argument to `elasticsearch.createClient(config, requestLogger)`. This will result in every http(s) request being logged via the callback supplied to the `requestLogger` parameter.
-
-```Javascript
-var
-  elasticsearch = require('elasticsearch'),
-  es = elasticsearch.createClient(config, console.log);
-```
-
 ##### config._index
 
 When initializing the library, you may choose to specify an index and/or type to work with at the start to save from having to supply this information in the options for each operation request:
@@ -162,6 +154,32 @@ var options = {
 
 es.bulk(options, commands, function (err, data) {
   // teh datas
+});
+```
+
+#### request event
+
+An event named `request` with a signature of `function (options) { }` is emitted for each API call.
+
+```Javascript
+var elasticsearch = require('elasticsearch');
+
+var config = {
+  _index : 'bawss',
+  server : {
+    hosts : ['localhost:9200', 'localhost:9201', 'localhost:9202']
+  }
+};
+
+var es = elasticsearch(config);
+
+es.request.on('request', function (options) {
+  console.log('request initiated');
+  console.log(options);
+});
+
+es.count(function (err, results) {
+  // event results in request options being logged to console...
 });
 ```
 
