@@ -8,7 +8,8 @@ describe('Functional: indices', function () {
     client;
 
   before(function (done) {
-    client = createClient({_index: index});
+    clientOptions._index = index;
+    client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
       client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
@@ -148,6 +149,7 @@ describe('Functional: indices', function () {
   describe('Indexes', function () {
 
     afterEach(function (done) {
+      this.timeout(5000);
       client.cluster.health({wait_for_status: 'yellow'}, done);
     });
 
@@ -235,8 +237,7 @@ describe('Functional: indices', function () {
           assert.ifError(err);
           client.cluster.state(function (err, result) {
             assert.ifError(err);
-            assert.deepEqual(result.metadata.templates, {});
-
+            assert(typeof result.metadata.templates[index + '_template'] === 'undefined');
             done();
           });
         });
