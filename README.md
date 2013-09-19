@@ -421,6 +421,10 @@ Requires `_index` be specified either via lib config or via options when calling
 
 `es.search(options, query, callback)`
 
+##### Suggest
+
+`es.suggest(options, query, callback)`
+
 ##### Update
 
 Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
