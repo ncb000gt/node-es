@@ -3,6 +3,9 @@ var
   createStack = require('stact');
 
 describe('Functional: core', function () {
+  // upping default timeout for Travis-CI builds
+  this.timeout(4000);
+
   var
     index = 'elasticsearch_test_functional_core_' + Date.now(),
     client;
