@@ -229,6 +229,21 @@ describe('API: core', function () {
 				done();
 			});
 		});
+
+		it('should properly handle _id supplied with documents', function (done) {
+			// add an _id to each document
+			for (var i = 0; i < documents.length; i++) {
+				documents[i]._id = i;
+			}
+
+			core.bulkIndex(documents, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.inputData.match(/_id/g).should.have.length(3);
+
+				done();
+			});
+		});
 	});
 
 	describe('#count', function () {
