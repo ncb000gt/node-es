@@ -320,6 +320,22 @@ describe('Functional: core', function () {
     });
   });
 
+  describe('#suggest', function () {
+    it('works', function (done) {
+      client.suggest({'test-suggest-1': {text: 'noed', term: {field: 'title'}}}, function (err, result) {
+        assert.ifError(err);
+        assert.ok(result['test-suggest-1']);
+
+        client.suggest({'test-suggest-2': {text: 'noed', term: {field: 'summary'}}}, function (err, result) {
+          assert.ifError(err);
+          assert.ok(result['test-suggest-2']);
+
+          done();
+        });
+      });
+    });
+  });
+
   describe('#update', function () {
     it('works', function (done) {
       var

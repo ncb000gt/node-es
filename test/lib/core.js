@@ -932,21 +932,13 @@ describe('API: core', function () {
 			}
 		};
 
-		it('should require index', function (done) {
+		it('should allow request without index', function (done) {
 			delete defaultOptions._index;
-			core.suggest({}, suggest, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should allow options to be optional', function (done) {
+			delete defaultOptions._type;
 			core.suggest({}, suggest, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/_suggest');
+				data.options.path.should.equals('/_suggest');
 				data.options.method.should.equals('POST');
 
 				done();
@@ -959,6 +951,17 @@ describe('API: core', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.path.should.equals('/dieties/_suggest');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
+		it('should allow options to be optional', function (done) {
+			core.suggest({}, suggest, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('/dieties/kitteh/_suggest');
 				data.options.method.should.equals('POST');
 
 				done();
