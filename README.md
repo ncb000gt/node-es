@@ -67,7 +67,7 @@ var config = {
 };
 ```
 
-*Note:* When index, indices, type or types are supplied via operation options, those settings will take precident over the base configuration for the library:
+*Note:* When index, indices, type or types are supplied via operation options, those settings will take precedent over the base configuration for the library:
 
 ```Javascript
 
@@ -185,7 +185,7 @@ es.count(function (err, results) {
 
 #### options for any operation
 
-For each ES operation, options may be specified as the first argument to the function. In most cases, these are entirely optional, but when supplied, the values specified will take precident over the config values passed to the library constructor.
+For each ES operation, options may be specified as the first argument to the function. In most cases, these are entirely optional, but when supplied, the values specified will take precedent over the config values passed to the library constructor.
 Additionally, if there are extra option keys supplied beyond what is required for the operation, they are mapped directly to the querystring.
 
 ```
