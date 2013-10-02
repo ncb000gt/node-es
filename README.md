@@ -1,20 +1,20 @@
-# node-elasticsearch
+# node-es
 
 This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) REST API.
 
-[![Build Status](https://travis-ci.org/ncb000gt/node-elasticsearch.png)](https://travis-ci.org/ncb000gt/node-elasticsearch) [![Coverage Status](https://coveralls.io/repos/ncb000gt/node-elasticsearch/badge.png)](https://coveralls.io/r/ncb000gt/node-elasticsearch)
+[![Build Status](https://travis-ci.org/ncb000gt/node-es.png)](https://travis-ci.org/ncb000gt/node-es) [![Coverage Status](https://coveralls.io/repos/ncb000gt/node-es/badge.png)](https://coveralls.io/r/ncb000gt/node-es)
 
 ## Install
 
 ```Javascript
-npm install elasticsearch
+npm install es
 ```
 
 ## Usage
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   config = {
     _index : 'kittehs'
   },
@@ -43,7 +43,7 @@ Calling `elasticsearch.createClient(config)` is the same as `elasticsearch(confi
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   es = elasticsearch.createClient(config);
 ```
 
@@ -72,7 +72,7 @@ var config = {
 ```Javascript
 
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   config = {
     _index : 'kitteh'
   },
@@ -117,7 +117,7 @@ var config = {
 Elasticsearch is pretty much rad at clustering. If you want to specify multiple servers to failover to, you may do so by either supplying an array as the value for the property `hosts` or `hostnames`:
 
 ```Javascript
-var elasticsearch = require('elasticsearch');
+var elasticsearch = require('es');
 var config = {
   _index : 'bawss',
   server : {
@@ -132,7 +132,7 @@ var es = elasticsearch(config);
 If you run on different ports for each server, use the `hosts` property:
 
 ```Javascript
-var elasticsearch = require('elasticsearch');
+var elasticsearch = require('es');
 var config = {
   _index : 'bawss',
   server : {
@@ -162,7 +162,7 @@ es.bulk(options, commands, function (err, data) {
 An event named `request` with a signature of `function (options) { }` is emitted for each API call.
 
 ```Javascript
-var elasticsearch = require('elasticsearch');
+var elasticsearch = require('es');
 
 var config = {
   _index : 'bawss',
@@ -240,7 +240,7 @@ For more information regarding bulk, please see the ElasticSearch documentation 
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   es = elasticsearch();
 
 var commands = [
@@ -265,7 +265,7 @@ This is not a core action for ElasticSearch, but is a convenience method added t
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   es = elasticsearch();
 
 var documents = [
@@ -290,7 +290,7 @@ es.bulkIndex(options, documents, function (err, data) {
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch');
+  elasticsearch = require('es');
   es = elasticsearch();
 
 es.count(function (err, data) {
@@ -316,7 +316,7 @@ Requires `_index` be specified either via lib config (as shown below) or via opt
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   es = elasticsearch();
 
 core.delete({ _id : 'mbQZc_XhQDWmNCQX5KwPeA' }, function (err, data) {
@@ -332,7 +332,7 @@ Requires `_index` be specified either via lib config (as shown below) or via opt
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   es = elasticsearch({ _index : 'kitteh' });
 
 var query = {
@@ -354,7 +354,7 @@ Requires `_index` be specified either via lib config or via options when calling
 
 ```Javascript
 var
-  elasticsearch = require('elasticsearch'),
+  elasticsearch = require('es'),
   es = elasticsearch();
 
 es.exists({ _index : 'kitteh' }, function (err, data) {

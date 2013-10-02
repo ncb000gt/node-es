@@ -1,5 +1,5 @@
 {
-  "name" : "elasticsearch",
+  "name" : "es",
   "description" : "API around the ElasticSearch RESTful API -- mostly convenience.",
   "main" : "index.js",
   "version" : "0.3.12",
@@ -19,12 +19,13 @@
     "search",
     "elastic search",
     "elasticsearch",
+    "es",
     "lucene"
   ],
-  "repository": "git://github.com/ncb000gt/node-elasticsearch.git",
+  "repository": "git://github.com/ncb000gt/node-es.git",
   "license": "MIT",
-  "homepage": "http://github.com/ncb000gt/node-elasticsearch",
-  "bugs": "http://github.com/ncb000gt/node-elasticsearch/issues",
+  "homepage": "http://github.com/ncb000gt/node-es",
+  "bugs": "http://github.com/ncb000gt/node-es/issues",
   "devDependencies": {
     "chai": "~1.7.2",
     "coveralls": "~2.0.16",
