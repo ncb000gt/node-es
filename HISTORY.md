@@ -1,3 +1,7 @@
+# 0.3.13 / 2013-10-29
+
+* Fix for EventEmitter listener Node warning
+
 # 0.3.12 / 2013-10-02
 
 * Switched module name to `es` from `elasticsearch`
