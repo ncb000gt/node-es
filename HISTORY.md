@@ -1,3 +1,7 @@
+# 0.3.14 / 2013-11-14
+
+* Fix for update() method not allowing script field to be a blank value
+
 # 0.3.13 / 2013-10-29
 
 * Fix for EventEmitter listener Node warning

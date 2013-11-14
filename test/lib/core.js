@@ -1067,6 +1067,18 @@ describe('API: core', function () {
 			});
 		});
 
+		it ('should accept blank script', function (done) {
+			doc1.script = '';
+			core.update({ _id : 1 }, doc1, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('/dieties/kitteh/1/_update');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+
 		it ('should accept doc', function (done) {
 			core.update({ _id : 2 }, doc2, function (err, data) {
 				should.not.exist(err);
