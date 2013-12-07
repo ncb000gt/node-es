@@ -252,7 +252,7 @@ var commands = [
   { name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
 ];
 
-es.bulk(commands, function (err, data) {
+es.bulk(options, commands, function (err, data) {
   // teh datas
 });
 ```
