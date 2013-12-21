@@ -1,3 +1,7 @@
+# 0.3.15 / 2013-12-21
+
+* Fix to allow _id values of 0
+
 # 0.3.14 / 2013-11-14
 
 * Fix for update() method not allowing script field to be a blank value
