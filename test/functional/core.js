@@ -327,10 +327,10 @@ describe('Functional: core', function () {
     it('works', function (done) {
       client.search({search_type:'scan',scroll:'10m'}, {query:{match_all:{}}}, function (err, result) {
         assert.ifError(err);
-        assert.equal(result.hits.total, 11);
+        assert.ok(result.hits.total > 0);
         client.scroll({scroll:'10m'}, result['_scroll_id'], function (err, result) {
           assert.ifError(err);
-          assert.equal(result.hits.total, 11);
+          assert.ok(result.hits.total > 0);
           done();
         });
       });
