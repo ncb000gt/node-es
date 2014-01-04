@@ -323,6 +323,20 @@ describe('Functional: core', function () {
     });
   });
 
+  describe('#scroll', function () {
+    it('works', function (done) {
+      client.search({search_type:'scan',scroll:'10m'}, {query:{match_all:{}}}, function (err, result) {
+        assert.ifError(err);
+        assert.equal(result.hits.total, 11);
+        client.scroll({scroll:'10m'}, result['_scroll_id'], function (err, result) {
+          assert.ifError(err);
+          assert.equal(result.hits.total, 11);
+          done();
+        });
+      });
+    });
+  });
+
   describe('#suggest', function () {
     it('works', function (done) {
       client.suggest({'test-suggest-1': {text: 'noed', term: {field: 'title'}}}, function (err, result) {

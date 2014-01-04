@@ -922,6 +922,31 @@ describe('API: core', function () {
 		});
 	});
 
+	describe('#scroll', function () {
+		var scroll_id = 'test scroll value'
+
+		it('should require scroll', function (done) {
+			delete defaultOptions._index;
+			core.scroll({}, scroll_id, function (err, data) {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should properly request scroll', function (done) {
+			core.scroll({ scroll : '10m'}, scroll_id, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('/_search/scroll?scroll=10m');
+				data.options.method.should.equals('POST');
+
+				done();
+			});
+		});
+	});
+
 	describe('#suggest', function () {
 		var suggest = {
 			'my-suggestion' : {

@@ -421,6 +421,32 @@ Requires `_index` be specified either via lib config or via options when calling
 
 `es.search(options, query, callback)`
 
+##### Scroll
+
+Requires `scroll` be specified via options when calling the method. The following code snippet shows how to perform a search with a subsequent scroll.
+
+```Javascript
+var
+  elasticsearch = require('es'),
+  config = {
+    _index : 'kittehs'
+  },
+  es = elasticsearch(config);
+
+// first search, specifying scan search_type
+es.search({
+    search_type : 'scan',
+    scroll : '10m'
+  }, {
+    query : {
+      match_all : {}
+    }
+  }, function (err, data) {
+    // next, perform the scroll with the _scroll_id value returned
+    es.scroll({ scroll : '10m' }, data['_scroll_id'], callback);
+  });
+```
+
 ##### Suggest
 
 `es.suggest(options, query, callback)`

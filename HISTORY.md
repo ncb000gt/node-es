@@ -1,3 +1,7 @@
+# 0.3.16 / 2014-01-03
+
+* Added support for `scroll()` method in core module
+
 # 0.3.15 / 2013-12-21
 
 * Fix to allow _id values of 0
