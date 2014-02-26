@@ -860,7 +860,7 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require name', function (done) {
+		it('should require _id', function (done) {
 			core.registerPercolator(query, function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -870,11 +870,11 @@ describe('API: core', function () {
 		});
 
 		it('should set proper method and url path', function (done) {
-			core.registerPercolator({ name : 'furreh' }, doc, function (err, data) {
+			core.registerPercolator({ _id : 1 }, doc, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/_percolator/dieties/furreh');
+				data.options.path.should.equals('/dieties/.percolator/1');
 
 				done();
 			});
@@ -1005,7 +1005,7 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should require _id', function (done) {
 			core.unregisterPercolator(function (err, data) {
 				should.exist(err);
 				should.not.exist(data);
@@ -1015,11 +1015,11 @@ describe('API: core', function () {
 		});
 
 		it('should set proper method and url path', function (done) {
-			core.unregisterPercolator({ name : 'furreh' }, function (err, data) {
+			core.unregisterPercolator({ _id : 1 }, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/_percolator/dieties/furreh');
+				data.options.path.should.equals('/dieties/.percolator/1');
 
 				done();
 			});
