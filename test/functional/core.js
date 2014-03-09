@@ -154,7 +154,7 @@ describe('Functional: core', function () {
           assert.equal(result._source.name, 'Bob');
           client.indices.refresh(function (err) {
             assert.ifError(err);
-            client.deleteByQuery({}, {term: {color: 'green'}}, function (err, result) {
+            client.deleteByQuery({query:{term:{color: 'green'}}}, function (err, result) {
               assert.ifError(err);
               client.indices.refresh(function (err) {
                 assert.ifError(err);
@@ -179,7 +179,7 @@ describe('Functional: core', function () {
     it('works', function (done) {
       client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
         assert.ifError(err);
-        client.get({_type: 'person', _id: 'mary'}, function (err, result) {
+        client.exists({_type: 'person', _id: 'mary'}, function (err, result) {
           assert.ifError(err);
           assert(result.exists);
           done();
@@ -196,7 +196,6 @@ describe('Functional: core', function () {
           assert.ifError(err);
           client.explain({_type: 'person', _id: 'mary'}, {query: {term: {color: 'purple'}}}, function (err, result) {
             assert.ifError(err);
-            assert.equal(result.ok, true);
             assert.equal(result.matched, true);
             assert(result.explanation.value);
             done();
@@ -282,7 +281,7 @@ describe('Functional: core', function () {
       };
 
     it('should be able to register a percolator', function (done) {
-      client.registerPercolator({name: 'fish_books'}, query, function (err, result) {
+      client.registerPercolator({_id: 1}, query, function (err, result) {
         assert.ifError(err);
         done();
       });
@@ -292,13 +291,13 @@ describe('Functional: core', function () {
       client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
         assert.ifError(err);
         assert.equal(result.matches.length, 1);
-        assert.equal(result.matches[0], 'fish_books');
+        assert.equal(result.matches[0]._id, 1);
         done();
       });
     });
 
     it('should be able to unregister a percolator', function (done) {
-      client.unregisterPercolator({name: 'fish_books'}, function (err, result) {
+      client.unregisterPercolator({_id: 1}, function (err, result) {
         assert.ifError(err);
         client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
           assert.ifError(err);
@@ -407,10 +406,10 @@ describe('Functional: core', function () {
       };
       client.index({_type: 'review', _id: review._id}, review, function (err) {
         assert.ifError(err);
-        client.validate({_type: 'review'}, {match: {author: 'Jeff'}}, function (err, result) {
+        client.validate({_type: 'review'}, {query: {match: {author: 'Jeff'}}}, function (err, result) {
           assert.ifError(err);
           assert(result.valid);
-          client.validate({_type: 'review', explain: true}, {match: {date: 'foo'}}, function (err, result) {
+          client.validate({_type: 'review', explain: true}, {query: {match: {date: 'foo'}}}, function (err, result) {
             assert.ifError(err);
             assert.equal(result.valid, false);
             assert.equal(result.explanations.length, 1);
@@ -421,5 +420,4 @@ describe('Functional: core', function () {
       });
     });
   });
-
 });

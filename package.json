@@ -37,6 +37,7 @@
   },
   "scripts": {
     "coverage": "rm -rf ./reports ; mkdir -p ./reports ; NODE_ELASTICSEARCH_COVERAGE=true mocha -R html-cov -r ./test/common.js -u bdd ./test/lib > reports/coverage.html",
+    "functional": "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/functional",
     "pretest": "jshint *.js ./lib/*.js ./test/*.js ; jscoverage ./lib ./lib-cov",
     "test": "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/lib ./test/functional",
     "posttest": "NODE_ELASTICSEARCH_COVERAGE=true mocha -R mocha-lcov-reporter -r ./test/common.js -u bdd ./test/lib | ./node_modules/coveralls/bin/coveralls.js"

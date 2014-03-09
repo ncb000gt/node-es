@@ -141,7 +141,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes');
+				data.options.path.should.equals('/_nodes');
 
 				done();
 			});
@@ -152,7 +152,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes');
+				data.options.path.should.equals('/_nodes');
 
 				done();
 			});
@@ -167,7 +167,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/superman');
+				data.options.path.should.equals('/_nodes/superman');
 
 				done();
 			});
@@ -182,7 +182,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/superman,batman');
+				data.options.path.should.equals('/_nodes/superman,batman');
 
 				done();
 			});
@@ -194,7 +194,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/batman');
+				data.options.path.should.equals('/_nodes/batman');
 
 				delete defaultOptions.node;
 
@@ -208,7 +208,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/superman,batman');
+				data.options.path.should.equals('/_nodes/superman,batman');
 
 				delete defaultOptions.nodes;
 
@@ -223,7 +223,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/stats');
+				data.options.path.should.equals('/_nodes/stats');
 
 				done();
 			});
@@ -234,7 +234,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/stats');
+				data.options.path.should.equals('/_nodes/stats');
 
 				done();
 			});
@@ -249,7 +249,7 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_cluster/nodes/superman/stats');
+				data.options.path.should.equals('/_nodes/superman/stats');
 
 				done();
 			});
