@@ -3,3 +3,7 @@ node_js:
   - 0.8
   - "0.10"
 services: elasticsearch
+before_install:
+  - sudo add-apt-repository "deb http://packages.elasticsearch.org/elasticsearch/1.0/debian stable main"
+  - sudo apt-get update
+  - sudo apt-get upgrade elasticsearch
