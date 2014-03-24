@@ -401,17 +401,17 @@ If `_index` and/or `_type` are supplied via options (or lib config), the will ap
 
 ##### Percolate
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 
 `es.percolate(options, doc, callback)`
 
 Requires `_index` be specified either via lib config or via options when calling the operation.
-Also requires `name`, but this must be specified via options.
+Also requires `_id`, but this must be specified via options.
 
 `es.registerPercolator(options, query, callback)`
 
 Requires `_index` be specified either via lib config or via options when calling the operation.
-Also requires `name`, but this must be specified via options.
+Also requires `_id`, but this must be specified via options.
 
 `es.unregisterPercolator(options, callback)`
 
@@ -641,9 +641,9 @@ Requires `field` or `fields`, but this must be specified via options.
 
 `es.cluster.nodesInfo(options, callback)`
 
-##### Nodes Status
+##### Nodes Stats
 
-`es.cluster.nodesStatus(options, callback)`
+`es.cluster.nodesStats(options, callback)`
 
 ##### Put River
 

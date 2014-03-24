@@ -273,8 +273,8 @@ describe('Functional: indices', function () {
       it('should be able to list mappings', function (done) {
         client.indices.mappings(function (err, result) {
           assert.ifError(err);
-          assert(result[index].baz);
-          assert(result[index].baz.properties.name);
+          assert(result[index].mappings.baz);
+          assert(result[index].mappings.baz.properties.name);
           done();
         });
       });
@@ -284,8 +284,8 @@ describe('Functional: indices', function () {
       it('should be able to delete mappings', function (done) {
         client.indices.deleteMapping({_type: 'baz'}, function (err) {
           assert.ifError(err);
-          client.indices.mappings({_type: 'baz'}, function (err) {
-            assert.equal(err.statusCode, 404);
+          client.indices.mappings({_type: 'baz'}, function (err, result) {
+            assert.equal(Object.keys(result).length, 0);
             done();
           });
         });
@@ -346,17 +346,7 @@ describe('Functional: indices', function () {
       it('should be able to analyze text with a specific analyzer', function (done) {
         client.indices.analyze({analyzer: 'standard'}, 'this is a test', function (err, result) {
           assert.ifError(err);
-          assert.equal(result.tokens.length, 1);
-          assert.equal(result.tokens[0].token, 'test');
-          done();
-        });
-      });
-
-      it('should be able to analyze text using a field mapping', function (done) {
-        client.indices.analyze({field: 'book.summary'}, 'this is a test', function (err, result) {
-          assert.ifError(err);
-          assert.equal(result.tokens.length, 1);
-          assert.equal(result.tokens[0].token, 'test');
+          assert.equal(result.tokens.length, 4);
           done();
         });
       });
@@ -497,7 +487,7 @@ describe('Functional: indices', function () {
           assert.ifError(err);
           client.indices.settings(function (err, result) {
             assert.ifError(err);
-            assert.equal(result[index].settings['index.refresh_interval'], '24s');
+            assert.equal(result[index].settings.index['refresh_interval'], '24s');
             done();
           });
         });

@@ -2,7 +2,7 @@
   "name" : "es",
   "description" : "API around the ElasticSearch RESTful API -- mostly convenience.",
   "main" : "index.js",
-  "version" : "0.3.16",
+  "version" : "0.4.1",
   "author" : "Nick Campbell (http://github.com/ncb000gt)",
   "contributors" : [
     "Nick Campbell (http://github.com/ncb000gt)",
@@ -27,16 +27,17 @@
   "homepage": "http://github.com/ncb000gt/node-es",
   "bugs": "http://github.com/ncb000gt/node-es/issues",
   "devDependencies": {
-    "chai": "~1.7.2",
-    "coveralls": "~2.0.16",
-    "jscoverage": "~0.3.8",
-    "jshint": "~2.1.10",
-    "mocha": "~1.12.1",
-    "mocha-lcov-reporter": "0.0.1",
-    "stact": "~0.0.11"
+    "chai": "*",
+    "coveralls": "*",
+    "jscoverage": "*",
+    "jshint": "*",
+    "mocha": "*",
+    "mocha-lcov-reporter": "*",
+    "stact": "*"
   },
   "scripts": {
     "coverage": "rm -rf ./reports ; mkdir -p ./reports ; NODE_ELASTICSEARCH_COVERAGE=true mocha -R html-cov -r ./test/common.js -u bdd ./test/lib > reports/coverage.html",
+    "functional": "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/functional",
     "pretest": "jshint *.js ./lib/*.js ./test/*.js ; jscoverage ./lib ./lib-cov",
     "test": "mocha --check-leaks -R spec -r ./test/common.js -u bdd ./test/lib ./test/functional",
     "posttest": "NODE_ELASTICSEARCH_COVERAGE=true mocha -R mocha-lcov-reporter -r ./test/common.js -u bdd ./test/lib | ./node_modules/coveralls/bin/coveralls.js"

@@ -1,3 +1,12 @@
+# 0.4.1 / 2014-03-09
+
+* Modifed to support ElasticSearch 1.0.x
+  * `cluster.nodesInfo` method updated
+  * `cluster.nodesStatus` method updated
+  * `registerPercolator` method updated
+  * `unregisterPercolator` method updated
+  * unit and functional tests updated
+
 # 0.3.16 / 2014-01-03
 
 * Added support for `scroll()` method in core module
