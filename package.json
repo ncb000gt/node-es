@@ -1,10 +1,10 @@
 {
-  "name" : "es",
-  "description" : "API around the ElasticSearch RESTful API -- mostly convenience.",
-  "main" : "index.js",
-  "version" : "0.4.1",
-  "author" : "Nick Campbell (http://github.com/ncb000gt)",
-  "contributors" : [
+  "name": "es",
+  "description": "API around the ElasticSearch RESTful API -- mostly convenience.",
+  "main": "index.js",
+  "version": "0.4.2",
+  "author": "Nick Campbell (http://github.com/ncb000gt)",
+  "contributors": [
     "Nick Campbell (http://github.com/ncb000gt)",
     "Gabriel Farrel (http://github.com/gsf)",
     "Richard Marr (http://github.com/richmarr)",
