@@ -83,6 +83,22 @@ describe('Functional: core', function () {
     client.indices.deleteIndex(done);
   });
 
+  describe('request hosts in cluster', function () {
+    it('works', function (done) {
+      var failoverClient = createClient({
+        _index : index,
+        server : {
+          hosts : ['localhost:9200', 'localhost:9200']
+        }
+      });
+
+      failoverClient.search({query: {match_all: {}}}, function (err, result) {
+        assert.ifError(err);
+        done();
+      });
+    });
+  });
+
   describe('#bulk', function () {
     it('works');
   });
