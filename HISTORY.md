@@ -1,3 +1,7 @@
+# 0.4.3 / 2014-04-22
+
+* Fix for issue #47 - updating jscoverage dependency version
+
 # 0.4.2 / 2014-04-22
 
 * Fix for issue #46 - request defaults to port 80
