@@ -29,7 +29,7 @@
   "devDependencies": {
     "chai": "*",
     "coveralls": "*",
-    "jscoverage": "*",
+    "jscoverage": "0.3.8",
     "jshint": "*",
     "mocha": "*",
     "mocha-lcov-reporter": "*",
