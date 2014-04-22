@@ -1,3 +1,7 @@
+# 0.4.2 / 2014-04-22
+
+* Fix for issue #46 - request defaults to port 80
+
 # 0.4.1 / 2014-03-09
 
 * Modifed to support ElasticSearch 1.0.x
