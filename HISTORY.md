@@ -1,3 +1,7 @@
+# 0.4.4 / 2014-04-26
+
+* Fix for issue #48 - querystring parameters as arrays were not properly formatted when sent
+
 # 0.4.3 / 2014-04-22
 
 * Fix for issue #47 - updating jscoverage dependency version
