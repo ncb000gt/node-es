@@ -336,6 +336,15 @@ describe('Functional: core', function () {
         });
       });
     });
+
+    // test for issue #48
+    it('works with fields parameter', function (done) {
+      client.search({_type: 'book', fields : ['title', 'author']}, {query: {match_all: {}}}, function (err, result) {
+        assert.ifError(err);
+        assert.equal(Object.keys(result.hits.hits[0].fields).length, 2);
+        done();
+      });
+    });
   });
 
   describe('#scroll', function () {
