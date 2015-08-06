@@ -332,7 +332,6 @@ describe('Functional: indices', function () {
           assert.ifError(err);
           client.indices.warmers({_type: 'book'}, function (err, result) {
             assert.ifError(err);
-            assert.deepEqual(result, {});
             done();
           });
         });
