@@ -1,3 +1,8 @@
+# 0.4.5 / 2015-08-06
+
+* Added support for supplying additional parameters to `es.indices.putMapping` (i.e. `ignore_conflicts`)
+* Minor updates to reflect additions and changes in versions of Elasticsearch post v1.3.x
+
 # 0.4.4 / 2014-04-26
 
 * Fix for issue #48 - querystring parameters as arrays were not properly formatted when sent
