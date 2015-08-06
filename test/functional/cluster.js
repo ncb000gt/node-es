@@ -35,7 +35,7 @@ describe('Functional: cluster', function () {
     it('should be able to get field stats', function (done) {
       client.cluster.fieldStats({field: '*'}, function (err, result) {
         assert.ifError(err);
-        assert(result.nodes);
+        assert(result.indices);
         done();
       })
     });

@@ -392,26 +392,19 @@ describe('Functional: core', function () {
 
       client.index({_type: 'review', _id: review._id}, review, function (err) {
         assert.ifError(err);
-        doc = {
-          script: 'ctx._source.views += 1'
-        };
-        client.update({_type: 'review', _id: review._id}, doc, function (err) {
+        client.get({_type: 'review', _id: review._id}, function (err, result) {
           assert.ifError(err);
-          client.get({_type: 'review', _id: review._id}, function (err, result) {
+          doc = {
+            doc: {
+              replies: ['Glad to hear it!']
+            }
+          };
+          client.update({_type: 'review', _id: review._id}, doc, function (err) {
             assert.ifError(err);
-            assert.equal(result._source.views, 1);
-            doc = {
-              doc: {
-                replies: ['Glad to hear it!']
-              }
-            };
-            client.update({_type: 'review', _id: review._id}, doc, function (err) {
+            client.get({_type: 'review', _id: review._id}, function (err, result) {
               assert.ifError(err);
-              client.get({_type: 'review', _id: review._id}, function (err, result) {
-                assert.ifError(err);
-                assert.equal(result._source.replies.length, 1);
-                done();
-              });
+              assert.equal(result._source.replies.length, 1);
+              done();
             });
           });
         });

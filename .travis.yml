@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-  - 0.8
   - "0.10"
+  - "0.12"
 services: elasticsearch
 before_install:
   - sudo service elasticsearch stop
 #  - sudo apt-get upgrade elasticsearch
-  - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.deb
-  - sudo dpkg -i elasticsearch-1.0.1.deb
+  - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb
+  - sudo dpkg -i --force-confnew elasticsearch-1.7.0.deb
   - sudo service elasticsearch start
