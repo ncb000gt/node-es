@@ -719,7 +719,7 @@ describe('API: indices', function () {
 		});
 
 		it('should have proper path and method', function (done) {
-			indices.segments({ recovery : true }, function (err, data) {
+			indices.segments(function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
