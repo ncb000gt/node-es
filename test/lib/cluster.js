@@ -45,7 +45,7 @@ describe('API: cluster', function () {
 	});
 
 	describe('#fieldStats', function () {
-		it('should allow field', function (done) {
+		it('should allow a single field', function (done) {
 			var options = {
 				field : 'breed'
 			};
@@ -54,24 +54,38 @@ describe('API: cluster', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_nodes/stats/indices/fielddata/breed');
+				data.options.path.should.equals('/_stats/fielddata?fields=breed');
 
 				done();
 			});
 		});
 
-		it('should allow field to an array', function (done) {
+		it('should allow field to be an array', function (done) {
 			var options = {
-				fields : ['breed', 'name'],
-				os : true,
-				process : true
+				fields : ['breed', 'name']
 			};
 
 			cluster.fieldStats(options, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_nodes/stats/indices/fielddata/breed,name?os=true&process=true');
+				data.options.path.should.equals('/_stats/fielddata?fields=breed%2Cname');
+
+				done();
+			});
+		});
+
+		it('should support indices param', function (done) {
+			var options = {
+				fields : ['breed', 'name'],
+				indices : true
+			};
+
+			cluster.fieldStats(options, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.method.should.equals('GET');
+				data.options.path.should.equals('/_nodes/stats/indices?fields=breed%2Cname');
 
 				done();
 			});
