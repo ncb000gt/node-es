@@ -602,6 +602,19 @@ describe('API: core', function () {
 			});
 		});
 
+		it('should support _create as parameter', function (done) {
+			var options = {
+				_create : true
+			};
+
+			core.index(options, doc, function (err, data) {
+				should.not.exist(err);
+				data.options.path.should.equals('/dieties/kitteh/_create');
+
+				done();
+			});
+		});
+
 		it('should treat options as optional', function (done) {
 			core.index(doc, function(err, data) {
 				should.not.exist(err);
