@@ -1,3 +1,7 @@
+# 0.4.6 / 2015-09-16
+
+* Added support for `_create` as an option when calling `es.index` function
+
 # 0.4.5 / 2015-08-06
 
 * Added support for supplying additional parameters to `es.indices.putMapping` (i.e. `ignore_conflicts`)
