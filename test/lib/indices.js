@@ -618,7 +618,7 @@ describe('API: indices', function () {
 				should.not.exist(err);
 				should.exist(data);
 				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties,devils/kitteh/_mapping');
+				data.options.path.should.equals('/dieties,devils/_mapping/kitteh');
 
 				done();
 			});
