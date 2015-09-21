@@ -1,3 +1,7 @@
+# 0.4.7 / 2015-09-21
+
+* Adjusted `es.indices.putMapping` to match [Elasticsearch documentation](<https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html>)
+
 # 0.4.6 / 2015-09-16
 
 * Added support for `_create` as an option when calling `es.index` function
