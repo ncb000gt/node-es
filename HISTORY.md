@@ -1,3 +1,7 @@
+# v0.4.8 / 2015-10-15
+
+* Fixed issue where _source parameter was not properly added to the URL when using `get` 
+
 # 0.4.7 / 2015-09-21
 
 * Adjusted `es.indices.putMapping` to match [Elasticsearch documentation](<https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html>)

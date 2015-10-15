@@ -96,6 +96,16 @@ describe('API: core', function () {
 				done();
 			});
 		});
+
+		it('should properly handle when _source is not a boolean', function (done) {
+			core.get({ _id : 1, _type : 'kitteh', _source : ['name','breed'] }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('/dieties/kitteh/1/_source?_source=name%2Cbreed');
+
+				done();
+			});
+		});
 	});
 
 	describe('#add', function () {
