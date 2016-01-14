@@ -1,0 +1,11 @@
+root: true
+
+env:
+  node: true
+
+extends:
+  "eslint:recommended"
+
+globals:
+  req: true
+  requestError: true

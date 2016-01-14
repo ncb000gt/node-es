@@ -1,5 +1,4 @@
-var indicesLib = requireWithCoverage('indices');
-
+var indicesLib = require('../../lib/indices');
 
 describe('API: indices', function () {
 	var

@@ -2,6 +2,7 @@ language: node_js
 node_js:
   - "0.10"
   - "0.12"
+  - "4.2"
 services: elasticsearch
 before_install:
   - sudo service elasticsearch stop
@@ -9,3 +10,6 @@ before_install:
   - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb
   - sudo dpkg -i --force-confnew elasticsearch-1.7.0.deb
   - sudo service elasticsearch start
+after_success:
+  - npm install -g coveralls
+  - cat ./reports/lcov.info | coveralls

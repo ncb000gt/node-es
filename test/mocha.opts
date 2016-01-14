@@ -1,0 +1,4 @@
+-r ./test/common.js
+-R spec
+-u bdd
+--check-leaks

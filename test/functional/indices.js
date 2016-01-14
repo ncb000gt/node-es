@@ -15,7 +15,7 @@ describe('Functional: indices', function () {
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
-      client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
+      client.cluster.health({wait_for_status: 'yellow'}, function (err) {
         assert.ifError(err);
         done();
       });
@@ -134,7 +134,7 @@ describe('Functional: indices', function () {
       it('should be able to delete an alias', function (done) {
         client.indices.deleteAlias({alias: index + '_test'}, function (err) {
           assert.ifError(err);
-          client.get({_index: index + '_test', _type: 'book', _id: 'node2'}, function (err, result) {
+          client.get({_index: index + '_test', _type: 'book', _id: 'node2'}, function (err) {
             assert.equal(err.statusCode, 404);
             client.indices.deleteAlias({alias: index + '_functional_tests_indices'}, function (err) {
               assert.ifError(err);
@@ -330,7 +330,7 @@ describe('Functional: indices', function () {
       it('should be able to delete warmers', function (done) {
         client.indices.deleteWarmer({name: index + '_warmer'}, function (err) {
           assert.ifError(err);
-          client.indices.warmers({_type: 'book'}, function (err, result) {
+          client.indices.warmers({_type: 'book'}, function (err) {
             assert.ifError(err);
             done();
           });
@@ -486,7 +486,7 @@ describe('Functional: indices', function () {
           assert.ifError(err);
           client.indices.settings(function (err, result) {
             assert.ifError(err);
-            assert.equal(result[index].settings.index['refresh_interval'], '24s');
+            assert.equal(result[index].settings.index.refresh_interval, '24s');
             done();
           });
         });
