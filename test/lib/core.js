@@ -34,16 +34,13 @@ describe('API: core', function () {
 			}
 		};
 
-		it('should favor _indices over _index', function (done) {
+		it('should favor _indices over _index', function () {
 			var options = {
 				_indices : ['dieties', 'hellions']
 			};
-			core.search(options, query, function (err, data) {
-				should.not.exist(err);
+			return core.search(options, query).then(function(data) {
 				should.exist(data);
 				data.options.path.should.equals('/dieties,hellions/kitteh/_search');
-
-				done();
 			});
 		});
 
