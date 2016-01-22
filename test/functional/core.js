@@ -15,7 +15,7 @@ describe('Functional: core', function () {
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
-      client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
+      client.cluster.health({wait_for_status: 'yellow'}, function (err) {
         assert.ifError(err);
         done();
       });
@@ -92,7 +92,7 @@ describe('Functional: core', function () {
         }
       });
 
-      failoverClient.search({query: {match_all: {}}}, function (err, result) {
+      failoverClient.search({query: {match_all: {}}}, function (err) {
         assert.ifError(err);
         done();
       });
@@ -137,14 +137,14 @@ describe('Functional: core', function () {
 
   describe('#delete', function () {
     it('works', function (done) {
-      client.index({_type: 'person', _id: 'joe'}, {name: 'Joe', color: 'red'}, function (err, result) {
+      client.index({_type: 'person', _id: 'joe'}, {name: 'Joe', color: 'red'}, function (err) {
         assert.ifError(err);
         client.get({_type: 'person', _id: 'joe'}, function (err, result) {
           assert.ifError(err);
           assert.equal(result._source.name, 'Joe');
-          client.delete({_type: 'person', _id: 'joe'}, function (err, result) {
+          client.delete({_type: 'person', _id: 'joe'}, function (err) {
             assert.ifError(err);
-            client.get({_type: 'person', _id: 'joe'}, function (err, result) {
+            client.get({_type: 'person', _id: 'joe'}, function (err) {
               assert(err);
               assert.equal(err.statusCode, 404);
               done();
@@ -170,11 +170,11 @@ describe('Functional: core', function () {
           assert.equal(result._source.name, 'Bob');
           client.indices.refresh(function (err) {
             assert.ifError(err);
-            client.deleteByQuery({query:{term:{color: 'green'}}}, function (err, result) {
+            client.deleteByQuery({query:{term:{color: 'green'}}}, function (err) {
               assert.ifError(err);
               client.indices.refresh(function (err) {
                 assert.ifError(err);
-                client.get({_type: 'person', _id: 'babe'}, function (err, result) {
+                client.get({_type: 'person', _id: 'babe'}, function (err) {
                   assert(err);
                   assert(err.statusCode, 404);
                   client.get({_type: 'person', _id: 'bob'}, function (err, result) {
@@ -193,7 +193,7 @@ describe('Functional: core', function () {
 
   describe('#exists', function () {
     it('works', function (done) {
-      client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
+      client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err) {
         assert.ifError(err);
         client.exists({_type: 'person', _id: 'mary'}, function (err, result) {
           assert.ifError(err);
@@ -206,7 +206,7 @@ describe('Functional: core', function () {
 
   describe('#explain', function () {
     it('works', function (done) {
-      client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err, result) {
+      client.index({_type: 'person', _id: 'mary'}, {name: 'Mary', color: 'purple'}, function (err) {
         assert.ifError(err);
         client.indices.refresh(function (err) {
           assert.ifError(err);
@@ -223,7 +223,7 @@ describe('Functional: core', function () {
 
   describe('#get', function () {
     it('works', function (done) {
-      client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err, result) {
+      client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err) {
         assert.ifError(err);
         client.get({_type: 'person', _id: 'brian'}, function (err, result) {
           assert.ifError(err);
@@ -236,7 +236,7 @@ describe('Functional: core', function () {
 
   describe('#index', function () {
     it('works', function (done) {
-      client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err, result) {
+      client.index({_type: 'person', _id: 'brian'}, {name: 'Brian', color: 'blue'}, function (err) {
         assert.ifError(err);
         client.get({_type: 'person', _id: 'brian'}, function (err, result) {
           assert.ifError(err);
@@ -297,7 +297,7 @@ describe('Functional: core', function () {
       };
 
     it('should be able to register a percolator', function (done) {
-      client.registerPercolator({_id: 1}, query, function (err, result) {
+      client.registerPercolator({_id: 1}, query, function (err) {
         assert.ifError(err);
         done();
       });
@@ -313,7 +313,7 @@ describe('Functional: core', function () {
     });
 
     it('should be able to unregister a percolator', function (done) {
-      client.unregisterPercolator({_id: 1}, function (err, result) {
+      client.unregisterPercolator({_id: 1}, function (err) {
         assert.ifError(err);
         client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
           assert.ifError(err);
@@ -352,7 +352,7 @@ describe('Functional: core', function () {
       client.search({search_type:'scan',scroll:'10m'}, {query:{match_all:{}}}, function (err, result) {
         assert.ifError(err);
         assert.ok(result.hits.total > 0);
-        client.scroll({scroll:'10m'}, result['_scroll_id'], function (err, result) {
+        client.scroll({scroll:'10m'}, result._scroll_id, function (err, result) {
           assert.ifError(err);
           assert.ok(result.hits.total > 0);
           done();
@@ -392,7 +392,7 @@ describe('Functional: core', function () {
 
       client.index({_type: 'review', _id: review._id}, review, function (err) {
         assert.ifError(err);
-        client.get({_type: 'review', _id: review._id}, function (err, result) {
+        client.get({_type: 'review', _id: review._id}, function (err) {
           assert.ifError(err);
           doc = {
             doc: {

@@ -1,5 +1,4 @@
-var clusterLib = requireWithCoverage('cluster');
-
+var clusterLib = require('../../lib/cluster');
 
 describe('API: cluster', function () {
 	var

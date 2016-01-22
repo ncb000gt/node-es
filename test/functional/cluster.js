@@ -1,6 +1,4 @@
-var
-  createClient = require('../../'),
-  createStack = require('stact');
+var createClient = require('../../');
 
 describe('Functional: cluster', function () {
   // upping default timeout for Travis-CI builds
@@ -15,7 +13,7 @@ describe('Functional: cluster', function () {
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
-      client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
+      client.cluster.health({wait_for_status: 'yellow'}, function (err) {
         assert.ifError(err);
         done();
       });
@@ -37,7 +35,7 @@ describe('Functional: cluster', function () {
         assert.ifError(err);
         assert(result.indices);
         done();
-      })
+      });
     });
   });
 
@@ -106,7 +104,7 @@ describe('Functional: cluster', function () {
         assert.ifError(err);
         assert(result.metadata);
         done();
-      })
+      });
     });
   });
 

@@ -1,5 +1,4 @@
-var coreLib = requireWithCoverage('core');
-
+var coreLib = require('../../lib/core');
 
 describe('API: core', function () {
 	var
@@ -35,23 +34,20 @@ describe('API: core', function () {
 			}
 		};
 
-		it('should favor _indices over _index', function (done) {
+		it('should favor _indices over _index', function () {
 			var options = {
 				_indices : ['dieties', 'hellions']
-			}
-			core.search(options, query, function (err, data) {
-				should.not.exist(err);
+			};
+			return core.search(options, query).then(function(data) {
 				should.exist(data);
 				data.options.path.should.equals('/dieties,hellions/kitteh/_search');
-
-				done();
 			});
 		});
 
 		it('should favor _types over _type', function (done) {
 			var options = {
 				_types : ['kitteh', 'squirrel']
-			}
+			};
 			core.search(options, query, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
@@ -184,15 +180,6 @@ describe('API: core', function () {
 	});
 
 	describe('#bulkIndex', function () {
-		var commands = [
-			{ index : { _index : 'dieties', _type : 'kitteh' } },
-			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
-			{ index : { _index : 'dieties', _type : 'kitteh' } },
-			{ name : 'dugald', breed : 'siamese', color : 'white' },
-			{ index : { _index : 'dieties', _type : 'kitteh' } },
-			{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
-		];
-
 		var documents = [
 			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
 			{ name : 'dugald', breed : 'siamese', color : 'white' },
@@ -946,7 +933,7 @@ describe('API: core', function () {
 	});
 
 	describe('#scroll', function () {
-		var scroll_id = 'test scroll value'
+		var scroll_id = 'test scroll value';
 
 		it('should require scroll', function (done) {
 			delete defaultOptions._index;

@@ -1,0 +1,10 @@
+env:
+  mocha: true
+
+rules:
+  no-console: 0
+
+globals:
+  assert: true
+  should: true
+  clientOptions: true

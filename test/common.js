@@ -12,21 +12,6 @@ var stubMethod = function (method, options, data, callback) {
 		});
 };
 
-
-global.requireWithCoverage = function (libName) {
-	'use strict';
-
-	if (process.env.NODE_ELASTICSEARCH_COVERAGE) {
-		return require('../lib-cov/' + libName + '.js');
-	}
-
-	if (libName === 'index') {
-		return require('../lib');
-	} else {
-		return require('../lib/' + libName + '.js');
-	}
-};
-
 global.clientOptions = {};
 
 global.req = require('../lib/request').initialize({});
