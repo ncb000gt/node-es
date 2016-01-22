@@ -286,7 +286,7 @@ es.bulkIndex(options, documents, function (err, data) {
 
 ##### Count
 
-`es.count(options, callback)`
+`es.count(options, query, callback)`
 
 ```Javascript
 var
@@ -305,6 +305,19 @@ var options = {
 
 es.count(options, function (err, data) {
   // counted... like a bawss
+});
+
+// count docs for a specific query
+var query = {
+  query : {
+    term : {
+      breed : 'manx'
+    }
+  }
+};
+
+es.count(options, query, function (err, data) {
+  // teh count of teh manx kittehs
 });
 ```
 

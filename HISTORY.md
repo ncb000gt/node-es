@@ -1,3 +1,7 @@
+# v0.5.1 / 2016-01-22
+
+* Updated documentation for `count` method
+
 # v0.5.0 / 2016-01-22
 
 * Added support for promises while maintaining backwards compatibility in existing API (persuant to issue #58)
