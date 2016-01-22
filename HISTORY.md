@@ -1,6 +1,14 @@
+# v0.5.0 / 2016-01-22
+
+* Added support for promises while maintaining backwards compatibility in existing API (persuant to issue #58)
+* Moved to eslint from jshint
+* Factored mocha options into an options file
+* Moved code coverage work to Travis-CI to eliminate developer side error when running `npm test`
+* Moved to Istanbul from jscoverage and cleaned up NPM scripts used for testing
+
 # v0.4.8 / 2015-10-15
 
-* Fixed issue where _source parameter was not properly added to the URL when using `get` 
+* Fixed issue where `_source` parameter was not properly added to the URL when using `get`
 
 # 0.4.7 / 2015-09-21
 
