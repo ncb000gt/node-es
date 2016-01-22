@@ -2,14 +2,15 @@
   "name": "es",
   "description": "API around the ElasticSearch RESTful API -- mostly convenience.",
   "main": "index.js",
-  "version": "0.4.8",
+  "version": "0.5.0",
   "author": "Nick Campbell (http://github.com/ncb000gt)",
   "contributors": [
     "Nick Campbell (http://github.com/ncb000gt)",
     "Gabriel Farrel (http://github.com/gsf)",
     "Richard Marr (http://github.com/richmarr)",
     "Joshua Thomas (http://github.com/brozeph)",
-    "Brian Link (https://github.com/cpsubrian)"
+    "Brian Link (https://github.com/cpsubrian)",
+    "Doug Moscrop (https://github.com/dougmoscrop)"
   ],
   "engines": {
     "node": ">= 0.8.0"

@@ -679,7 +679,6 @@ Requires `name`, but this must be specified via options.
 
 # Testing
 
-Note that a test coverage report is sent to coveralls.io during CI... running locally will result in a response similar to `Bad response: 500 {"message":"Build processing error.","error":true,"url":""}`.
 Code coverage data generated from npm test is located in `./lib-cov` and is not included in the git repo.
 
 ```Javascript
