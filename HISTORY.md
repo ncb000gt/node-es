@@ -1,3 +1,7 @@
+# v0.5.2 / 2016-10-05
+
+* Added fix for scenario where `_index` and `_type` overrides would not always work (Issue #62)
+
 # v0.5.1 / 2016-01-22
 
 * Updated documentation for `count` method
