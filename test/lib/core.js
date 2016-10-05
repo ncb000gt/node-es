@@ -102,6 +102,16 @@ describe('API: core', function () {
 				done();
 			});
 		});
+
+		it('should properly handle _index and _type override', function (done) {
+			core.count({ _index : 'non-dieties', _type : 'dogs' }, function (err, data) {
+				should.not.exist(err);
+				should.exist(data);
+				data.options.path.should.equals('/non-dieties/dogs/_count');
+
+				done();
+			});
+		});
 	});
 
 	describe('#add', function () {
