@@ -36,7 +36,10 @@ describe('Functional: indices', function () {
 
   before(function (done) {
     var stack = createStack(function (next) {
-      client.index({_type: 'book', _id: this._id}, this, next);
+      var doc = JSON.parse(JSON.stringify(this));
+      doc._id = undefined;
+
+      client.index({_type: 'book', _id: this._id}, doc, next);
     });
     stack.add({
       _id: 'node1',
@@ -184,7 +187,7 @@ describe('Functional: indices', function () {
       it('should be able to open an index', function (done) {
         client.indices.openIndex({_index: index + '_foo'}, function (err) {
           assert.ifError(err);
-          client.index({_index: index + '_foo', _type: 'bar', _id: 'thing'}, {_id: 'thing', my: 'data'}, function (err) {
+          client.index({_index: index + '_foo', _type: 'bar', _id: 'thing'}, {my: 'data'}, function (err) {
             assert.ifError(err);
             done();
           });
@@ -280,6 +283,9 @@ describe('Functional: indices', function () {
       });
     });
 
+    // no longer works in Elasticsearch v2.3 and up
+    // see: https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-delete-mapping.html
+    /*
     describe('#deleteMapping', function () {
       it('should be able to delete mappings', function (done) {
         client.indices.deleteMapping({_type: 'baz'}, function (err) {
@@ -291,6 +297,7 @@ describe('Functional: indices', function () {
         });
       });
     });
+    //*/
   });
 
   describe('Warmers', function () {
@@ -301,7 +308,7 @@ describe('Functional: indices', function () {
           query: {
             match_all: {}
           },
-          facets: {
+          aggs: {
             author: {
               terms: {
                 field: 'author'
@@ -320,7 +327,7 @@ describe('Functional: indices', function () {
       it('should be able to list warmers', function (done) {
         client.indices.warmers({_type: 'book'}, function (err, result) {
           assert.ifError(err);
-          assert.equal(result[index].warmers[index + '_warmer'].source.facets.author.terms.field, 'author');
+          assert.equal(result[index].warmers[index + '_warmer'].source.aggs.author.terms.field, 'author');
           done();
         });
       });
@@ -407,13 +414,14 @@ describe('Functional: indices', function () {
 
     describe('#refresh', function () {
       it('should be able to refresh an index', function (done) {
-        var book = {
-          _id: 'short',
-          title: 'Short book',
-          author: 'Me',
-          summary: 'Short summary'
-        };
-        client.index({_type: 'book', _id: book._id}, book, function (err) {
+        var
+          _id = 'short',
+          book = {
+            title: 'Short book',
+            author: 'Me',
+            summary: 'Short summary'
+          };
+        client.index({_type: 'book', _id: _id}, book, function (err) {
           assert.ifError(err);
           client.search({_type: 'book'}, {query: {match: {title: 'Short book'}}}, function (err, result) {
             assert.ifError(err);
@@ -465,6 +473,9 @@ describe('Functional: indices', function () {
       });
     });
 
+    // status API has been removed in v2
+    // see: https://www.elastic.co/guide/en/elasticsearch/reference/2.3/breaking_20_stats_info_and_literal_cat_literal_changes.html#_index_status_api
+    /*
     describe('#status', function () {
       it('should be able to get the status', function (done) {
         client.indices.status(function (err, result) {
@@ -474,6 +485,7 @@ describe('Functional: indices', function () {
         });
       });
     });
+    //*/
 
     describe('#updateSettings', function () {
       it('should be able to update settings', function (done) {

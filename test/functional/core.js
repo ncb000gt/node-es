@@ -47,7 +47,9 @@ describe('Functional: core', function () {
 
   before(function (done) {
     var stack = createStack(function (next) {
-      client.index({_type: 'book', _id: this._id}, this, next);
+      var doc = JSON.parse(JSON.stringify(this));
+      doc._id = undefined;
+      client.index({_type: 'book', _id: this._id}, doc, next);
     });
     stack.add({
       _id: 'node1',
@@ -156,10 +158,20 @@ describe('Functional: core', function () {
   });
 
   describe('#deleteByQuery', function () {
+    it('works');
+
+    /*
+    // Elasticsearch has removed deleteByQuery functionality in the core and
+    // moved the capability into a plugin... see the following for more details:
+    // https://www.elastic.co/guide/en/elasticsearch/plugins/current/plugins-delete-by-query.html
     it('works', function (done) {
       var stack = createStack(function (next) {
-        client.index({_type: 'person', _id: this._id}, this, next);
+        var doc = JSON.parse(JSON.stringify(this));
+        doc._id = undefined;
+
+        client.index({_type: 'person', _id: this._id}, doc, next);
       });
+
       stack.add({_id: 'bill', name: 'Bill', color: 'green'});
       stack.add({_id: 'bob', name: 'Bob', color: 'blue'});
       stack.add({_id: 'babe', name: 'Babe', color: 'green'});
@@ -189,6 +201,7 @@ describe('Functional: core', function () {
         });
       });
     });
+    //*/
   });
 
   describe('#exists', function () {
@@ -290,7 +303,6 @@ describe('Functional: core', function () {
     var
       query = {query: { query_string: {query: 'fish'}}},
       book = {
-        _id: 'fish2',
         title: 'Fish & Shellfish: The Cook\'s Indispensable Companion',
         author: 'James Peterson',
         summary: 'Every few decades a chef or a teacher writes a cookbook that is so comprehensive and offers such depth of subject matter and cooking inspiration that it becomes a virtual bible for amateur and professional alike. Author James Peterson, who wrote the book Sauces, a James Beard Cookbook of the Year winner, and the incomparable Splendid Soups, once again demonstrates his connoisseurship with Fish & Shellfish, a monumental cookbook that will take its rightful place as the first and last word on seafood preparation and cooking.'
@@ -306,6 +318,7 @@ describe('Functional: core', function () {
     it('should be able to percolate a document', function (done) {
       client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
         assert.ifError(err);
+
         assert.equal(result.matches.length, 1);
         assert.equal(result.matches[0]._id, 1);
         done();
@@ -380,8 +393,8 @@ describe('Functional: core', function () {
   describe('#update', function () {
     it('works', function (done) {
       var
+        _id = 'review1',
         review = {
-          _id: 'review1',
           book_id: 'fish2',
           author: 'Joe',
           body: 'This recipies in this book literally saved my marriage! Now that I can whip up all manner of fancy fish delights, my wife is a very happy woman.',
@@ -390,18 +403,18 @@ describe('Functional: core', function () {
         },
         doc;
 
-      client.index({_type: 'review', _id: review._id}, review, function (err) {
+      client.index({_type: 'review', _id: _id}, review, function (err) {
         assert.ifError(err);
-        client.get({_type: 'review', _id: review._id}, function (err) {
+        client.get({_type: 'review', _id: _id}, function (err) {
           assert.ifError(err);
           doc = {
             doc: {
               replies: ['Glad to hear it!']
             }
           };
-          client.update({_type: 'review', _id: review._id}, doc, function (err) {
+          client.update({_type: 'review', _id: _id}, doc, function (err) {
             assert.ifError(err);
-            client.get({_type: 'review', _id: review._id}, function (err, result) {
+            client.get({_type: 'review', _id: _id}, function (err, result) {
               assert.ifError(err);
               assert.equal(result._source.replies.length, 1);
               done();
@@ -414,15 +427,17 @@ describe('Functional: core', function () {
 
   describe('#validate', function () {
     it('works', function (done) {
-      var review = {
-        _id: 'review2',
-        book_id: 'node2',
-        author: 'Jeff',
-        body: 'After reading and completing the excercises in the book, my level of Node.js proficiency skyrocketed!',
-        date: '2013-08-20T15:11:12',
-        views: 0
-      };
-      client.index({_type: 'review', _id: review._id}, review, function (err) {
+      var
+        _id = 'review2',
+        review = {
+          book_id: 'node2',
+          author: 'Jeff',
+          body: 'After reading and completing the excercises in the book, my level of Node.js proficiency skyrocketed!',
+          date: '2013-08-20T15:11:12',
+          views: 0
+        };
+
+      client.index({_type: 'review', _id: _id}, review, function (err) {
         assert.ifError(err);
         client.validate({_type: 'review'}, {query: {match: {author: 'Jeff'}}}, function (err, result) {
           assert.ifError(err);
