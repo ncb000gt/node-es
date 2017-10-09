@@ -37,9 +37,9 @@ describe('Functional: core', function () {
     client.indices.putMapping({_type: 'book'}, {
       book: {
         properties: {
-          title: {type: 'string', store: 'yes', boost: 5.0},
-          author: {type: 'string', store: 'yes', index: 'not_analyzed'},
-          summary: {type: 'string', index: 'analyzed', term_vector: 'with_positions_offsets'}
+          title: {type: 'text', store: 'yes'},
+          author: {type: 'keyword', store: 'yes', index: true},
+          summary: {type: 'text', index: true, term_vector: 'with_positions_offsets'}
         }
       }
     }, done);
@@ -299,44 +299,6 @@ describe('Functional: core', function () {
     });
   });
 
-  describe('Percolators', function () {
-    var
-      query = {query: { query_string: {query: 'fish'}}},
-      book = {
-        title: 'Fish & Shellfish: The Cook\'s Indispensable Companion',
-        author: 'James Peterson',
-        summary: 'Every few decades a chef or a teacher writes a cookbook that is so comprehensive and offers such depth of subject matter and cooking inspiration that it becomes a virtual bible for amateur and professional alike. Author James Peterson, who wrote the book Sauces, a James Beard Cookbook of the Year winner, and the incomparable Splendid Soups, once again demonstrates his connoisseurship with Fish & Shellfish, a monumental cookbook that will take its rightful place as the first and last word on seafood preparation and cooking.'
-      };
-
-    it('should be able to register a percolator', function (done) {
-      client.registerPercolator({_id: 1}, query, function (err) {
-        assert.ifError(err);
-        done();
-      });
-    });
-
-    it('should be able to percolate a document', function (done) {
-      client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
-        assert.ifError(err);
-
-        assert.equal(result.matches.length, 1);
-        assert.equal(result.matches[0]._id, 1);
-        done();
-      });
-    });
-
-    it('should be able to unregister a percolator', function (done) {
-      client.unregisterPercolator({_id: 1}, function (err) {
-        assert.ifError(err);
-        client.percolate({_type: 'book'}, {doc: book}, function (err, result) {
-          assert.ifError(err);
-          assert.equal(result.matches.length, 0);
-          done();
-        });
-      });
-    });
-  });
-
   describe('#search', function () {
     it('works', function (done) {
       client.search({_type: 'book'}, {query: {match: {summary: 'javascript'}}}, function (err, result) {
@@ -352,7 +314,7 @@ describe('Functional: core', function () {
 
     // test for issue #48
     it('works with fields parameter', function (done) {
-      client.search({_type: 'book', fields : ['title', 'author']}, {query: {match_all: {}}}, function (err, result) {
+      client.search({_type: 'book', stored_fields : ['title', 'author']}, {query: {match_all: {}}}, function (err, result) {
         assert.ifError(err);
         assert.equal(Object.keys(result.hits.hits[0].fields).length, 2);
         done();
@@ -362,7 +324,7 @@ describe('Functional: core', function () {
 
   describe('#scroll', function () {
     it('works', function (done) {
-      client.search({search_type:'scan',scroll:'10m'}, {query:{match_all:{}}}, function (err, result) {
+      client.search({scroll:'10m'}, {query:{match_all:{}}}, function (err, result) {
         assert.ifError(err);
         assert.ok(result.hits.total > 0);
         client.scroll({scroll:'10m'}, result._scroll_id, function (err, result) {
@@ -446,7 +408,7 @@ describe('Functional: core', function () {
             assert.ifError(err);
             assert.equal(result.valid, false);
             assert.equal(result.explanations.length, 1);
-            assert(result.explanations[0].error.indexOf('Invalid format: "foo"') > 0);
+            assert(result.explanations[0].error.indexOf('ElasticsearchParseException') > 0);
             done();
           });
         });

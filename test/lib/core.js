@@ -803,45 +803,6 @@ describe('API: core', function () {
 		});
 	});
 
-	describe('#percolate', function () {
-		var doc = {
-			doc : {
-				breed : 'siamese'
-			}
-		};
-
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.percolate(doc, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require type', function (done) {
-			delete defaultOptions._type;
-			core.percolate(doc, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should set proper method and url path', function (done) {
-			core.percolate(doc, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/kitteh/_percolate');
-
-				done();
-			});
-		});
-	});
-
 	describe('#query', function () {
 		var query = {
 			query : {
@@ -855,46 +816,6 @@ describe('API: core', function () {
 				should.exist(data);
 				data.options.path.should.equals('/dieties/kitteh/_search');
 				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-	});
-
-	describe('#registerPercolator', function () {
-		var query = {
-			query : {
-				term : {
-					name : 'fluffy'
-				}
-			}
-		};
-
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.registerPercolator(query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require _id', function (done) {
-			core.registerPercolator(query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should set proper method and url path', function (done) {
-			core.registerPercolator({ _id : 1 }, doc, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties/.percolator/1');
 
 				done();
 			});
@@ -1008,38 +929,6 @@ describe('API: core', function () {
 				should.exist(data);
 				data.options.path.should.equals('/dieties/kitteh/_suggest');
 				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-	});
-
-	describe('#unregisterPercolator', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.unregisterPercolator(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require _id', function (done) {
-			core.unregisterPercolator(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should set proper method and url path', function (done) {
-			core.unregisterPercolator({ _id : 1 }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/dieties/.percolator/1');
 
 				done();
 			});
