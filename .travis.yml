@@ -5,7 +5,7 @@ services: elasticsearch
 before_install:
   - sudo service elasticsearch stop
 #  - sudo apt-get upgrade elasticsearch
-  - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-5.5.0.deb
+  - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb
   - sudo dpkg -i --force-confnew elasticsearch-5.5.0.deb
   - sudo service elasticsearch start
 after_success:
