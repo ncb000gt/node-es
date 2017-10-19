@@ -2,6 +2,8 @@
 
 This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) REST API.
 
+NOTE: `node-es` `v0.6` and newer work with ElasticSearch 5 and up.  For older versions of ElasticSearch, prior versions of `node-es` should be used.
+
 [![Build Status](https://travis-ci.org/ncb000gt/node-es.png)](https://travis-ci.org/ncb000gt/node-es) [![Coverage Status](https://coveralls.io/repos/ncb000gt/node-es/badge.png)](https://coveralls.io/r/ncb000gt/node-es)
 
 ## Install
