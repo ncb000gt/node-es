@@ -243,7 +243,7 @@ describe('API: indices', function () {
 			indices.createIndex(settings, function (err, data) {
 				should.not.exist(err);
 				should.exist(data);
-				data.options.method.should.equals('POST');
+				data.options.method.should.equals('PUT');
 				data.options.path.should.equals('/dieties');
 
 				done();
@@ -396,38 +396,6 @@ describe('API: indices', function () {
 		});
 	});
 
-	describe('#deleteWarmer', function () {
-		it('should require name', function (done) {
-			indices.deleteWarmer(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.deleteWarmer(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper path and method', function (done) {
-			indices.deleteWarmer({ name : 'cat' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/dieties/_warmer/cat');
-
-				done();
-			});
-		});
-	});
-
 	describe('#exists', function () {
 		it('should require index', function (done) {
 			delete defaultOptions._index;
@@ -453,7 +421,7 @@ describe('API: indices', function () {
 		it('should have proper method and path', function (done) {
 			indices.exists({ _types : ['kitteh', 'cat'] }, function (err, data) {
 				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh,cat');
+				data.options.path.should.equals('/dieties/_mapping/kitteh,cat');
 				data.options.method.should.equals('HEAD');
 
 				done();
@@ -556,31 +524,6 @@ describe('API: indices', function () {
 		});
 	});
 
-	describe('#optimize', function () {
-		it('should have proper index and path when index is omitted', function (done) {
-			delete defaultOptions._index;
-			indices.optimize(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_optimize');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			indices.optimize({ _indices : ['dieties', 'devils'], refresh : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties,devils/_optimize?refresh=true');
-
-				done();
-			});
-		});
-	});
-
 	describe('#putMapping', function () {
 		var mapping = {
 			kitteh : {
@@ -618,61 +561,6 @@ describe('API: indices', function () {
 				should.exist(data);
 				data.options.method.should.equals('PUT');
 				data.options.path.should.equals('/dieties,devils/_mapping/kitteh');
-
-				done();
-			});
-		});
-	});
-
-	describe('#putWarmer', function () {
-		var warmer = {
-			query : {
-				match_all : {}
-			},
-			facets : {
-				breed : {
-					terms : { field : 'breed' }
-				}
-			}
-		};
-
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.putWarmer(warmer, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require name', function (done) {
-			indices.putWarmer(warmer, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper method and path when type is omitted', function (done) {
-			delete defaultOptions._type;
-			indices.putWarmer({ name : 'breed' }, warmer, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties/_warmer/breed');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			indices.putWarmer({ name : 'breed', _indices : ['dieties', 'devils'] }, warmer, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties,devils/kitteh/_warmer/breed');
 
 				done();
 			});
@@ -875,40 +763,6 @@ describe('API: indices', function () {
 				should.exist(data);
 				data.options.method.should.equals('PUT');
 				data.options.path.should.equals('/kitteh/_settings');
-
-				done();
-			});
-		});
-	});
-
-	describe('#warmers', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.warmers(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper path and method when name is omitted', function (done) {
-			indices.warmers(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/dieties/_warmer');
-
-				done();
-			});
-		});
-
-		it('should have proper path and method', function (done) {
-			indices.warmers({ name : 'cat' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/dieties/_warmer/cat');
 
 				done();
 			});

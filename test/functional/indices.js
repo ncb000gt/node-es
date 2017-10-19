@@ -26,9 +26,9 @@ describe('Functional: indices', function () {
     client.indices.putMapping({_type: 'book'}, {
       book: {
         properties: {
-          title: {type: 'string', store: 'yes', boost: 5.0},
-          author: {type: 'string', store: 'yes', index: 'not_analyzed'},
-          summary: {type: 'string', index: 'analyzed', term_vector: 'with_positions_offsets'}
+          title: {type: 'text', store: 'yes'},
+          author: {type: 'keyword', store: 'yes', index: true},
+          summary: {type: 'text', index: true, term_vector: 'with_positions_offsets'}
         }
       }
     }, done);
@@ -98,10 +98,12 @@ describe('Functional: indices', function () {
           actions: [
             {add: {index: index, alias: index + '_functional_tests_indices'}},
             {add: {index: index, alias: index + '_node_books', filter: {
-              and: [
-                {type: {value: 'book'}},
-                {query: {query_string: {query: 'Node.js'}}}
-              ]
+              bool: {
+                must: [
+                  {type: {value: 'book'}},
+                  {query_string: {query: 'Node.js'}}
+                ]
+              }
             }}}
           ]
         };
@@ -300,52 +302,6 @@ describe('Functional: indices', function () {
     //*/
   });
 
-  describe('Warmers', function () {
-
-    describe('#putWarmer', function () {
-      it('should be able to put a warmer', function (done) {
-        var warmer = {
-          query: {
-            match_all: {}
-          },
-          aggs: {
-            author: {
-              terms: {
-                field: 'author'
-              }
-            }
-          }
-        };
-        client.indices.putWarmer({name: index + '_warmer', _type: 'book'}, warmer, function (err) {
-          assert.ifError(err);
-          done();
-        });
-      });
-    });
-
-    describe('#warmers', function () {
-      it('should be able to list warmers', function (done) {
-        client.indices.warmers({_type: 'book'}, function (err, result) {
-          assert.ifError(err);
-          assert.equal(result[index].warmers[index + '_warmer'].source.aggs.author.terms.field, 'author');
-          done();
-        });
-      });
-    });
-
-    describe('#deleteWarmer', function () {
-      it('should be able to delete warmers', function (done) {
-        client.indices.deleteWarmer({name: index + '_warmer'}, function (err) {
-          assert.ifError(err);
-          client.indices.warmers({_type: 'book'}, function (err) {
-            assert.ifError(err);
-            done();
-          });
-        });
-      });
-    });
-  });
-
   describe('Misc.', function () {
 
     describe('#analyze', function () {
@@ -397,15 +353,6 @@ describe('Functional: indices', function () {
     describe('#flush', function () {
       it('should be able to flush an index', function (done) {
         client.indices.flush(function (err) {
-          assert.ifError(err);
-          done();
-        });
-      });
-    });
-
-    describe('#optimize', function () {
-      it('should be able to optimize an index', function (done) {
-        client.indices.optimize(function (err) {
           assert.ifError(err);
           done();
         });
@@ -472,20 +419,6 @@ describe('Functional: indices', function () {
         });
       });
     });
-
-    // status API has been removed in v2
-    // see: https://www.elastic.co/guide/en/elasticsearch/reference/2.3/breaking_20_stats_info_and_literal_cat_literal_changes.html#_index_status_api
-    /*
-    describe('#status', function () {
-      it('should be able to get the status', function (done) {
-        client.indices.status(function (err, result) {
-          assert.ifError(err);
-          assert.equal(result.indices[index].docs.num_docs, 5);
-          done();
-        });
-      });
-    });
-    //*/
 
     describe('#updateSettings', function () {
       it('should be able to update settings', function (done) {

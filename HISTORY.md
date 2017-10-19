@@ -1,3 +1,15 @@
+# v0.6.0 / 2017-10-02
+
+* Modified to support ElasticSearch 5.5.x
+  * `indices.createIndex` method adjusted to only call `put` (deprecated `post`)
+  * `indices.optimize` method deprecated
+  * `indices.status` method deprecated
+  * `Warmers` deprecated
+  * `Percolators` deprecated
+  * `scan` search_type deprecated
+  * `and` filter deprecate and replaced by `bool` query
+  * unit and functional tests udpated
+
 # v0.5.2 / 2016-10-05
 
 * Added fix for scenario where `_index` and `_type` overrides would not always work (Issue #62)

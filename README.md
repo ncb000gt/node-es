@@ -2,6 +2,8 @@
 
 This is a Node.js module for the [elasticsearch](http://www.elasticsearch.org/) REST API.
 
+NOTE: `node-es` `v0.6` and newer work with ElasticSearch 5 and up.  For older versions of ElasticSearch, prior versions of `node-es` should be used.
+
 [![Build Status](https://travis-ci.org/ncb000gt/node-es.png)](https://travis-ci.org/ncb000gt/node-es) [![Coverage Status](https://coveralls.io/repos/ncb000gt/node-es/badge.png)](https://coveralls.io/r/ncb000gt/node-es)
 
 ## Install
@@ -412,22 +414,6 @@ If `_index` and/or `_type` are supplied via options (or lib config), the will ap
 
 `es.multiSearch(options, queries, callback)`
 
-##### Percolate
-
-Requires `_index` be specified either via lib config or via options when calling the operation.
-
-`es.percolate(options, doc, callback)`
-
-Requires `_index` be specified either via lib config or via options when calling the operation.
-Also requires `_id`, but this must be specified via options.
-
-`es.registerPercolator(options, query, callback)`
-
-Requires `_index` be specified either via lib config or via options when calling the operation.
-Also requires `_id`, but this must be specified via options.
-
-`es.unregisterPercolator(options, callback)`
-
 ##### Search
 
 Requires `_index` be specified either via lib config or via options when calling the operation.
@@ -446,9 +432,8 @@ var
   },
   es = elasticsearch(config);
 
-// first search, specifying scan search_type
+// first search
 es.search({
-    search_type : 'scan',
     scroll : '10m'
   }, {
     query : {
@@ -541,13 +526,6 @@ Requires `name`, but this must be specified via options.
 
 `es.indices.deleteTemplate(options, callback)`
 
-##### Delete Warmer
-
-Requires `_index` be specified either via lib config or via options when calling the operation.
-Also requires `name`, but this must be specified via options.
-
-`es.indices.deleteWarmer(options, callback)`
-
 ##### Exists
 
 Requires `_index` be specified either via lib config or via options when calling the operation.
@@ -568,21 +546,11 @@ Requires `_index` be specified either via lib config or via options when calling
 
 `es.indices.openIndex(options, callback)`
 
-##### Optimize
-
-`es.indices.optimize(options, callback)`
-
 ##### Put Mapping
 
 Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
 
 `es.indices.putMapping(options, mapping, callback)`
-
-##### Put Warmer
-
-Requires `name`, but this must be specified via options.
-
-`es.indices.putWarmer(options, warmer, callback)`
 
 ##### Refresh
 
@@ -606,10 +574,6 @@ Requires `_index` be specified either via lib config or via options when calling
 
 `es.indices.stats(options, callback)`
 
-##### Status
-
-`es.indices.status(options, callback`
-
 ##### Templates
 
 Requires `name`, but this must be specified via options.
@@ -619,12 +583,6 @@ Requires `name`, but this must be specified via options.
 ##### Update Settings
 
 `es.indices.updateSettings(options, settings, callback)`
-
-##### Warmers
-
-Requires `_index` be specified either via lib config or via options when calling the operation.
-
-`es.indices.warmers(options, callback)`
 
 ### Cluster
 
