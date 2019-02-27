@@ -1,4 +1,4 @@
-var indicesLib = require('../../lib/indices');
+var indicesLib = require('../../src/indices');
 
 describe('API: indices', function () {
 	var

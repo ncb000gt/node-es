@@ -1,4 +1,4 @@
-var coreLib = require('../../lib/core');
+var coreLib = require('../../src/core');
 
 describe('API: core', function () {
 	var

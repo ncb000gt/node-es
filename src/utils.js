@@ -1,3 +1,5 @@
+import path from 'path';
+
 /*
 	Looks through request options and lib config data to determine
 	the index to use for an operation.
@@ -9,10 +11,8 @@
 
 	http://www.elasticsearch.org/guide/reference/api/multi-index/
 */
-exports.getIndexSyntax = function (options, config) {
-	'use strict';
-
-	var syntax = '';
+export function getIndexSyntax (options, config) {
+	let syntax = '';
 
 	if (options._indices && Array.isArray(options._indices)) {
 		syntax = options._indices.join(',');
@@ -25,7 +25,7 @@ exports.getIndexSyntax = function (options, config) {
 	}
 
 	return syntax;
-};
+}
 
 
 /*
@@ -37,10 +37,8 @@ exports.getIndexSyntax = function (options, config) {
 
 	Output is formatted as 'fieldName' or 'fieldName1,fieldName2' or ''
 */
-exports.getFieldSyntax = function (options) {
-	'use strict';
-
-	var syntax = '';
+export function getFieldSyntax (options) {
+	let syntax = '';
 
 	if (options.fields && Array.isArray(options.fields)) {
 		syntax = options.fields.join(',');
@@ -67,10 +65,8 @@ exports.getFieldSyntax = function (options) {
 
 	Output is formatted as 'nodeName' or 'nodeName1,nodeName2' or ''
 */
-exports.getNodeSyntax = function (options, config) {
-	'use strict';
-
-	var syntax = '';
+export function getNodeSyntax (options, config) {
+	let syntax = '';
 
 	if (options.nodes && Array.isArray(options.nodes)) {
 		syntax = options.nodes.join(',');
@@ -95,10 +91,8 @@ exports.getNodeSyntax = function (options, config) {
 
 	Output is formatted as 'typeName' or 'typeName1,typeName2' or ''
 */
-exports.getTypeSyntax = function (options, config) {
-	'use strict';
-
-	var syntax = '';
+export function getTypeSyntax (options, config) {
+	let syntax = '';
 
 	if (options._types && Array.isArray(options._types)) {
 		syntax = options._types.join(',');
@@ -127,10 +121,8 @@ exports.getTypeSyntax = function (options, config) {
 	pluralized versions of those properties without returning an
 	Error.
 */
-exports.optionsUndefined = function (options, config, keys) {
-	'use strict';
-
-	var error;
+export function optionsUndefined (options, config, keys) {
+	let error;
 
 	keys.every(function (key) {
 		if (key === '_index' &&
@@ -159,14 +151,12 @@ exports.optionsUndefined = function (options, config, keys) {
 /*
 	Exclude keys from an object.
 */
-exports.exclude = function (obj, excludes) {
-	'use strict';
+export function exclude (source, excludes) {
+	let result = {};
 
-	var result = {};
-
-	Object.keys(obj).forEach(function (key) {
+	Object.keys(source).forEach(function (key) {
 		if (excludes.indexOf(key) === -1) {
-			result[key] = obj[key];
+			result[key] = source[key];
 		}
 	});
 
@@ -185,12 +175,10 @@ exports.exclude = function (obj, excludes) {
 
 	Outputs: '/kitteh'
 */
-exports.pathAppend = function (resource) {
-	'use strict';
-
-	if (resource || resource === 0) {
-		return '/' + resource;
+export function pathAppend (...args) {
+	if (args && args.length && (args[0] || args[0] === 0) && args[0].charAt(0) !== '/') {
+		args[0] = ['/', args[0]].join('');
 	}
 
-	return '';
+	return path.join(...args);
 };

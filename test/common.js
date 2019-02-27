@@ -1,3 +1,5 @@
+var qs = require('querystring');
+
 var stubMethod = function (method, options, data, callback) {
 	'use strict';
 
@@ -14,8 +16,32 @@ var stubMethod = function (method, options, data, callback) {
 
 global.clientOptions = {};
 
-global.req = require('../lib/request').initialize({});
+global.req = {};
 
+req.getRequestOptions = (source) => {
+	if (!source) {
+		return source;
+	}
+
+	let options = JSON.parse(JSON.stringify(source));
+
+	if (options.pathname) {
+		options.path = options.pathname;
+	}
+
+	if (options.query && Object.keys(options.query).length) {
+		// fix for #48 (arrays in querystring are properly serialized)
+		Object.keys(options.query).forEach(function (param) {
+			if (Array.isArray(options.query[param]) && options.query[param].length > 1) {
+				options.query[param] = options.query[param].join(',');
+			}
+		});
+
+		options.path += '?' + qs.stringify(options.query);
+	}
+
+	return options;
+};
 
 req.delete = function (options, data, callback) {
 	'use strict';

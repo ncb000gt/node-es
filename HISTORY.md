@@ -1,3 +1,8 @@
+# v0.7.0 / 2019-02-20
+
+* Replaced `thenify` and `bluebird` dependencies with `babel`
+* Modified to support ElasticSearch 6.x.x
+
 # v0.6.0 / 2017-10-02
 
 * Modified to support ElasticSearch 5.5.x
