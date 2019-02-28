@@ -1,6 +1,21 @@
 import path from 'path';
 
 /*
+	Exclude keys from an object.
+*/
+export function exclude (source, excludes) {
+	let result = {};
+
+	Object.keys(source).forEach(function (key) {
+		if (excludes.indexOf(key) === -1) {
+			result[key] = source[key];
+		}
+	});
+
+	return result;
+};
+
+/*
 	Looks through request options and lib config data to determine
 	the index to use for an operation.
 
@@ -148,19 +163,20 @@ export function optionsUndefined (options, config, keys) {
 	return error || false;
 };
 
-/*
-	Exclude keys from an object.
-*/
-export function exclude (source, excludes) {
-	let result = {};
+export function promiseRejectOrCallback (err, callback) {
+	if (!callback) {
+		return Promise.reject(err);
+	}
 
-	Object.keys(source).forEach(function (key) {
-		if (excludes.indexOf(key) === -1) {
-			result[key] = source[key];
-		}
-	});
+	return callback(err);
+};
 
-	return result;
+export function promiseResolveOrCallback(result, callback) {
+	if (!callback) {
+		return Promise.resolve(result);
+	}
+
+	return callback(null, result);
 };
 
 /*
@@ -176,9 +192,11 @@ export function exclude (source, excludes) {
 	Outputs: '/kitteh'
 */
 export function pathAppend (...args) {
-	if (args && args.length && (args[0] || args[0] === 0) && args[0].charAt(0) !== '/') {
-		args[0] = ['/', args[0]].join('');
+	let filteredArgs = args.filter((arg) => (arg || arg === 0) && typeof arg !== 'undefined');
+
+	if (filteredArgs && filteredArgs.length && filteredArgs[0].charAt(0) !== '/') {
+		filteredArgs[0] = ['/', filteredArgs[0]].join('');
 	}
 
-	return path.join(...args);
+	return path.join(...(filteredArgs.map((arg) => (arg && arg.toString) ? arg.toString() : arg)));
 };

@@ -1,12 +1,16 @@
-var coreLib = require('../../src/core');
+import chai from 'chai';
+import { Core } from '../../src/core';
+import nock from 'nock';
 
-describe('API: core', function () {
-	var
+const should = chai.should();
+
+describe('API: core', () => {
+	let
 		core,
 		defaultOptions,
 		doc;
 
-	beforeEach(function () {
+	beforeEach(() => {
 		defaultOptions = {
 			_index : 'dieties',
 			_type : 'kitteh',
@@ -22,469 +26,299 @@ describe('API: core', function () {
 			color : 'tortoise'
 		};
 
-		requestError = null;
-
-		core = coreLib(defaultOptions, req);
+		core = new Core(defaultOptions);
 	});
 
-	describe('_index and _type syntax', function () {
-		var query = {
-			query : {
-				breed : 'manx'
-			}
-		};
+	describe('_index and _type syntax', () => {
+		let query;
 
-		it('should favor _indices over _index', function () {
-			var options = {
+		beforeEach(() => {
+			query = {
+				query : {
+					breed : 'manx'
+				}
+			};
+		});
+
+		it('should favor _indices over _index', () => {
+			let options = {
 				_indices : ['dieties', 'hellions']
 			};
-			return core.search(options, query).then(function(data) {
-				should.exist(data);
-				data.options.path.should.equals('/dieties,hellions/kitteh/_search');
-			});
+
+			nock('http://localhost:9200')
+				.post('/dieties,hellions/kitteh/_search')
+				.reply(200);
+
+			return core.search(options, query);
 		});
 
-		it('should favor _types over _type', function (done) {
-			var options = {
+		it('should favor _types over _type', async () => {
+			let options = {
 				_types : ['kitteh', 'squirrel']
 			};
-			core.search(options, query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh,squirrel/_search');
 
-				done();
-			});
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh,squirrel/_search')
+				.reply(200);
+
+			await core.search(options, query);
 		});
 
-		it('should favor _indices over _index in defaultConfig if supplied', function (done) {
+		it('should favor _indices over _index in defaultConfig if supplied', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties,hellions/kitteh/_search')
+				.reply(200);
+
 			defaultOptions._indices = ['dieties', 'hellions'];
-			core.search(query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties,hellions/kitteh/_search');
-
-				delete defaultOptions._indices;
-
-				done();
-			});
+			await core.search(query);
 		});
 
-		it('should favor _types over _type in defaultConfig if supplied', function (done) {
+		it('should favor _types over _type in defaultConfig if supplied', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh,squirrel/_search')
+				.reply(200);
+
 			defaultOptions._types = ['kitteh', 'squirrel'];
-			core.search(query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh,squirrel/_search');
-
-				delete defaultOptions._types;
-
-				done();
-			});
+			await core.search(query);
 		});
 
-		it('should allow _types and _indices when requiring _type and _index', function (done) {
-			core.get({ _id : 1, _types : ['kitteh', 'squirrel'], _source : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh,squirrel/1/_source');
+		it('should allow _types and _indices when requiring _type and _index', async () => {
+			nock('http://localhost:9200')
+				.get('/dieties/kitteh,squirrel/1/_source')
+				.reply(200);
 
-				done();
-			});
+			core.get({ _id : 1, _types : ['kitteh', 'squirrel'], _source : true });
 		});
 
-		it('should properly handle when _source is not a boolean', function (done) {
-			core.get({ _id : 1, _type : 'kitteh', _source : ['name','breed'] }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/1/_source?_source=name%2Cbreed');
+		it('should properly handle when _source is not a boolean', async () => {
+			nock('http://localhost:9200')
+				.get('/dieties/kitteh/1/_source?_source=name%2Cbreed')
+				.reply(200);
 
-				done();
-			});
+			await core.get({ _id : 1, _type : 'kitteh', _source : ['name','breed'] });
 		});
 
-		it('should properly handle _index and _type override', function (done) {
-			core.count({ _index : 'non-dieties', _type : 'dogs' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/non-dieties/dogs/_count');
+		it('should properly handle _index and _type override', async () => {
+			nock('http://localhost:9200')
+				.get('/non-dieties/dogs/_count')
+				.reply(200);
 
-				done();
-			});
+			await core.count({ _index : 'non-dieties', _type : 'dogs' });
 		});
 	});
 
-	describe('#add', function () {
-		it('should do what .index does (backwards compat check)', function (done) {
-			core.add(doc, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh');
-				data.options.method.should.equals('POST');
+	describe('#add', () => {
+		it('should do what .index does (backwards compat check)', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh')
+				.reply(200);
 
-				done();
-			});
+			await core.add(doc);
 		});
 	});
 
-	describe('#bulk', function () {
-		var commands = [
-			{ index : { _index : 'dieties', _type : 'kitteh' } },
-			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
-			{ index : { _index : 'dieties', _type : 'kitteh' } },
-			{ name : 'dugald', breed : 'siamese', color : 'white' },
-			{ index : { _index : 'dieties', _type : 'kitteh' } },
-			{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
-		];
+	describe('#bulk', () => {
+		let commands;
 
-		it('should allow options to be optional', function (done) {
-			core.bulk(commands, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_bulk');
-
-				done();
-			});
+		beforeEach(() => {
+			commands = [
+				{ index : { _index : 'dieties', _type : 'kitteh' } },
+				{ name : 'hamish', breed : 'manx', color : 'tortoise' },
+				{ index : { _index : 'dieties', _type : 'kitteh' } },
+				{ name : 'dugald', breed : 'siamese', color : 'white' },
+				{ index : { _index : 'dieties', _type : 'kitteh' } },
+				{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+			];
 		});
 
-		it('should require commands to be an array', function (done) {
-			core.bulk(commands[0], function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
+		it('should allow options to be optional', async () => {
+			nock('http://localhost:9200')
+				.post('/_bulk')
+				.reply(200);
 
-				done();
-			});
+			await core.bulk(commands);
 		});
 
-		it('should only apply index to url with passed with options', function (done) {
-			core.bulk({ _index : 'dieties' }, commands, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/_bulk');
+		it('should require commands to be an array', (done) => {
+			core
+				.bulk(commands[0])
+				.then(() => done(new Error('should require commands to be an Array')))
+				.catch((ex) => {
+					should.exist(ex);
+					ex.message.should.equal('commands provided must be in array format');
 
-				done();
-			});
+					return done();
+				});
 		});
 
-		it('should only apply type to url when index and type are passed with options', function (done) {
-			core.bulk({ _index : 'dieties', _type : 'kitteh' }, commands, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/kitteh/_bulk');
+		it('should only apply index to url with passed with options', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/_bulk')
+				.reply(200);
 
-				done();
-			});
+			await core.bulk({ _index : 'dieties' }, commands);
 		});
 
-		it('should properly format out as newline delimited text', function (done) {
-			core.bulk(commands, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.inputData.match(/\n/g).should.have.length(6);
+		it('should only apply type to url when index and type are passed with options', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_bulk')
+				.reply(200);
 
-				done();
+			await core.bulk({ _index : 'dieties', _type : 'kitteh' }, commands);
+		});
+
+		it('should properly format out as newline delimited text', async () => {
+			let requestBody;
+
+			// capture the body submitted
+			core.request.on('request', (context) => {
+				requestBody = context.state.data;
 			});
+
+			nock('http://localhost:9200')
+				.post('/_bulk')
+				.reply(200);
+
+			await core.bulk(commands);
+
+			should.exist(requestBody);
+			requestBody.match(/\n/g).should.have.length(6);
 		});
 	});
 
-	describe('#bulkIndex', function () {
-		var documents = [
-			{ name : 'hamish', breed : 'manx', color : 'tortoise' },
-			{ name : 'dugald', breed : 'siamese', color : 'white' },
-			{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
-		];
+	describe('#bulkIndex', () => {
+		let documents;
 
-		it('should allow options to be optional', function (done) {
-			core.bulkIndex(documents, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_bulk');
-
-				done();
-			});
+		beforeEach(() => {
+			documents = [
+				{ name : 'hamish', breed : 'manx', color : 'tortoise' },
+				{ name : 'dugald', breed : 'siamese', color : 'white' },
+				{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
+			];
 		});
 
-		it('should require documents to be an array', function (done) {
-			core.bulkIndex(documents[0], function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
+		it('should allow options to be optional', (done) => {
+			nock('http://localhost:9200')
+				.post('/_bulk')
+				.reply(200);
 
-				done();
-			});
+			core.bulkIndex(documents, done);
 		});
 
-		it('should only apply type to url when index and type are passed with options or config', function (done) {
-			core.bulkIndex({ _index : 'test', _type : 'test' }, documents, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/test/test/_bulk');
-
-				done();
-			});
+		it('should require documents to be an Array', () => {
+			return core
+				.bulkIndex(documents[0])
+				.then(() => Promise.reject(new Error('should require documents to be an Array')))
+				.catch((err) => {
+					err.message.should.equal('documents provided must be in array format');
+				});
 		});
 
-		it('should properly format out as newline delimited text', function (done) {
-			core.bulkIndex(documents, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.inputData.match(/\n/g).should.have.length(6);
+		it('should only apply type to url when index and type are passed with options or config', async () => {
+			nock('http://localhost:9200')
+				.post('/test/test/_bulk')
+				.reply(200);
 
-				done();
-			});
+			await core.bulkIndex({ _index : 'test', _type : 'test' }, documents);
 		});
 
-		it('should properly handle _id supplied with documents', function (done) {
+		it('should properly format out as newline delimited text', async () => {
+			let requestBody;
+
+			// capture the body submitted
+			core.request.on('request', (context) => {
+				requestBody = context.state.data;
+			});
+
+			nock('http://localhost:9200')
+				.post('/_bulk')
+				.reply(200);
+
+			await core.bulk(documents);
+
+			should.exist(requestBody);
+			requestBody.match(/\n/g).should.have.length(3);
+		});
+
+		it('should properly handle _id supplied with documents', async () => {
 			// add an _id to each document
-			for (var i = 0; i < documents.length; i++) {
+			for (let i = 0; i < documents.length; i++) {
 				documents[i]._id = i;
 			}
 
-			core.bulkIndex(documents, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.inputData.match(/_id/g).should.have.length(3);
+			let requestBody;
 
-				done();
+			// capture the body submitted
+			core.request.on('request', (context) => {
+				requestBody = context.state.data;
 			});
+
+			nock('http://localhost:9200')
+				.post('/_bulk')
+				.reply(200);
+
+			await core.bulk(documents);
+
+			should.exist(requestBody);
+			requestBody.match(/_id/g).should.have.length(3);
 		});
 	});
 
-	describe('#count', function () {
-		var query = {
-			query : {
-				breed : 'manx'
-			}
-		};
+	describe('#count', () => {
+		let query;
 
-		it('should allow options to be optional', function (done) {
-			core.count({}, query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/_count');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-
-		it('should allow count without index', function (done) {
-			delete defaultOptions._index;
-			core.count({}, query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/_count');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-
-		it('should allow count without type', function (done) {
-			delete defaultOptions._type;
-			core.count(query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/_count');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-
-		it('should allow count without query', function (done) {
-			delete defaultOptions._index;
-			delete defaultOptions._type;
-			core.count(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/_count');
-				data.options.method.should.equals('GET');
-
-				done();
-			});
-		});
-	});
-
-	describe('#delete', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.delete({}, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have correct path and method', function (done) {
-			core.delete({}, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh');
-				data.options.method.should.equals('DELETE');
-
-				done();
-			});
-		});
-
-		it('should have correct path and method when id is supplied', function (done) {
-			core.delete({ _id : 1 }, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/1');
-				data.options.method.should.equals('DELETE');
-
-				done();
-			});
-		});
-
-		it('should treat options as optional', function (done) {
-			core.delete(function(err, data) {
-				should.not.exist(err);
-				data.options.method.should.equals('DELETE');
-
-				done();
-			});
-		});
-	});
-
-	describe('#deleteByQuery', function () {
-		var query = {
-			query : {
-				term : { tag : 'indoor' }
-			}
-		};
-
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.deleteByQuery({}, query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have correct path and method', function (done) {
-			core.deleteByQuery(query, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/_query');
-				data.options.method.should.equals('DELETE');
-
-				done();
-			});
-		});
-
-		it('should have correct path and method when type is not supplied', function (done) {
-			delete defaultOptions._type;
-			core.deleteByQuery(query, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/_query');
-				data.options.method.should.equals('DELETE');
-
-				done();
-			});
-		});
-	});
-
-	describe('#exists', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.exists({}, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have correct path and method when id is supplied', function (done) {
-			core.exists({ _id : 1 }, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/1');
-				data.options.method.should.equals('HEAD');
-
-				done();
-			});
-		});
-
-		it('should allow options to be optional', function (done) {
-			core.exists(function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh');
-				data.options.method.should.equals('HEAD');
-
-				done();
-			});
-		});
-
-		it('should properly return request errors', function (done) {
-			requestError = new Error('should return to me');
-			core.exists(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-				err.should.equals(requestError);
-
-				done();
-			});
-		});
-	});
-
-	describe('#explain', function () {
-		var query = {
-			query : {
-				field : {
+		beforeEach(() => {
+			query = {
+				query : {
 					breed : 'manx'
 				}
-			}
-		};
+			};
+		});
 
-		it('should require index', function (done) {
+		it('should allow options to be optional', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_count')
+				.reply(200);
+
+			await core.count({}, query);
+		});
+
+		it('should allow count without index', async () => {
+			nock('http://localhost:9200')
+				.post('/_count')
+				.reply(200);
+
 			delete defaultOptions._index;
-			core.explain({}, query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
 
-				done();
-			});
+			await core.count({}, query);
 		});
 
-		it('should require type', function (done) {
+		it('should allow count without type', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/_count')
+				.reply(200);
+
 			delete defaultOptions._type;
-			core.explain({}, query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
 
-				done();
-			});
+			await core.count(query);
 		});
 
-		it('should require id', function (done) {
-			core.explain(query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
+		it('should allow count without query', async () => {
+			nock('http://localhost:9200')
+				.get('/_count')
+				.reply(200);
 
-				done();
-			});
-		});
+			delete defaultOptions._index;
+			delete defaultOptions._type;
 
-		it('should have correct path and method when id is supplied', function (done) {
-			core.explain({ _id : 1 }, query, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/1/_explain');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
+			await core.count();
 		});
 	});
 
-	describe('#get', function () {
-		it('should require index', function (done) {
+	describe('#delete', () => {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			core.get({}, function (err, data) {
+			core.delete({}, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -492,9 +326,74 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should have correct path and method', async () => {
+			nock('http://localhost:9200')
+				.delete('/dieties/kitteh')
+				.reply(200);
+
+			await core.delete({});
+		});
+
+		it('should have correct path and method when id is supplied', async () => {
+			nock('http://localhost:9200')
+				.delete('/dieties/kitteh/1')
+				.reply(200);
+
+			await core.delete({ _id : 1 });
+		});
+
+		it('should treat options as optional', async () => {
+			nock('http://localhost:9200')
+				.delete('/dieties/kitteh')
+				.reply(200);
+
+			await core.delete();
+		});
+	});
+
+	describe('#deleteByQuery', () => {
+		let query;
+
+		beforeEach(() => {
+			query = {
+				query : {
+					term : { tag : 'indoor' }
+				}
+			};
+		});
+
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			core.deleteByQuery({}, query, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method', async () => {
+			nock('http://localhost:9200')
+				.delete('/dieties/kitteh/_query')
+				.reply(200);
+
+			await core.deleteByQuery(query);
+		});
+
+		it('should have correct path and method when type is not supplied', async () => {
+			nock('http://localhost:9200')
+				.delete('/dieties/_query')
+				.reply(200);
+
 			delete defaultOptions._type;
-			core.get({}, function (err, data) {
+			await core.deleteByQuery(query);
+		});
+	});
+
+	describe('#exists', () => {
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			core.exists({}, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -502,8 +401,39 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require id', function (done) {
-			core.get(function (err, data) {
+		it('should have correct path and method when id is supplied', async () => {
+			nock('http://localhost:9200')
+				.head('/dieties/kitteh/1')
+				.reply(200);
+
+			await core.exists({ _id : 1 });
+		});
+
+		it('should allow options to be optional', async () => {
+			nock('http://localhost:9200')
+				.head('/dieties/kitteh')
+				.reply(200);
+
+			await core.exists();
+		});
+	});
+
+	describe('#explain', () => {
+		let query;
+
+		beforeEach(() => {
+			query = {
+				query : {
+					field : {
+						breed : 'manx'
+					}
+				}
+			};
+		});
+
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			core.explain({}, query, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -511,32 +441,90 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should have correct path and method when id is supplied', function (done) {
-			core.get({ _id : 1 }, function (err, data) {
+		it('should require type', (done) => {
+			delete defaultOptions._type;
+			core.explain({}, query, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require id', (done) => {
+			core.explain(query, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/1/_explain')
+				.reply(200);
+
+			await core.explain({ _id : 1 }, query);
+		});
+	});
+
+	describe('#get', () => {
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			core.get({}, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', (done) => {
+			delete defaultOptions._type;
+			core.get({}, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require id', (done) => {
+			core.get((err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have correct path and method when id is supplied', (done) => {
+			nock('http://localhost:9200')
+				.get('/dieties/kitteh/1')
+				.reply(200);
+
+			core.get({ _id : 1 }, (err) => {
 				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/1');
-				data.options.method.should.equals('GET');
 
 				done();
 			});
 		});
 
 		// not sure I like this behavior... it's not explicit as to the purpose of the method
-		it('should make request a multiGet if id is passed as an array', function (done) {
-			core.get({ _id : [1, 2, 3] }, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/_mget');
-				data.options.method.should.equals('POST');
+		it('should make request a multiGet if id is passed as an array', async () => {
+			nock('http://localhost:9200')
+				.post('/_mget')
+				.reply(200);
 
-				done();
-			});
+			await core.get({ _id : [1, 2, 3] });
 		});
 	});
 
-	describe('#index', function () {
-		it('should require index', function (done) {
+	describe('#index', () => {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			core.index({}, doc, function (err, data) {
+			core.index({}, doc, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -544,9 +532,9 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should require type', (done) => {
 			delete defaultOptions._type;
-			core.index({}, doc, function (err, data) {
+			core.index({}, doc, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -554,89 +542,88 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should have correct path and method', function (done) {
-			core.index({}, doc, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh');
-				data.options.method.should.equals('POST');
+		it('should have correct path and method', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh')
+				.reply(200);
 
-				done();
-			});
+			await core.index({}, doc);
 		});
 
-		it('should have correct path and method when id is supplied', function (done) {
-			core.index({ _id : 1 }, doc, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/1');
-				data.options.method.should.equals('PUT');
+		it('should have correct path and method when id is supplied', async () => {
+			nock('http://localhost:9200')
+				.put('/dieties/kitteh/1')
+				.reply(200);
 
-				done();
-			});
+			await core.index({ _id : 1 }, doc);
 		});
 
-		it('should correctly append querystring options', function (done) {
-			var options = {
-				consistency : 'quorum',
-				distributed : true,
-				op_type : 'create',
-				parent : 1,
-				percolate : '*',
-				refresh : true,
-				replication : 'async',
-				routing : 'kimchy',
-				timeout : '5m',
-				ttl : '1d',
-				version : 1
-			};
+		it('should correctly append querystring options', async () => {
+			nock('http://localhost:9200')
+				.post(/\/dieties\/kitteh\?[a-z0-9\&\*\=\_]*/i)
+				.reply(200);
 
-			core.index(options, doc, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.contain('dieties/kitteh?');
-				data.options.path.should.contain('consistency=quorum');
-				data.options.path.should.contain('distributed=true');
-				data.options.path.should.contain('op_type=create');
-				data.options.path.should.contain('parent=1');
-				data.options.path.should.contain('percolate=*');
-				data.options.path.should.contain('refresh=true');
-				data.options.path.should.contain('replication=async');
-				data.options.path.should.contain('routing=kimchy');
-				data.options.path.should.contain('timeout=5m');
-				data.options.path.should.contain('ttl=1d');
-				data.options.path.should.contain('version=1');
-				data.options.method.should.equals('POST');
+			let
+				options = {
+					consistency : 'quorum',
+					distributed : true,
+					op_type : 'create',
+					parent : 1,
+					percolate : '*',
+					refresh : true,
+					replication : 'async',
+					routing : 'kimchy',
+					timeout : '5m',
+					ttl : '1d',
+					version : 1
+				},
+				requestPath;
 
-				done();
+			core.request.on('request', (context) => {
+				requestPath = context.options.path;
 			});
+
+			await core.index(options, doc);
+
+			requestPath.should.contain('dieties/kitteh?');
+			requestPath.should.contain('consistency=quorum');
+			requestPath.should.contain('distributed=true');
+			requestPath.should.contain('op_type=create');
+			requestPath.should.contain('parent=1');
+			requestPath.should.contain('percolate=*');
+			requestPath.should.contain('refresh=true');
+			requestPath.should.contain('replication=async');
+			requestPath.should.contain('routing=kimchy');
+			requestPath.should.contain('timeout=5m');
+			requestPath.should.contain('ttl=1d');
+			requestPath.should.contain('version=1');
 		});
 
-		it('should support _create as parameter', function (done) {
-			var options = {
+		it('should support _create as parameter', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_create')
+				.reply(200);
+
+			let options = {
 				_create : true
 			};
 
-			core.index(options, doc, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/_create');
-
-				done();
-			});
+			await core.index(options, doc);
 		});
 
-		it('should treat options as optional', function (done) {
-			core.index(doc, function(err, data) {
-				should.not.exist(err);
-				data.options.method.should.equals('POST');
-				data.inputData.should.equals(doc);
+		it('should treat options as optional', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh')
+				.reply(200);
 
-				done();
-			});
+			await core.index(doc);
 		});
 	});
 
-	describe('#moreLikeThis', function () {
-		it('should require index', function (done) {
+	describe('#moreLikeThis', () => {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			core.moreLikeThis({}, function (err, data) {
+			core.moreLikeThis({}, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -644,9 +631,9 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should require type', (done) => {
 			delete defaultOptions._type;
-			core.moreLikeThis({}, function (err, data) {
+			core.moreLikeThis({}, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -654,8 +641,8 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require id', function (done) {
-			core.moreLikeThis(function (err, data) {
+		it('should require id', (done) => {
+			core.moreLikeThis((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -663,106 +650,128 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should have correct path and method when id is supplied', function (done) {
-			core.moreLikeThis({ _id : 1 }, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/kitteh/1/_mlt');
-				data.options.method.should.equals('GET');
+		it('should have correct path and method when id is supplied', async () => {
+			nock('http://localhost:9200')
+				.get('/dieties/kitteh/1/_mlt')
+				.reply(200);
 
-				done();
-			});
+			await core.moreLikeThis({ _id : 1 });
 		});
 	});
 
-	describe('#multiGet', function () {
-		var docs = [{
-			_id : 1,
-			_index : 'testIndex',
-			_type : 'testType'
-		}, {
-			_id : 2,
-			_index : 'testIndex',
-			_type : 'testType'
-		}, {
-			_id : 3,
-			_index : 'testIndex',
-			_type : 'testType'
-		}];
+	describe('#multiGet', () => {
+		let docs;
 
-		it('should require index', function (done) {
+		beforeEach(() => {
+			docs = [{
+				_id : 1,
+				_index : 'testIndex',
+				_type : 'testType'
+			}, {
+				_id : 2,
+				_index : 'testIndex',
+				_type : 'testType'
+			}, {
+				_id : 3,
+				_index : 'testIndex',
+				_type : 'testType'
+			}];
+		});
+
+		it('should require index', (done) => {
 			delete defaultOptions._index;
 			delete docs[0]._index;
-			core.multiGet(docs, function (err, data) {
+			core.multiGet(docs, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
-
-				docs[0]._index = 'testIndex';
 
 				done();
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should require type', (done) => {
 			delete defaultOptions._type;
 			delete docs[0]._type;
-			core.multiGet(docs, function (err, data) {
+			core.multiGet(docs, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
-				docs[0]._type = 'testType';
-
 				done();
 			});
 		});
 
-		it('should have correct path and method', function (done) {
-			core.multiGet(docs, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/_mget');
-				data.options.method.should.equals('POST');
-				data.inputData.docs[0]._index.should.equals('testIndex');
-				data.inputData.docs[0]._type.should.equals('testType');
+		it('should have correct path and method', async () => {
+			let requestBody;
 
-				done();
-			});
+			nock('http://localhost:9200')
+				.post('/_mget')
+				.reply(200, (uri, body) => {
+					requestBody = body;
+
+					return;
+				});
+
+			await core.multiGet(docs);
+
+			requestBody.docs[0]._index.should.equals('testIndex');
+			requestBody.docs[0]._type.should.equals('testType');
+			requestBody.docs[1]._index.should.equals('testIndex');
+			requestBody.docs[1]._type.should.equals('testType');
+			requestBody.docs[2]._index.should.equals('testIndex');
+			requestBody.docs[2]._type.should.equals('testType');
 		});
 
-		it('should have correct index and type when omitted', function (done) {
+		it('should have correct index and type when omitted', async () => {
+			let requestBody;
+
+			nock('http://localhost:9200')
+				.post('/_mget')
+				.reply(200, (uri, body) => {
+					requestBody = body;
+
+					return;
+				});
+
 			delete docs[0]._index;
 			delete docs[0]._type;
-			core.multiGet(docs, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/_mget');
-				data.options.method.should.equals('POST');
-				data.inputData.docs[0]._index.should.equals('dieties');
-				data.inputData.docs[0]._type.should.equals('kitteh');
+			delete docs[1]._index;
+			delete docs[1]._type;
+			delete docs[2]._index;
+			delete docs[2]._type;
 
-				done();
-			});
+			await core.multiGet(docs);
+
+			requestBody.docs[0]._index.should.equals('dieties');
+			requestBody.docs[0]._type.should.equals('kitteh');
+			requestBody.docs[1]._index.should.equals('dieties');
+			requestBody.docs[1]._type.should.equals('kitteh');
+			requestBody.docs[2]._index.should.equals('dieties');
+			requestBody.docs[2]._type.should.equals('kitteh');
 		});
 	});
 
-	describe('#multiSearch', function () {
-		var queries = [
-			{},
-			{ query : { match_all : {} }, from : 0, size : 100 },
-			{ search_type : 'count' },
-			{ query : { field : { breed : 'manx' } } }
-		];
+	describe('#multiSearch', () => {
+		let queries;
 
-		it('should allow options to be optional', function (done) {
-			core.multiSearch(queries, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_msearch');
-
-				done();
-			});
+		beforeEach(() => {
+			queries = [
+				{},
+				{ query : { match_all : {} }, from : 0, size : 100 },
+				{ search_type : 'count' },
+				{ query : { field : { breed : 'manx' } } }
+			];
 		});
 
-		it('should require queries to be an array', function (done) {
-			core.multiSearch(queries[0], function (err, data) {
+		it('should allow options to be optional', (done) => {
+			nock('http://localhost:9200')
+				.post('/_msearch')
+				.reply(200);
+
+			core.multiSearch(queries, done);
+		});
+
+		it('should require queries to be an array', (done) => {
+			core.multiSearch(queries[0], (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -770,173 +779,177 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should only apply index to url with passed with options', function (done) {
-			core.multiSearch({ _index : 'dieties' }, queries, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/_msearch');
+		it('should only apply index to url with passed with options', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/_msearch')
+				.reply(200);
 
-				done();
-			});
+			await core.multiSearch({ _index : 'dieties' }, queries);
 		});
 
-		it('should only apply type to url when index and type are passed with options', function (done) {
-			core.multiSearch({ _index : 'dieties', _type : 'kitteh' }, queries, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/kitteh/_msearch');
+		it('should only apply type to url when index and type are passed with options', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_msearch')
+				.reply(200);
 
-				done();
-			});
+			await core.multiSearch({ _index : 'dieties', _type : 'kitteh' }, queries);
 		});
 
-		it('should properly format out as newline delimited text', function (done) {
-			core.multiSearch(queries, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.inputData.match(/\n/g).should.have.length(4);
+		it('should properly format out as newline delimited text', async () => {
+			nock('http://localhost:9200')
+				.post('/_msearch')
+				.reply(200);
 
-				done();
+			let requestData;
+
+			core.request.on('request', (context) => {
+				requestData = context.state.data;
 			});
-		});
-	});
 
-	describe('#query', function () {
-		var query = {
-			query : {
-				breed : 'manx'
-			}
-		};
+			await core.multiSearch(queries);
 
-		it('should do what .search does (backwards compat check)', function (done) {
-			core.query(query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/_search');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
+			requestData.match(/\n/g).should.have.length(4);
 		});
 	});
 
-	describe('#search', function () {
-		var query = {
-			query : {
-				breed : 'manx'
-			}
-		};
+	describe('#query', () => {
+		let query;
 
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			core.search({}, query, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should allow options to be optional', function (done) {
-			core.search({}, query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/_search');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-
-		it('should allow search without type', function (done) {
-			delete defaultOptions._type;
-			core.search(query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/_search');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-	});
-
-	describe('#scroll', function () {
-		var scroll_id = 'test scroll value';
-
-		it('should require scroll', function (done) {
-			delete defaultOptions._index;
-			core.scroll({}, scroll_id, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should properly request scroll', function (done) {
-			core.scroll({ scroll : '10m'}, scroll_id, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/_search/scroll?scroll=10m');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
-		});
-	});
-
-	describe('#suggest', function () {
-		var suggest = {
-			'my-suggestion' : {
-				text : 'manx',
-				term : {
-					field : 'breed'
+		beforeEach(() => {
+			query = {
+				query : {
+					breed : 'manx'
 				}
-			}
-		};
-
-		it('should allow request without index', function (done) {
-			delete defaultOptions._index;
-			delete defaultOptions._type;
-			core.suggest({}, suggest, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/_suggest');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
+			};
 		});
 
-		it('should allow suggest without type', function (done) {
-			delete defaultOptions._type;
-			core.suggest(suggest, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/_suggest');
-				data.options.method.should.equals('POST');
+		it('should do what .search does (backwards compat check)', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_search')
+				.reply(200);
 
-				done();
-			});
-		});
-
-		it('should allow options to be optional', function (done) {
-			core.suggest({}, suggest, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/_suggest');
-				data.options.method.should.equals('POST');
-
-				done();
-			});
+			await core.query(query);
 		});
 	});
 
-	describe('#update', function () {
-		var
+	describe('#search', () => {
+		let query;
+
+		beforeEach(() => {
+			query = {
+				query : {
+					breed : 'manx'
+				}
+			};
+		});
+
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			core.search({}, query, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should allow options to be optional', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_search')
+				.reply(200);
+
+			await core.search({}, query);
+		});
+
+		it('should allow search without type', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/_search')
+				.reply(200);
+
+			delete defaultOptions._type;
+
+			await core.search(query);
+		});
+	});
+
+	describe('#scroll', () => {
+		let scroll_id;
+
+		beforeEach(() => {
+			scroll_id = 'test scroll value';
+		});
+
+		it('should require scroll', (done) => {
+			delete defaultOptions._index;
+			core.scroll({}, scroll_id, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should properly request scroll', async () => {
+			nock('http://localhost:9200')
+				.post('/_search/scroll?scroll=10m')
+				.reply(200);
+
+			await core.scroll({ scroll : '10m'}, scroll_id);
+		});
+	});
+
+	describe('#suggest', () => {
+		let query;
+
+		beforeEach(() => {
+			query = {
+				suggest : {
+					'my-suggestion' : {
+						text : 'manx',
+						term : {
+							field : 'breed'
+						}
+					}
+				}
+			};
+		});
+
+		it('should allow request without index', (done) => {
+			nock('http://localhost:9200')
+				.post('/_search')
+				.reply(200);
+
+			delete defaultOptions._index;
+			delete defaultOptions._type;
+
+			core.suggest({}, query, done);
+		});
+
+		it('should allow options to be optional', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_search')
+				.reply(200);
+
+			await core.suggest(query);
+		});
+
+		it('should allow suggest without type', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/_search')
+				.reply(200);
+
+			delete defaultOptions._type;
+
+			await core.suggest({}, query);
+		});
+	});
+
+	describe('#update', () => {
+		let
+			doc1,
+			doc2;
+
+		beforeEach(() => {
 			doc1 = {
 				script : 'ctx._source.field1 = updateData',
 				params : {
@@ -948,10 +961,11 @@ describe('API: core', function () {
 					field1 : 'new value'
 				}
 			};
+		});
 
-		it('should require index', function (done) {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			core.update({ _id : 1 }, doc1, function (err, data) {
+			core.update({ _id : 1 }, doc1, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -959,9 +973,9 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should require type', (done) => {
 			delete defaultOptions._type;
-			core.update({ _id : 1 }, doc1, function (err, data) {
+			core.update({ _id : 1 }, doc1, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -969,8 +983,8 @@ describe('API: core', function () {
 			});
 		});
 
-		it ('should require id', function (done) {
-			core.update(doc1, function (err, data) {
+		it ('should require id', (done) => {
+			core.update(doc1, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -978,9 +992,9 @@ describe('API: core', function () {
 			});
 		});
 
-		it ('should require script or doc', function (done) {
+		it ('should require script or doc', (done) => {
 			delete doc1.script;
-			core.update({ _id : 1 }, doc1, function (err, data) {
+			core.update({ _id : 1 }, doc1, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -990,51 +1004,47 @@ describe('API: core', function () {
 			});
 		});
 
-		it ('should accept script', function (done) {
-			core.update({ _id : 1 }, doc1, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/1/_update');
-				data.options.method.should.equals('POST');
+		it ('should accept script', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/1/_update')
+				.reply(200);
 
-				done();
-			});
+			await core.update({ _id : 1 }, doc1);
 		});
 
-		it ('should accept blank script', function (done) {
+		it ('should accept blank script', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/1/_update')
+				.reply(200);
+
 			doc1.script = '';
-			core.update({ _id : 1 }, doc1, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/1/_update');
-				data.options.method.should.equals('POST');
 
-				done();
-			});
+			await core.update({ _id : 1 }, doc1);
 		});
 
-		it ('should accept doc', function (done) {
-			core.update({ _id : 2 }, doc2, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/2/_update');
-				data.options.method.should.equals('POST');
+		it ('should accept doc', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/2/_update')
+				.reply(200);
 
-				done();
-			});
+			await core.update({ _id : 2 }, doc2);
 		});
 	});
 
-	describe('#validate', function () {
-		var query = {
-			query : {
-				breed : 'manx'
-			}
-		};
+	describe('#validate', () => {
+		let query;
 
-		it('should require index', function (done) {
+		beforeEach(() => {
+			query = {
+				query : {
+					breed : 'manx'
+				}
+			};
+		});
+
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			core.validate({}, query, function (err, data) {
+			core.validate({}, query, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -1042,27 +1052,22 @@ describe('API: core', function () {
 			});
 		});
 
-		it('should allow options to be optional', function (done) {
-			core.validate({}, query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/kitteh/_validate/query');
-				data.options.method.should.equals('POST');
+		it('should allow options to be optional', (done) => {
+			nock('http://localhost:9200')
+				.post('/dieties/kitteh/_validate/query')
+				.reply(200);
 
-				done();
-			});
+			core.validate({}, query, done);
 		});
 
-		it('should allow validate without type', function (done) {
-			delete defaultOptions._type;
-			core.validate(query, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.path.should.equals('/dieties/_validate/query');
-				data.options.method.should.equals('POST');
+		it('should allow validate without type', async () => {
+			nock('http://localhost:9200')
+				.post('/dieties/_validate/query')
+				.reply(200);
 
-				done();
-			});
+			delete defaultOptions._type;
+
+			await core.validate(query);
 		});
 	});
 });

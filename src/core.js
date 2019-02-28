@@ -1,14 +1,54 @@
-var
-	thenifyAll = require('thenify-all'),
-	utils = require('./utils');
+import * as utils from './utils';
+import { Request } from 'reqlib';
 
-module.exports = function (config, req, self) {
-	'use strict';
+class Core {
+	constructor (config, request) {
+		this.config = config;
+		this.paramExcludes = Object
+			.keys(config)
+			.concat(['_create', '_id', '_index', '_indices', '_source', '_type', '_types']);
+		this.request = request || new Request(config);
+	}
 
-	self = self || {};
+	// http://www.elasticsearch.org/guide/reference/api/index_/
+	// .add to ease backwards compatibility
+	add (options = {}, doc, callback) {
+		if (!callback && typeof doc === 'function') {
+			callback = doc;
+			doc = options;
+			options = {};
+		}
 
-	var paramExcludes = Object.keys(config)
-		.concat(['_create', '_id', '_index', '_indices', '_source', '_type', '_types']);
+		// handle scenarios where options are not provided
+		if (!doc) {
+			doc = options;
+			options = {};
+		}
+
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+
+		if (err) {
+			return utils.promiseRejectOrCallback(err, callback);
+		}
+
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
+
+		options.query = utils.exclude(options, this.paramExcludes);
+
+		options.path = utils.pathAppend(
+			index,
+			type,
+			options._id,
+			(options.create || options._create) ? '_create' : '');
+
+		if (options._id) {
+			return this.request.put(options, doc, callback);
+		} else {
+			return this.request.post(options, doc, callback);
+		}
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/bulk/
 	// Note: Formats input queries as follows in POST data:
@@ -18,56 +58,73 @@ module.exports = function (config, req, self) {
 	// { header : {} } \n
 	// { data : {} } \n
 	//
-	self.bulk = function (options, commands, callback) {
+	bulk (options = {}, commands, callback) {
 		if (!callback && typeof commands === 'function') {
 			callback = commands;
 			commands = options;
 			options = {};
 		}
 
-		if (!Array.isArray(commands)) {
-			return callback(new Error('commands provided must be in array format'));
+		// handle scenarios where options are not provided
+		if (!commands) {
+			commands = options;
+			options = {};
 		}
 
-		var
+		if (!Array.isArray(commands)) {
+			return utils.promiseRejectOrCallback(
+				new Error('commands provided must be in array format'),
+				callback);
+		}
+
+		let
 			index = utils.getIndexSyntax(options, null), // specifically don't want default settings
 			type = utils.getTypeSyntax(options, null),
 			serializedCommands = '';
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			(index ? utils.pathAppend(type) : '') +
-			utils.pathAppend('_bulk');
+		options.path = utils.pathAppend(
+			index,
+			(index ? type : null),
+			'_bulk');
 
-		commands.forEach(function (command) {
+		commands.forEach((command) => {
 			serializedCommands += JSON.stringify(command) + '\n';
 		});
 
-		return req.post(options, serializedCommands, callback);
-	};
+		return this.request.post(options, serializedCommands, callback);
+	}
 
 	// convenience method for bulk that specifies index action
 	// and automatically creates appropriate action/meta entries
 	// for the documents passed
-	self.bulkIndex = function (options, documents, callback) {
+	bulkIndex (options = {}, documents, callback) {
 		if (!callback && typeof documents === 'function') {
 			callback = documents;
 			documents = options;
 			options = {};
 		}
 
-		if (!Array.isArray(documents)) {
-			return callback(new Error('documents provided must be in array format'));
+		// handle scenarios where options are not provided
+		if (!documents) {
+			documents = options;
+			options = {};
 		}
 
-		var
+		if (!Array.isArray(documents)) {
+			return utils.promiseRejectOrCallback(
+				new Error('documents provided must be in array format'),
+				callback);
+		}
+
+		let
 			action = {},
 			commands = [],
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		documents.forEach(function (document) {
+		documents.forEach((document) => {
 			action = {
 				index : {
 					_index : index,
@@ -85,11 +142,11 @@ module.exports = function (config, req, self) {
 			commands.push(document);
 		});
 
-		return self.bulk(options, commands, callback);
-	};
+		return this.bulk(options, commands, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/count/
-	self.count = function (options, query, callback) {
+	count (options = {}, query, callback) {
 		if (!callback && typeof query === 'function') {
 			callback = query;
 			query = options;
@@ -108,97 +165,116 @@ module.exports = function (config, req, self) {
 			query = null;
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		// look for scenarios where options are omitted
+		if (!query && options.query) {
+			query = options;
+			options = {};
+		}
 
-		options.query = utils.exclude(options, paramExcludes);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index) +
-			(index ? utils.pathAppend(type) : '') +
-			utils.pathAppend('_count');
+		options.query = utils.exclude(options, this.paramExcludes);
+
+		options.path = utils.pathAppend(
+			index,
+			(index ? type : null),
+			'_count');
 
 		if (query) {
-			return req.post(options, query, callback);
+			return this.request.post(options, query, callback);
 		} else {
-			return req.get(options, callback);
+			return this.request.get(options, callback);
 		}
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/delete/
-	self.delete = function (options, callback) {
+	delete (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id);
+		options.path = utils.pathAppend(
+			index,
+			type,
+			options._id);
 
-		return req.delete(options, callback);
-	};
+		return this.request.delete(options, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/delete-by-query/
-	self.deleteByQuery = function (options, query, callback) {
+	deleteByQuery (options = {}, query, callback) {
 		if (!callback && typeof query === 'function') {
 			callback = query;
 			query = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
-		if (err) {
-			return callback(err);
+		// handle scenarios where options are not provided
+		if (!query) {
+			query = options;
+			options = {};
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
-		options.query = utils.exclude(options, paramExcludes);
+		if (err) {
+			return utils.promiseRejectOrCallback(err, callback);
+		}
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend('_query');
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		return req.delete(options, query, callback);
-	};
+		options.query = utils.exclude(options, this.paramExcludes);
+
+		options.path = utils.pathAppend(
+			index,
+			type,
+			'_query');
+
+		return this.request.delete(options, query, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/get/
-	self.exists = function (options, callback) {
+	exists (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			statusCode,
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id);
+		options.path = utils.pathAppend(index, type, options._id);
 
-		return req.head(options, function (err, data) {
+		this.request.once('response', (context) => (statusCode = context.state.statusCode));
+
+		return this.request.head(options, (err, data) => {
 			if (err) {
 				if (err.statusCode && err.statusCode === 404) {
 					data = {
@@ -206,188 +282,190 @@ module.exports = function (config, req, self) {
 						statusCode : err.statusCode
 					};
 
-					return callback(null, data);
+					return utils.promiseResolveOrCallback(data, callback);
 				}
-				return callback(err);
+
+				return utils.promiseRejectOrCallback(err, callback);
 			}
 
-			data.exists = (data ? data.statusCode === 200 : false);
-			return callback(null, data);
+			// must listen to event...
+			data = {
+				exists : statusCode === 200
+			};
+
+			return utils.promiseResolveOrCallback(data, callback);
 		});
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/explain/
-	self.explain = function (options, query, callback) {
+	explain (options = {}, query, callback) {
 		if (!callback && typeof query === 'function') {
 			callback = query;
 			query = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', '_type', '_id']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id) +
-			utils.pathAppend('_explain');
+		options.path = utils.pathAppend(
+			index,
+			type,
+			options._id,
+			'_explain');
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, query, callback);
-	};
+		return this.request.post(options, query, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/get/
-	self.get = function (options, callback) {
+	get (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', '_type', '_id']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
 		if (Array.isArray(options._id)) {
-			var docs = [];
-			options._id.forEach(function (id) {
+			let docs = [];
+
+			options._id.forEach((id) => {
 				docs.push({
 					_id : id
 				});
 			});
-			return self.multiGet(options, docs, callback);
+
+			return this.multiGet(options, docs, callback);
 		}
 
-		var
+		let
 			includeSource = options._source && options._source !== false,
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id) +
-			(includeSource ? utils.pathAppend('_source') : '');
+		options.path = utils.pathAppend(
+			index,
+			type,
+			options._id,
+			includeSource ? '_source' : null);
 
 		// optionally add source filters if _source is not a boolean value
 		if (includeSource && typeof options._source !== 'boolean') {
 			options.query._source = options._source;
 		}
 
-		return req.get(options, callback);
-	};
+		return this.request.get(options, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/index_/
 	// .add to ease backwards compatibility
-	self.index = self.add = function (options, doc, callback) {
-		if (!callback && typeof doc === 'function') {
-			callback = doc;
-			doc = options;
-			options = {};
-		}
-
-		var err = utils.optionsUndefined(options, config, ['_index', '_type']);
-		if (err) {
-			return callback(err);
-		}
-
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
-
-		options.query = utils.exclude(options, paramExcludes);
-
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id) +
-			utils.pathAppend((options.create || options._create) ? '_create' : '');
-
-		if (options._id) {
-			return req.put(options, doc, callback);
-		} else {
-			return req.post(options, doc, callback);
-		}
-	};
+	index (...args) {
+		return this.add(...args);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/more-like-this/
-	self.moreLikeThis = function (options, callback) {
+	moreLikeThis (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', '_type', '_id']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id) +
-			utils.pathAppend('_mlt');
+		options.path = utils.pathAppend(
+			index,
+			type,
+			options._id,
+			'_mlt');
 
-		return req.get(options, callback);
-	};
+		return this.request.get(options, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/multi-get/
-	self.multiGet = function (options, docs, callback) {
+	multiGet (options = {}, docs, callback) {
 		if (!callback && typeof docs === 'function') {
 			callback = docs;
 			docs = options;
 			options = {};
 		}
 
-		var
-			missingIndex = false,
-			missingType = false;
+		if (!callback && typeof options === 'function') {
+			callback = options;
+			docs = null;
+			options = {};
+		}
 
-		docs.every(function (doc) {
-			doc._index = doc._index || options._index || config._index || null;
-			doc._type = doc._type || options._type || config._type || null;
+		// handle scenarios where options are not provided
+		if (!docs && Array.isArray(options)) {
+			docs = options;
+			options = {};
+		}
+
+		let
+			missingIndex = false,
+			missingType = false,
+			self = this;
+
+		docs.forEach((doc) => {
+			doc._index = doc._index || options._index || self.config._index || null;
+			doc._type = doc._type || options._type || self.config._type || null;
 
 			if (!doc._index || doc._index === null) {
 				missingIndex = true;
-				return false;
+				return;
 			}
 
 			if (!doc._type) {
 				missingType = true;
-				return false;
+				return;
 			}
-
-			return true;
 		});
 
 		if (missingIndex) {
-			return callback(new Error('at least 1 or more docs supplied is missing index'));
+			return utils.promiseRejectOrCallback(
+				new Error('at least 1 or more docs supplied is missing index'),
+				callback);
 		}
 
 		if (missingType) {
-			return callback(new Error('at least 1 or more docs supplied is missing type'));
+			return utils.promiseRejectOrCallback(
+				new Error('at least 1 or more docs supplied is missing type'),
+				callback);
 		}
 
-		options.pathname = utils.pathAppend('_mget');
+		options.path = utils.pathAppend('_mget');
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, {docs: docs}, callback);
-	};
+		return this.request.post(options, {docs: docs}, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/multi-search/
 	// Note: Formats input queries as follows in POST data:
@@ -396,169 +474,218 @@ module.exports = function (config, req, self) {
 	// { query : {} } \n
 	// { query : {} } \n
 	//
-	self.multiSearch = function (options, queries, callback) {
+	multiSearch (options = {}, queries, callback) {
 		if (!callback && typeof queries === 'function') {
 			callback = queries;
 			queries = options;
 			options = {};
 		}
 
-		if (!Array.isArray(queries)) {
-			return callback(new Error('queries provided must be in array format'));
+		// handle scenarios where options are not provided
+		if (!queries && Array.isArray(options)) {
+			queries = options;
+			options = {};
 		}
 
-		var
+		if (!Array.isArray(queries)) {
+			return utils.promiseRejectOrCallback(
+				new Error('queries provided must be in array format'),
+				callback);
+		}
+
+		let
 			index = utils.getIndexSyntax(options, null), // specifically want to exclude defaults
 			type = utils.getTypeSyntax(options, null),
 			serializedQueries = '';
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			(index ? utils.pathAppend(type) : '') +
-			utils.pathAppend('_msearch');
+		options.path = utils.pathAppend(
+			index,
+			index ? type : null,
+			'_msearch');
 
-		queries.forEach(function (query) {
+		queries.forEach((query) => {
 			serializedQueries += JSON.stringify(query);
 			serializedQueries += '\n';
 		});
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, serializedQueries, callback);
-	};
+		return this.request.post(options, serializedQueries, callback);
+	}
 
-	// http://www.elasticsearch.org/guide/reference/api/search/
-	// .query to ease backwards compatibility
-	self.search = self.query = function (options, query, callback) {
+	query (options = {}, query, callback) {
 		if (!callback && typeof query === 'function') {
 			callback = query;
 			query = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
-		if (err) {
-			return callback(err);
+		// handle scenarios where only the query is provided
+		if (!query) {
+			query = options;
+			options = {};
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
-		options.query = utils.exclude(options, paramExcludes);
+		if (err) {
+			return utils.promiseRejectOrCallback(err, callback);
+		}
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend('_search');
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
+
+		options.query = utils.exclude(options, this.paramExcludes);
+
+		options.path = utils.pathAppend(
+			index,
+			type,
+			'_search');
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, query, callback);
-	};
+		return this.request.post(options, query, callback);
+	}
+
+	// http://www.elasticsearch.org/guide/reference/api/search/
+	// .query to ease backwards compatibility
+	search (...args) {
+		return this.query(...args);
+	}
 
 	// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-scroll.html
-	self.scroll = function (options, scrollId, callback) {
+	scroll (options = {}, scrollId, callback) {
 		if (!callback && typeof scrollId === 'function') {
 			callback = scrollId;
 			scrollId = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['scroll']);
+		let err = utils.optionsUndefined(options, this.config, ['scroll']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		options.query = utils.exclude(options, paramExcludes);
-		options.pathname = utils.pathAppend('_search/scroll');
+		options.query = utils.exclude(options, this.paramExcludes);
+		options.path = utils.pathAppend('_search/scroll');
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, scrollId, callback);
-	};
+		return this.request.post(options, scrollId, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/search/term-suggest/
 	// fix for issue #29
-	self.suggest = function (options, query, callback) {
+	suggest (options = {}, query, callback) {
 		if (!callback && typeof query === 'function') {
 			callback = query;
 			query = options;
 			options = {};
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		// check for scenarios where options are not provided
+		if (!query && options.suggest) {
+			query = options;
+			options = {};
+		}
 
-		options.query = utils.exclude(options, paramExcludes);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend('_suggest');
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		return req.post(options, query, callback);
-	};
+		// NOTE: in 5.0 _suggest deprecated in favor of _search endpoint
+		// https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+		options.path = utils.pathAppend(
+			index,
+			type,
+			'_search');
+
+		return this.request.post(options, query, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/update/
-	self.update = function (options, doc, callback) {
+	update (options = {}, doc, callback) {
 		if (!callback && typeof doc === 'function') {
 			callback = doc;
 			doc = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', '_type', '_id']);
+		// attempt to account for missing options
+		if (!doc && (options.script || options.doc)) {
+			doc = options;
+			options = {};
+		}
+
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
 		// fix for #36 - script can be blank, but not missing
 		if ((doc.script === null || typeof doc.script === 'undefined') && !doc.doc) {
-			return callback(new Error('script or doc is required for update operation'));
+			return utils.promiseRejectOrCallback(
+				new Error('script or doc is required for update operation'),
+				callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend(options._id) +
-			utils.pathAppend('_update');
+		options.path = utils.pathAppend(
+			index,
+			type,
+			options._id,
+			'_update');
 
-		return req.post(options, doc, callback);
-	};
+		return this.request.post(options, doc, callback);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/validate/
-	self.validate = function (options, query, callback) {
+	validate (options = {}, query, callback) {
 		if (!callback && typeof query === 'function') {
 			callback = query;
 			query = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
-		if (err) {
-			return callback(err);
+		// handle scenarios where options are not provided
+		if (!query && options.query) {
+			query = options;
+			options = {};
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
-		options.query = utils.exclude(options, paramExcludes);
+		if (err) {
+			return utils.promiseRejectOrCallback(err, callback);
+		}
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type) +
-			utils.pathAppend('_validate/query');
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
+
+		options.query = utils.exclude(options, this.paramExcludes);
+
+		options.path = utils.pathAppend(
+			index,
+			type,
+			'_validate/query');
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, query, callback);
-	};
+		return this.request.post(options, query, callback);
+	}
+}
 
-	return thenifyAll.withCallback(self, {});
-};
+module.exports = { Core };

@@ -2,6 +2,7 @@
 
 * Replaced `thenify` and `bluebird` dependencies with `babel`
 * Modified to support ElasticSearch 6.x.x
+  * `suggest` method adjusted to use `_search` endpoint instead of deprecated `_suggest`
 
 # v0.6.0 / 2017-10-02
 
