@@ -1,11 +1,15 @@
-var indicesLib = require('../../src/indices');
+import chai from 'chai';
+import { Indices } from '../../src/indices';
+import nock from 'nock';
 
-describe('API: indices', function () {
-	var
+const should = chai.should();
+
+describe('API: indices', () => {
+	let
 		indices,
 		defaultOptions;
 
-	beforeEach(function () {
+	beforeEach(() => {
 		defaultOptions = {
 			_index : 'dieties',
 			_type : 'kitteh',
@@ -16,160 +20,195 @@ describe('API: indices', function () {
 			secure : false
 		};
 
-		requestError = null;
-
-		indices = indicesLib(defaultOptions, req);
+		indices = new Indices(defaultOptions);
 	});
 
-	describe('#alias', function () {
-		var commands = {
-			actions : [{
-				add : {
-					index : 'kitteh',
-					alias : 'cat'
-				}
-			}]
-		};
+	describe('#alias', () => {
+		let commands;
 
-		it('should have proper path and method for creating aliases', function (done) {
-			indices.alias(commands, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_aliases');
+		beforeEach(() => {
+			commands = {
+				actions : [{
+					add : {
+						index : 'kitteh',
+						alias : 'cat'
+					}
+				}]
+			};
+		});
+
+		it('should have proper path and method for creating aliases', (done) => {
+			nock('http://localhost:9200')
+				.post('/_aliases')
+				.reply(200);
+
+			indices.alias(commands, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper path and method for creating a single alias', function (done) {
-			var options = {
+		it('should have proper path and method for creating a single alias', (done) => {
+			let options = {
 				_index : 'kitteh',
 				alias : 'cat'
 			};
 
-			indices.alias(options, commands, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/kitteh/_alias/cat');
+			nock('http://localhost:9200')
+				.put('/kitteh/_alias/cat')
+				.reply(200);
+
+			indices.alias(options, commands, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#aliases', function () {
-		it('should default alias to wildcard if not specified', function (done) {
-			indices.aliases(function (err, data) {
-				should.not.exist(err);
-				data.options.alias.should.equals('*');
+	describe('#aliases', () => {
+		it('should default alias to wildcard if not specified', (done) => {
+			nock('http://localhost:9200')
+				.get('/dieties/_alias/*')
+				.reply(200);
+
+			indices.aliases((err) => {
+				if (err) {
+					return done(err);
+				}
+
 				done();
 			});
 		});
 
-		it('should have proper path and method for retrieving aliases without index', function (done) {
+		it('should have proper path and method for retrieving aliases without index', (done) => {
+			nock('http://localhost:9200')
+				.get('/_alias/cat')
+				.reply(200);
+
 			delete defaultOptions._index;
-			indices.aliases({ alias : 'cat' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_alias/cat');
+			indices.aliases({ alias : 'cat' }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper path and method for retrieving aliases with indices', function (done) {
-			var options = {
+		it('should have proper path and method for retrieving aliases with indices', (done) => {
+			let options = {
 				_indices : ['devils', 'dieties'],
 				alias : 'cat'
 			};
 
-			indices.aliases(options, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/devils,dieties/_alias/cat');
+			nock('http://localhost:9200')
+				.get('/devils,dieties/_alias/cat')
+				.reply(200);
+
+			indices.aliases(options, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#analyze', function () {
-		it('should have proper path and method', function (done) {
-			var options = {
+	describe('#analyze', () => {
+		it('should have proper path and method', (done) => {
+			let options = {
 				tokenizer : 'keyword'
 			};
 
-			indices.analyze(options, 'kittehs be cray', function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/_analyze?tokenizer=keyword');
+			nock('http://localhost:9200')
+				.post('/dieties/_analyze?tokenizer=keyword')
+				.reply(200);
+
+			indices.analyze(options, 'kittehs be cray', (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper path and method when index is not specified', function (done) {
-			var options = {
+		it('should have proper path and method when index is not specified', (done) => {
+			let options = {
 				analyzer : 'standard'
 			};
 
+			nock('http://localhost:9200')
+				.post('/_analyze?analyzer=standard')
+				.reply(200);
+
 			delete defaultOptions._index;
-			indices.analyze(options, 'kittehs be cray', function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_analyze?analyzer=standard');
+			indices.analyze(options, 'kittehs be cray', (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('options should be optional', function (done) {
-			indices.analyze('kittehs be cray', function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties/_analyze');
+		it('options should be optional', (done) => {
+			nock('http://localhost:9200')
+				.post('/dieties/_analyze')
+				.reply(200);
+
+			indices.analyze('kittehs be cray', (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#clearCache', function () {
-		it('should have proper index and path when index is omitted', function (done) {
+	describe('#clearCache', () => {
+		it('should have proper index and path when index is omitted', (done) => {
+			nock('http://localhost:9200')
+				.post('/_cache/clear')
+				.reply(200);
+
 			delete defaultOptions._index;
-			indices.clearCache(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_cache/clear');
+			indices.clearCache((err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.clearCache({ _indices : ['dieties', 'devils'], bloom : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties,devils/_cache/clear?bloom=true');
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.post('/dieties,devils/_cache/clear?bloom=true')
+				.reply(200);
+
+			indices.clearCache({ _indices : ['dieties', 'devils'], bloom : true }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#closeIndex', function () {
-		it('should require index', function (done) {
+	describe('#closeIndex', () => {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			indices.closeIndex(function (err, data) {
+			indices.closeIndex((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -177,29 +216,32 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.closeIndex({ _index : 'kitteh' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/kitteh/_close');
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.post('/kitteh/_close')
+				.reply(200);
+
+			indices.closeIndex({ _index : 'kitteh' }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#createIndex', function () {
-		var settings = {
+	describe('#createIndex', () => {
+		let settings = {
 			settings : {
 				number_of_shards : 3,
 				number_of_replicas : 2
 			}
 		};
 
-		it('should require index', function (done) {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			indices.createIndex(settings, function (err, data) {
+			indices.createIndex(settings, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -207,29 +249,35 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.createIndex({ _index : 'kitteh' }, settings, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/kitteh');
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.put('/kitteh')
+				.reply(200);
+
+			indices.createIndex({ _index : 'kitteh' }, settings, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should allow data and options to be optional', function (done) {
-			indices.createIndex(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties');
+		it('should allow data and options to be optional', (done) => {
+			nock('http://localhost:9200')
+				.put('/dieties')
+				.reply(200);
+
+			indices.createIndex((err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should support creating a mapping during index create', function (done) {
+		it('should support creating a mapping during index create', (done) => {
 			settings.mappings = {
 				kitteh : {
 					_source : { enabled : true },
@@ -240,28 +288,35 @@ describe('API: indices', function () {
 				}
 			};
 
-			indices.createIndex(settings, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties');
+			nock('http://localhost:9200')
+				.put('/dieties')
+				.reply(200);
+
+			indices.createIndex(settings, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#createTemplate', function () {
-		var template = {
-			template : '*',
-			settings : {
-				number_of_shards : 3,
-				number_of_replicas : 2
-			}
-		};
+	describe('#createTemplate', () => {
+		let template;
 
-		it('should require name', function (done) {
-			indices.createTemplate(template, function (err, data) {
+		beforeEach(() => {
+			template = {
+				template : '*',
+				settings : {
+					number_of_shards : 3,
+					number_of_replicas : 2
+				}
+			};
+		});
+
+		it('should require name', (done) => {
+			indices.createTemplate(template, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -269,21 +324,24 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.createTemplate({ name : 'cat' }, template, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/_template/cat');
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.put('/_template/cat')
+				.reply(200);
+
+			indices.createTemplate({ name : 'cat' }, template, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#deleteAlias', function () {
-		it('should require alias', function (done) {
-			indices.deleteAlias(function (err, data) {
+	describe('#deleteAlias', () => {
+		it('should require alias', (done) => {
+			indices.deleteAlias((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -291,9 +349,9 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should require index', function (done) {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			indices.deleteAlias({ alias : 'cat' }, function (err, data) {
+			indices.deleteAlias({ alias : 'cat' }, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -301,243 +359,30 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper path and method', function (done) {
-			var options = {
+		it('should have proper path and method', (done) => {
+			let options = {
 				_index : 'dieties',
 				alias : 'cat'
 			};
 
-			indices.deleteAlias(options, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/dieties/_alias/cat');
+			nock('http://localhost:9200')
+				.delete('/dieties/_alias/cat')
+				.reply(200);
 
-				done();
-			});
-		});
-	});
-
-	describe('#deleteIndex', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.deleteIndex(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper path and method', function (done) {
-			indices.deleteIndex(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/dieties');
-
-				done();
-			});
-		});
-	});
-
-	describe('#deleteMapping', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.deleteMapping(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require type', function (done) {
-			delete defaultOptions._type;
-			indices.deleteMapping(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper method and path when type is supplied', function (done) {
-			indices.deleteMapping({ _indices : ['dieties', 'devils'] }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/dieties,devils/kitteh');
-
-				done();
-			});
-		});
-	});
-
-	describe('#deleteTemplate', function () {
-		it('should require name', function (done) {
-			indices.deleteTemplate(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper path and method', function (done) {
-			indices.deleteTemplate({ name : 'cat' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('DELETE');
-				data.options.path.should.equals('/_template/cat');
-
-				done();
-			});
-		});
-	});
-
-	describe('#exists', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.exists({}, function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper method and path when type is omitted', function (done) {
-			delete defaultOptions._type;
-			indices.exists(function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties');
-				data.options.method.should.equals('HEAD');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			indices.exists({ _types : ['kitteh', 'cat'] }, function (err, data) {
-				should.not.exist(err);
-				data.options.path.should.equals('/dieties/_mapping/kitteh,cat');
-				data.options.method.should.equals('HEAD');
-
-				done();
-			});
-		});
-
-		it('should properly capture error', function (done) {
-			requestError = new Error('throw me like a frisbee');
-			indices.exists(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-	});
-
-	describe('#flush', function () {
-		it('should have proper index and path when index is omitted', function (done) {
-			delete defaultOptions._index;
-			indices.flush(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_flush');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			indices.flush({ _indices : ['dieties', 'devils'], refresh : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties,devils/_flush?refresh=true');
-
-				done();
-			});
-		});
-	});
-
-	describe('#mappings', function () {
-		it('should have proper method and path without index', function (done) {
-			delete defaultOptions._index;
-			indices.mappings(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_mapping');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			delete defaultOptions._type;
-			indices.mappings(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/dieties/_mapping');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path when type is supplied', function (done) {
-			indices.mappings({ _index : 'kitteh', _types : ['evil', 'kind'] }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/kitteh/evil,kind/_mapping');
-
-				done();
-			});
-		});
-	});
-
-	describe('#openIndex', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.openIndex(function (err, data) {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			indices.openIndex({ _index : 'kitteh' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/kitteh/_open');
-
-				done();
-			});
-		});
-	});
-
-	describe('#putMapping', function () {
-		var mapping = {
-			kitteh : {
-				_source : { enabled : true },
-				properties : {
-					breed : { type : 'string' },
-					name : { type : 'string' }
+			indices.deleteAlias(options, (err) => {
+				if (err) {
+					return done(err);
 				}
-			}
-		};
 
-		it('should require index', function (done) {
+				done();
+			});
+		});
+	});
+
+	describe('#deleteIndex', () => {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			indices.putMapping(mapping, function (err, data) {
+			indices.deleteIndex((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -545,9 +390,35 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should require type', function (done) {
+		it('should have proper path and method', (done) => {
+			nock('http://localhost:9200')
+				.delete('/dieties')
+				.reply(200);
+
+			indices.deleteIndex((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#deleteMapping', () => {
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			indices.deleteMapping((err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', (done) => {
 			delete defaultOptions._type;
-			indices.putMapping(mapping, function (err, data) {
+			indices.deleteMapping((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -555,72 +426,24 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper method and path when type is supplied', function (done) {
-			indices.putMapping({ _indices : ['dieties', 'devils'] }, mapping, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/dieties,devils/_mapping/kitteh');
+		it('should have proper method and path when type is supplied', (done) => {
+			nock('http://localhost:9200')
+				.delete('/dieties,devils/kitteh')
+				.reply(200);
+
+			indices.deleteMapping({ _indices : ['dieties', 'devils'] }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#refresh', function () {
-		it('should have proper index and path when index is omitted', function (done) {
-			delete defaultOptions._index;
-			indices.refresh(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_refresh');
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', function (done) {
-			indices.refresh({ _indices : ['dieties', 'devils'] }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties,devils/_refresh');
-
-				done();
-			});
-		});
-	});
-
-	describe('#segments', function () {
-		it('should have proper path and method when index is omitted', function (done) {
-			delete defaultOptions._index;
-			indices.segments(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_segments');
-
-				done();
-			});
-		});
-
-		it('should have proper path and method', function (done) {
-			indices.segments(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/dieties/_segments');
-
-				done();
-			});
-		});
-	});
-
-	describe('#settings', function () {
-		it('should require index', function (done) {
-			delete defaultOptions._index;
-			indices.settings(function (err, data) {
+	describe('#deleteTemplate', () => {
+		it('should require name', (done) => {
+			indices.deleteTemplate((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -628,97 +451,400 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.settings({ _index : 'kitteh' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/kitteh/_settings');
+		it('should have proper path and method', (done) => {
+			nock('http://localhost:9200')
+				.delete('/_template/cat')
+				.reply(200);
+
+			indices.deleteTemplate({ name : 'cat' }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#snapshot', function () {
-		it('should have proper index and path when index is omitted', function (done) {
+	describe('#exists', () => {
+		it('should require index', (done) => {
 			delete defaultOptions._index;
-			indices.snapshot(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/_gateway/snapshot');
+			indices.exists({}, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
 
 				done();
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.snapshot({ _indices : ['dieties', 'devils'], refresh : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('POST');
-				data.options.path.should.equals('/dieties,devils/_gateway/snapshot');
+		it('should have proper method and path when type is omitted', (done) => {
+			nock('http://localhost:9200')
+				.head('/dieties')
+				.reply(200);
+
+			delete defaultOptions._type;
+			indices.exists((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.head('/dieties/_mapping/kitteh,cat')
+				.reply(200);
+
+			indices.exists({ _types : ['kitteh', 'cat'] }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#stats', function () {
-		it('should have proper index and path when index and type are omitted', function (done) {
+	describe('#flush', () => {
+		it('should have proper index and path when index is omitted', (done) => {
+			nock('http://localhost:9200')
+				.post('/_flush')
+				.reply(200);
+
+			delete defaultOptions._index;
+			indices.flush((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.post('/dieties,devils/_flush?refresh=true')
+				.reply(200);
+
+			indices.flush({ _indices : ['dieties', 'devils'], refresh : true }, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#mappings', () => {
+		it('should have proper method and path without index', (done) => {
+			nock('http://localhost:9200')
+				.get('/_mapping')
+				.reply(200);
+
+			delete defaultOptions._index;
+			indices.mappings((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.get('/dieties/_mapping')
+				.reply(200);
+
+			delete defaultOptions._type;
+			indices.mappings((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper method and path when type is supplied', (done) => {
+			nock('http://localhost:9200')
+				.get('/kitteh/evil,kind/_mapping')
+				.reply(200);
+
+			indices.mappings({ _index : 'kitteh', _types : ['evil', 'kind'] }, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#openIndex', () => {
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			indices.openIndex((err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.post('/kitteh/_open')
+				.reply(200);
+
+			indices.openIndex({ _index : 'kitteh' }, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#putMapping', () => {
+		let mapping;
+
+		beforeEach(() => {
+			mapping = {
+				kitteh : {
+					_source : { enabled : true },
+					properties : {
+						breed : { type : 'string' },
+						name : { type : 'string' }
+					}
+				}
+			};
+		});
+
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			indices.putMapping(mapping, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should require type', (done) => {
+			delete defaultOptions._type;
+			indices.putMapping(mapping, (err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path when type is supplied', (done) => {
+			nock('http://localhost:9200')
+				.put('/dieties,devils/_mapping/kitteh')
+				.reply(200);
+
+			indices.putMapping({ _indices : ['dieties', 'devils'] }, mapping, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#refresh', () => {
+		it('should have proper index and path when index is omitted', (done) => {
+			nock('http://localhost:9200')
+				.post('/_refresh')
+				.reply(200);
+
+			delete defaultOptions._index;
+			indices.refresh((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.post('/dieties,devils/_refresh')
+				.reply(200);
+
+			indices.refresh({ _indices : ['dieties', 'devils'] }, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#segments', () => {
+		it('should have proper path and method when index is omitted', (done) => {
+			nock('http://localhost:9200')
+				.get('/_segments')
+				.reply(200);
+
+			delete defaultOptions._index;
+			indices.segments((err, data) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper path and method', (done) => {
+			nock('http://localhost:9200')
+				.get('/dieties/_segments')
+				.reply(200);
+
+			indices.segments((err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#settings', () => {
+		it('should require index', (done) => {
+			delete defaultOptions._index;
+			indices.settings((err, data) => {
+				should.exist(err);
+				should.not.exist(data);
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.get('/kitteh/_settings')
+				.reply(200);
+
+			indices.settings({ _index : 'kitteh' }, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#snapshot', () => {
+		it('should have proper index and path when index is omitted', (done) => {
+			nock('http://localhost:9200')
+				.post('/_gateway/snapshot')
+				.reply(200);
+
+			delete defaultOptions._index;
+			indices.snapshot((err, data) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.post('/dieties,devils/_gateway/snapshot')
+				.reply(200);
+
+			indices.snapshot({ _indices : ['dieties', 'devils'], refresh : true }, (err) => {
+				if (err) {
+					return done(err);
+				}
+
+				done();
+			});
+		});
+	});
+
+	describe('#stats', () => {
+		it('should have proper index and path when index and type are omitted', (done) => {
+			nock('http://localhost:9200')
+				.get('/_stats')
+				.reply(200);
+
 			delete defaultOptions._index;
 			delete defaultOptions._type;
-			indices.stats(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_stats');
+			indices.stats((err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.stats({ _indices : ['dieties', 'devils'], indexing : true, clear : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/dieties,devils/_stats/kitteh?indexing=true&clear=true');
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.get('/dieties,devils/_stats/kitteh?indexing=true&clear=true')
+				.reply(200);
+
+			indices.stats({ _indices : ['dieties', 'devils'], indexing : true, clear : true }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#status', function () {
-		it('should have proper path and method when index is omitted', function (done) {
+	describe('#status', () => {
+		it('should have proper path and method when index is omitted', (done) => {
+			nock('http://localhost:9200')
+				.get('/_status')
+				.reply(200);
+
 			delete defaultOptions._index;
-			indices.status(function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_status');
+			indices.status((err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper path and method', function (done) {
-			indices.status({ recovery : true }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/dieties/_status?recovery=true');
+		it('should have proper path and method', (done) => {
+			nock('http://localhost:9200')
+				.get('/dieties/_status?recovery=true')
+				.reply(200);
+
+			indices.status({ recovery : true }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#templates', function () {
-		it('should require name', function (done) {
-			indices.templates(function (err, data) {
+	describe('#templates', () => {
+		it('should require name', (done) => {
+			indices.templates((err, data) => {
 				should.exist(err);
 				should.not.exist(data);
 
@@ -726,43 +852,56 @@ describe('API: indices', function () {
 			});
 		});
 
-		it('should have proper path and method', function (done) {
-			indices.templates({ name : 'cat' }, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('GET');
-				data.options.path.should.equals('/_template/cat');
+		it('should have proper path and method', (done) => {
+			nock('http://localhost:9200')
+				.get('/_template/cat')
+				.reply(200);
+
+			indices.templates({ name : 'cat' }, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 	});
 
-	describe('#updateSettings', function () {
-		var settings = {
-			index : {
-				number_of_replicas : 4
-			}
-		};
+	describe('#updateSettings', () => {
+		let settings;
 
-		it('should have proper method and path when index is not supplied', function (done) {
+		beforeEach(() => {
+			settings = {
+				index : {
+					number_of_replicas : 4
+				}
+			};
+		});
+
+		it('should have proper method and path when index is not supplied', (done) => {
+			nock('http://localhost:9200')
+				.put('/_settings')
+				.reply(200);
+
 			delete defaultOptions._index;
-			indices.updateSettings(settings, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/_settings');
+			indices.updateSettings(settings, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});
 		});
 
-		it('should have proper method and path', function (done) {
-			indices.updateSettings({ _index : 'kitteh' }, settings, function (err, data) {
-				should.not.exist(err);
-				should.exist(data);
-				data.options.method.should.equals('PUT');
-				data.options.path.should.equals('/kitteh/_settings');
+		it('should have proper method and path', (done) => {
+			nock('http://localhost:9200')
+				.put('/kitteh/_settings')
+				.reply(200);
+
+			indices.updateSettings({ _index : 'kitteh' }, settings, (err) => {
+				if (err) {
+					return done(err);
+				}
 
 				done();
 			});

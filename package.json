@@ -35,7 +35,7 @@
     "pretest": "gulp clean && gulp lint",
     "test": "NODE_ENV=test nyc mocha ./test/src",
     "test:functional": "NODE_ENV=test nyc mocha ./test/functional",
-    "test:unit": "NODE_ENV=test nyc mocha ./test/src/core.js"
+    "test:unit": "NODE_ENV=test nyc mocha ./test/src"
   },
   "nyc": {
     "all": true,

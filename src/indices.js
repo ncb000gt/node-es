@@ -1,40 +1,42 @@
-var thenifyAll = require('thenify-all'),
-	utils = require('./utils');
+import * as utils from './utils';
+import { Request } from 'reqlib';
 
-module.exports = function (config, req, self) {
-	'use strict';
-
-	self = self || {};
-
-	var paramExcludes = Object.keys(config)
-		.concat(['_index', '_indices', '_type', '_types', 'alias']);
+class Indices {
+	constructor (config, request) {
+		this.config = config;
+		this.paramExcludes = Object
+			.keys(config)
+			.concat(['_index', '_indices', '_type', '_types', 'alias']);
+		this.request = request || new Request(config);
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
-	self.alias = function (options, data, callback) {
+	alias (options, data, callback) {
 		if (!callback && typeof data === 'function') {
 			callback = data;
 			data = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = (options.alias && index ? utils.pathAppend(index) : '') +
-			(options.alias && index ? utils.pathAppend('_alias') : utils.pathAppend('_aliases')) +
-			(options.alias && index ? utils.pathAppend(options.alias) : '');
+		options.path = utils.pathAppend(
+			(options.alias && index ? index : null),
+			(options.alias && index ? '_alias' : '_aliases'),
+			(options.alias && index ? options.alias : null));
 
 		if (options.alias && index) {
-			return req.put(options, data, callback);
-		} else {
-			return req.post(options, data, callback);
+			return this.request.put(options, data, callback);
 		}
+
+		return this.request.post(options, data, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
 	// Disclaimer: does not currently support pre 0.90 ways of retrieving aliases
-	self.aliases = function (options, callback) {
+	aliases (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -44,76 +46,75 @@ module.exports = function (config, req, self) {
 			options.alias = '*';
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_alias') +
-			utils.pathAppend(options.alias);
+		options.path = utils.pathAppend(
+			index,
+			'_alias',
+			options.alias);
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-analyze/
-	self.analyze = function (options, data, callback) {
+	analyze (options, data, callback) {
 		if (!callback && typeof data === 'function') {
 			callback = data;
 			data = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_analyze');
+		options.path = utils.pathAppend(index, '_analyze');
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return req.post(options, data, callback);
+		return this.request.post(options, data, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-clearcache/
-	self.clearCache = function (options, callback) {
+	clearCache (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_cache/clear');
+		options.path = utils.pathAppend(index, '_cache/clear');
 
-		return req.post(options, callback);
+		return this.request.post(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-open-close/
-	self.closeIndex = function (options, callback) {
+	closeIndex (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_close');
+		options.path = utils.pathAppend(index, '_close');
 
-		return req.post(options, callback);
+		return this.request.post(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-create-index/
-	self.createIndex = function (options, data, callback) {
+	createIndex (options, data, callback) {
 		if (!callback && typeof data === 'function') {
 			callback = data;
 			data = options;
@@ -125,138 +126,148 @@ module.exports = function (config, req, self) {
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index);
+		options.path = utils.pathAppend(index);
 
-		return req.put(options, data, callback);
+		return this.request.put(options, data, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
-	self.createTemplate = function (options, template, callback) {
+	createTemplate (options, template, callback) {
 		if (!callback && typeof template === 'function') {
 			callback = template;
 			template = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['name']);
+		let err = utils.optionsUndefined(options, this.config, ['name']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		options.pathname = utils.pathAppend('_template') +
-			utils.pathAppend(options.name);
+		options.path = utils.pathAppend('_template', options.name);
 
-		return req.put(options, template, callback);
+		return this.request.put(options, template, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
-	self.deleteAlias = function (options, callback) {
+	deleteAlias (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', 'alias']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', 'alias']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_alias') +
-			utils.pathAppend(options.alias);
+		options.path = utils.pathAppend(
+			index,
+			'_alias',
+			options.alias);
 
-		return req.delete(options, callback);
+		return this.request.delete(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-delete-index/
-	self.deleteIndex = function (options, callback) {
+	deleteIndex (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index);
+		options.path = utils.pathAppend(index);
 
-		return req.delete(options, callback);
+		return this.request.delete(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-delete-mapping/
-	self.deleteMapping = function (options, callback) {
+	deleteMapping (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', '_type']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend(type);
+		options.path = utils.pathAppend(index, type);
 
-		return req.delete(options, callback);
+		return this.request.delete(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
-	self.deleteTemplate = function (options, callback) {
+	deleteTemplate (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['name']);
+		let err = utils.optionsUndefined(options, this.config, ['name']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		options.pathname = utils.pathAppend('_template') +
-			utils.pathAppend(options.name);
+		options.path = utils.pathAppend('_template', options.name);
 
-		return req.delete(options, callback);
+		return this.request.delete(options, callback);
 	};
 
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
 	// https://www.elastic.co/guide/en/elasticsearch/reference/5.5/indices-types-exists.html
 	// Also replicated (somewhat) in core... core.exists is more flexible, however
-	self.exists = function (options, callback) {
+	exists (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			statusCode,
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.pathname = type ? (utils.pathAppend(index) + '/_mapping' + utils.pathAppend(type)) : utils.pathAppend(index);
+		options.path = type ?
+			utils.pathAppend(index, '/_mapping', type) :
+			utils.pathAppend(index);
 
-		return req.head(options, function (err, data) {
+		this.request.once('response', (context) => (statusCode = context.state.statusCode));
+
+		return this.request.head(options, (err, data) => {
 			if (err) {
 				if (err.statusCode && err.statusCode === 404) {
 					data = {
@@ -264,245 +275,250 @@ module.exports = function (config, req, self) {
 						statusCode : err.statusCode
 					};
 
-					return callback(null, data);
+					return utils.promiseResolveOrCallback(data, callback);
 				}
-				return callback(err);
+
+				return utils.promiseRejectOrCallback(err, callback);
 			}
 
-			data.exists = (data ? data.statusCode === 200 : false);
-			return callback(null, data);
+			// must listen to event...
+			data = {
+				exists : statusCode === 200
+			};
+
+			return utils.promiseResolveOrCallback(data, callback);
 		});
 	};
 
-	self.flush = function (options, callback) {
+	flush (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_flush');
+		options.path = utils.pathAppend(index, '_flush');
 
-		return req.post(options, callback);
+		return this.request.post(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-get-mapping/
-	self.mappings = function (options, callback) {
+	mappings (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			(index ? utils.pathAppend(type) : '') +
-			utils.pathAppend('_mapping');
+		options.path = utils.pathAppend(
+			index,
+			(index ? utils.pathAppend(type) : null),
+			'_mapping');
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-open-close/
-	self.openIndex = function (options, callback) {
+	openIndex (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_open');
+		options.path = utils.pathAppend(
+			index,
+			'_open');
 
-		return req.post(options, callback);
+		return this.request.post(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
-	self.putMapping = function (options, mapping, callback) {
+	putMapping (options, mapping, callback) {
 		if (!callback && typeof mapping === 'function') {
 			callback = mapping;
 			mapping = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index', '_type']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_mapping') +
-			(index ? utils.pathAppend(type) : '');
+		options.path = utils.pathAppend(
+			index,
+			'_mapping',
+			index ? type : null);
 
-		return req.put(options, mapping, callback);
+		return this.request.put(options, mapping, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-refresh/
-	self.refresh = function (options, callback) {
+	refresh (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_refresh');
+		options.path = utils.pathAppend(index, '_refresh');
 
-		return req.post(options, callback);
+		return this.request.post(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-segments/
-	self.segments = function (options, callback) {
+	segments (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_segments');
+		options.path = utils.pathAppend(index, '_segments');
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-get-settings/
-	self.settings = function (options, callback) {
+	settings (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['_index']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_settings');
+		options.path = utils.pathAppend(index, '_settings');
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-gateway-snapshot/
-	self.snapshot = function (options, callback) {
+	snapshot (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_gateway/snapshot');
+		options.path = utils.pathAppend(index, '_gateway/snapshot');
 
-		return req.post(options, callback);
+		return this.request.post(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-stats/
-	self.stats = function (options, callback) {
+	stats (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var
-			index = utils.getIndexSyntax(options, config),
-			type = utils.getTypeSyntax(options, config);
+		let
+			index = utils.getIndexSyntax(options, this.config),
+			type = utils.getTypeSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_stats') +
-			utils.pathAppend(type);
+		options.path = utils.pathAppend(
+			index,
+			'_stats',
+			type);
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-status/
-	self.status = function (options, callback) {
+	status (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_status');
+		options.path = utils.pathAppend(index, '_status');
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
-	self.templates = function (options, callback) {
+	templates (options, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
 		}
 
-		var err = utils.optionsUndefined(options, config, ['name']);
+		let err = utils.optionsUndefined(options, this.config, ['name']);
+
 		if (err) {
-			return callback(err);
+			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		options.query = utils.exclude(options, paramExcludes.concat('name'));
+		options.query = utils.exclude(options, this.paramExcludes.concat('name'));
 
-		options.pathname = utils.pathAppend('_template') +
-			utils.pathAppend(options.name);
+		options.path = utils.pathAppend('_template', options.name);
 
-		return req.get(options, callback);
+		return this.request.get(options, callback);
 	};
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
-	self.updateSettings = function (options, settings, callback) {
+	updateSettings (options, settings, callback) {
 		if (!callback && typeof settings === 'function') {
 			callback = settings;
 			settings = options;
 			options = {};
 		}
 
-		var index = utils.getIndexSyntax(options, config);
+		let index = utils.getIndexSyntax(options, this.config);
 
-		options.query = utils.exclude(options, paramExcludes);
+		options.query = utils.exclude(options, this.paramExcludes);
 
-		options.pathname = utils.pathAppend(index) +
-			utils.pathAppend('_settings');
+		options.path = utils.pathAppend(index, '_settings');
 
-		return req.put(options, settings, callback);
+		return this.request.put(options, settings, callback);
 	};
+}
 
-	return thenifyAll.withCallback(self, {});
-};
+module.exports = { Indices };
