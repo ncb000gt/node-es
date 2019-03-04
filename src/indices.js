@@ -1,6 +1,10 @@
 import * as utils from './utils';
 import { Request } from 'reqlib';
 
+const
+	HTTP_STATUS_NOT_FOUND = 404,
+	HTTP_STATUS_SUCCESS = 200;
+
 class Indices {
 	constructor (config, request) {
 		this.config = config;
@@ -32,7 +36,7 @@ class Indices {
 		}
 
 		return this.request.post(options, data, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
 	// Disclaimer: does not currently support pre 0.90 ways of retrieving aliases
@@ -56,7 +60,7 @@ class Indices {
 			options.alias);
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-analyze/
 	analyze (options, data, callback) {
@@ -75,7 +79,7 @@ class Indices {
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
 		return this.request.post(options, data, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-clearcache/
 	clearCache (options, callback) {
@@ -91,7 +95,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_cache/clear');
 
 		return this.request.post(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-open-close/
 	closeIndex (options, callback) {
@@ -111,7 +115,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_close');
 
 		return this.request.post(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-create-index/
 	createIndex (options, data, callback) {
@@ -137,7 +141,7 @@ class Indices {
 		options.path = utils.pathAppend(index);
 
 		return this.request.put(options, data, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
 	createTemplate (options, template, callback) {
@@ -156,7 +160,7 @@ class Indices {
 		options.path = utils.pathAppend('_template', options.name);
 
 		return this.request.put(options, template, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
 	deleteAlias (options, callback) {
@@ -179,7 +183,7 @@ class Indices {
 			options.alias);
 
 		return this.request.delete(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-delete-index/
 	deleteIndex (options, callback) {
@@ -199,7 +203,7 @@ class Indices {
 		options.path = utils.pathAppend(index);
 
 		return this.request.delete(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-delete-mapping/
 	deleteMapping (options, callback) {
@@ -221,7 +225,7 @@ class Indices {
 		options.path = utils.pathAppend(index, type);
 
 		return this.request.delete(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
 	deleteTemplate (options, callback) {
@@ -239,7 +243,7 @@ class Indices {
 		options.path = utils.pathAppend('_template', options.name);
 
 		return this.request.delete(options, callback);
-	};
+	}
 
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
 	// https://www.elastic.co/guide/en/elasticsearch/reference/5.5/indices-types-exists.html
@@ -269,7 +273,7 @@ class Indices {
 
 		return this.request.head(options, (err, data) => {
 			if (err) {
-				if (err.statusCode && err.statusCode === 404) {
+				if (err.statusCode && err.statusCode === HTTP_STATUS_NOT_FOUND) {
 					data = {
 						exists : false,
 						statusCode : err.statusCode
@@ -283,12 +287,12 @@ class Indices {
 
 			// must listen to event...
 			data = {
-				exists : statusCode === 200
+				exists : statusCode === HTTP_STATUS_SUCCESS
 			};
 
 			return utils.promiseResolveOrCallback(data, callback);
 		});
-	};
+	}
 
 	flush (options, callback) {
 		if (!callback && typeof options === 'function') {
@@ -303,7 +307,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_flush');
 
 		return this.request.post(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-get-mapping/
 	mappings (options, callback) {
@@ -324,7 +328,7 @@ class Indices {
 			'_mapping');
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-open-close/
 	openIndex (options, callback) {
@@ -348,7 +352,7 @@ class Indices {
 			'_open');
 
 		return this.request.post(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
 	putMapping (options, mapping, callback) {
@@ -376,7 +380,7 @@ class Indices {
 			index ? type : null);
 
 		return this.request.put(options, mapping, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-refresh/
 	refresh (options, callback) {
@@ -392,7 +396,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_refresh');
 
 		return this.request.post(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-segments/
 	segments (options, callback) {
@@ -408,7 +412,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_segments');
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-get-settings/
 	settings (options, callback) {
@@ -430,7 +434,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_settings');
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-gateway-snapshot/
 	snapshot (options, callback) {
@@ -444,7 +448,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_gateway/snapshot');
 
 		return this.request.post(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-stats/
 	stats (options, callback) {
@@ -465,7 +469,7 @@ class Indices {
 			type);
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-status/
 	status (options, callback) {
@@ -481,7 +485,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_status');
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
 	templates (options, callback) {
@@ -501,7 +505,7 @@ class Indices {
 		options.path = utils.pathAppend('_template', options.name);
 
 		return this.request.get(options, callback);
-	};
+	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
 	updateSettings (options, settings, callback) {
@@ -518,7 +522,7 @@ class Indices {
 		options.path = utils.pathAppend(index, '_settings');
 
 		return this.request.put(options, settings, callback);
-	};
+	}
 }
 
 module.exports = { Indices };

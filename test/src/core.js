@@ -1,3 +1,8 @@
+/* eslint camelcase : 0 */
+/* eslint no-magic-numbers : 0 */
+/* eslint sort-keys : 0 */
+/* eslint sort-vars : 0 */
+
 import chai from 'chai';
 import { Core } from '../../src/core';
 import nock from 'nock';
@@ -87,7 +92,7 @@ describe('API: core', () => {
 				.get('/dieties/kitteh,squirrel/1/_source')
 				.reply(200);
 
-			core.get({ _id : 1, _types : ['kitteh', 'squirrel'], _source : true });
+			core.get({ '_id' : 1, '_types' : ['kitteh', 'squirrel'], '_source' : true });
 		});
 
 		it('should properly handle when _source is not a boolean', async () => {
@@ -95,7 +100,7 @@ describe('API: core', () => {
 				.get('/dieties/kitteh/1/_source?_source=name%2Cbreed')
 				.reply(200);
 
-			await core.get({ _id : 1, _type : 'kitteh', _source : ['name','breed'] });
+			await core.get({ '_id' : 1, '_type' : 'kitteh', '_source' : ['name', 'breed'] });
 		});
 
 		it('should properly handle _index and _type override', async () => {
@@ -103,7 +108,7 @@ describe('API: core', () => {
 				.get('/non-dieties/dogs/_count')
 				.reply(200);
 
-			await core.count({ _index : 'non-dieties', _type : 'dogs' });
+			await core.count({ '_index' : 'non-dieties', '_type' : 'dogs' });
 		});
 	});
 
@@ -894,7 +899,7 @@ describe('API: core', () => {
 				.post('/_search/scroll?scroll=10m')
 				.reply(200);
 
-			await core.scroll({ scroll : '10m'}, scroll_id);
+			await core.scroll({ scroll : '10m' }, scroll_id);
 		});
 	});
 
@@ -955,7 +960,8 @@ describe('API: core', () => {
 				params : {
 					updateData : 'testing'
 				}
-			},
+			};
+
 			doc2 = {
 				doc : {
 					field1 : 'new value'

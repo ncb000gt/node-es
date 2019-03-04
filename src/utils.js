@@ -13,7 +13,7 @@ export function exclude (source, excludes) {
 	});
 
 	return result;
-};
+}
 
 /*
 	Looks through request options and lib config data to determine
@@ -42,7 +42,6 @@ export function getIndexSyntax (options, config) {
 	return syntax;
 }
 
-
 /*
 	Looks through request options to determine the field to use for
 	an operation.
@@ -68,8 +67,7 @@ export function getFieldSyntax (options) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Looks through request options and lib config data to determine
@@ -94,8 +92,7 @@ export function getNodeSyntax (options, config) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Looks through request options and lib config data to determine
@@ -120,8 +117,7 @@ export function getTypeSyntax (options, config) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Convenience method for ensuring an expected key exists either in
@@ -161,7 +157,7 @@ export function optionsUndefined (options, config, keys) {
 	});
 
 	return error || false;
-};
+}
 
 export function promiseRejectOrCallback (err, callback) {
 	if (!callback) {
@@ -169,15 +165,15 @@ export function promiseRejectOrCallback (err, callback) {
 	}
 
 	return callback(err);
-};
+}
 
-export function promiseResolveOrCallback(result, callback) {
+export function promiseResolveOrCallback (result, callback) {
 	if (!callback) {
 		return Promise.resolve(result);
 	}
 
 	return callback(null, result);
-};
+}
 
 /*
 	Convenience method used for building path string used
@@ -192,11 +188,16 @@ export function promiseResolveOrCallback(result, callback) {
 	Outputs: '/kitteh'
 */
 export function pathAppend (...args) {
-	let filteredArgs = args.filter((arg) => (arg || arg === 0) && typeof arg !== 'undefined');
+	let filteredArgs = args.filter((arg) => {
+		let valid = (arg || arg === 0) && typeof arg !== 'undefined';
+		return valid;
+	});
 
 	if (filteredArgs && filteredArgs.length && filteredArgs[0].charAt(0) !== '/') {
 		filteredArgs[0] = ['/', filteredArgs[0]].join('');
 	}
 
-	return path.join(...(filteredArgs.map((arg) => (arg && arg.toString) ? arg.toString() : arg)));
-};
+	return path.join(...(filteredArgs.map((arg) => {
+		return (arg && arg.toString) ? arg.toString() : arg;
+	})));
+}

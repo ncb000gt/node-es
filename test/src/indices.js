@@ -1,3 +1,8 @@
+/* eslint camelcase : 0 */
+/* eslint no-magic-numbers : 0 */
+/* eslint sort-keys : 0 */
+/* eslint sort-vars : 0 */
+
 import chai from 'chai';
 import { Indices } from '../../src/indices';
 import nock from 'nock';
@@ -698,7 +703,7 @@ describe('API: indices', () => {
 				.reply(200);
 
 			delete defaultOptions._index;
-			indices.segments((err, data) => {
+			indices.segments((err) => {
 				if (err) {
 					return done(err);
 				}
@@ -755,7 +760,7 @@ describe('API: indices', () => {
 				.reply(200);
 
 			delete defaultOptions._index;
-			indices.snapshot((err, data) => {
+			indices.snapshot((err) => {
 				if (err) {
 					return done(err);
 				}

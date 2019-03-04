@@ -1,6 +1,10 @@
 import * as utils from './utils';
 import { Request } from 'reqlib';
 
+const
+	HTTP_STATUS_NOT_FOUND = 404,
+	HTTP_STATUS_SUCCESS = 200;
+
 class Core {
 	constructor (config, request) {
 		this.config = config;
@@ -79,8 +83,8 @@ class Core {
 
 		let
 			index = utils.getIndexSyntax(options, null), // specifically don't want default settings
-			type = utils.getTypeSyntax(options, null),
-			serializedCommands = '';
+			serializedCommands = '',
+			type = utils.getTypeSyntax(options, null);
 
 		options.query = utils.exclude(options, this.paramExcludes);
 
@@ -276,7 +280,7 @@ class Core {
 
 		return this.request.head(options, (err, data) => {
 			if (err) {
-				if (err.statusCode && err.statusCode === 404) {
+				if (err.statusCode && err.statusCode === HTTP_STATUS_NOT_FOUND) {
 					data = {
 						exists : false,
 						statusCode : err.statusCode
@@ -290,7 +294,7 @@ class Core {
 
 			// must listen to event...
 			data = {
-				exists : statusCode === 200
+				exists : statusCode === HTTP_STATUS_SUCCESS
 			};
 
 			return utils.promiseResolveOrCallback(data, callback);
@@ -464,7 +468,7 @@ class Core {
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
-		return this.request.post(options, {docs: docs}, callback);
+		return this.request.post(options, { docs }, callback);
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/multi-search/
@@ -495,8 +499,8 @@ class Core {
 
 		let
 			index = utils.getIndexSyntax(options, null), // specifically want to exclude defaults
-			type = utils.getTypeSyntax(options, null),
-			serializedQueries = '';
+			serializedQueries = '',
+			type = utils.getTypeSyntax(options, null);
 
 		options.query = utils.exclude(options, this.paramExcludes);
 

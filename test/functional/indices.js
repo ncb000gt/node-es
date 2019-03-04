@@ -1,4 +1,10 @@
-var
+/* eslint camelcase : 0 */
+/* eslint no-invalid-this : 0 */
+/* eslint no-magic-numbers : 0 */
+/* eslint sort-keys : 0 */
+/* eslint sort-vars : 0 */
+
+let
   createClient = require('../../'),
   createStack = require('stact');
 
@@ -6,7 +12,7 @@ describe('Functional: indices', function () {
   // upping default timeout for Travis-CI builds
   this.timeout(8000);
 
-  var
+  let
     index = 'elasticsearch_test_functional_indices_' + Date.now(),
     client;
 
@@ -15,7 +21,7 @@ describe('Functional: indices', function () {
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
-      client.cluster.health({wait_for_status: 'yellow'}, function (err) {
+      client.cluster.health({ wait_for_status: 'yellow' }, function (err) {
         assert.ifError(err);
         done();
       });
@@ -23,23 +29,23 @@ describe('Functional: indices', function () {
   });
 
   before(function (done) {
-    client.indices.putMapping({_type: 'book'}, {
+    client.indices.putMapping({ _type: 'book' }, {
       book: {
         properties: {
-          title: {type: 'text', store: 'yes'},
-          author: {type: 'keyword', store: 'yes', index: true},
-          summary: {type: 'text', index: true, term_vector: 'with_positions_offsets'}
+          title: { type: 'text', store: 'yes' },
+          author: { type: 'keyword', store: 'yes', index: true },
+          summary: { type: 'text', index: true, term_vector: 'with_positions_offsets' }
         }
       }
     }, done);
   });
 
   before(function (done) {
-    var stack = createStack(function (next) {
-      var doc = JSON.parse(JSON.stringify(this));
-      doc._id = undefined;
+    let stack = createStack(function (next) {
+      let doc = JSON.parse(JSON.stringify(this));
+      delete doc['_id'];
 
-      client.index({_type: 'book', _id: this._id}, doc, next);
+      client.index({ _type: 'book', _id: this._id }, doc, next);
     });
     stack.add({
       _id: 'node1',
@@ -79,14 +85,14 @@ describe('Functional: indices', function () {
 
     describe('#alias', function () {
       it('should be able to create an alias', function (done) {
-        client.indices.alias({alias: index + '_test'}, {}, function (err) {
+        client.indices.alias({ alias: index + '_test' }, {}, function (err) {
           assert.ifError(err);
           done();
         });
       });
 
       it('should be able to query via alias', function (done) {
-        client.get({_index: index + '_test', _type: 'book', _id: 'node1'}, function (err, result) {
+        client.get({ _index: index + '_test', _type: 'book', _id: 'node1' }, function (err, result) {
           assert.ifError(err);
           assert.equal(result._source.title, 'What Is Node?');
           done();
@@ -94,22 +100,22 @@ describe('Functional: indices', function () {
       });
 
       it('should be able to create multiple aliases (with filters)', function (done) {
-        var data = {
+        let data = {
           actions: [
-            {add: {index: index, alias: index + '_functional_tests_indices'}},
-            {add: {index: index, alias: index + '_node_books', filter: {
+            { add: { _index: index, alias: index + '_functional_tests_indices' } },
+            { add: { _index: index, alias: index + '_node_books', filter: {
               bool: {
                 must: [
-                  {type: {value: 'book'}},
-                  {query_string: {query: 'Node.js'}}
+                  { type: { value: 'book' } },
+                  { query_string: { query: 'Node.js' } }
                 ]
               }
-            }}}
+            } } }
           ]
         };
         client.indices.alias(data, function (err) {
           assert.ifError(err);
-          client.search({_index: index + '_node_books'}, {query: {match_all: {}}}, function (err, result) {
+          client.search({ _index: index + '_node_books' }, { query: { match_all: {} } }, function (err, result) {
             assert.ifError(err);
             assert.equal(result.hits.total, 3);
             done();
@@ -122,12 +128,12 @@ describe('Functional: indices', function () {
       it('should be able to list all aliases for the default index', function (done) {
         client.indices.aliases(function (err, result) {
           assert.ifError(err);
-          assert(result[index].aliases[index +  '_test']);
+          assert(result[index].aliases[index + '_test']);
           done();
         });
       });
       it('should be able to find a specific alias', function (done) {
-        client.indices.aliases({alias: index + '_test'}, function (err, result) {
+        client.indices.aliases({ alias: index + '_test' }, function (err, result) {
           assert.ifError(err);
           assert(result[index].aliases[index + '_test']);
           done();
@@ -137,13 +143,13 @@ describe('Functional: indices', function () {
 
     describe('#deleteAlias', function () {
       it('should be able to delete an alias', function (done) {
-        client.indices.deleteAlias({alias: index + '_test'}, function (err) {
+        client.indices.deleteAlias({ alias: index + '_test' }, function (err) {
           assert.ifError(err);
-          client.get({_index: index + '_test', _type: 'book', _id: 'node2'}, function (err) {
+          client.get({ _index: index + '_test', _type: 'book', _id: 'node2' }, function (err) {
             assert.equal(err.statusCode, 404);
-            client.indices.deleteAlias({alias: index + '_functional_tests_indices'}, function (err) {
+            client.indices.deleteAlias({ alias: index + '_functional_tests_indices' }, function (err) {
               assert.ifError(err);
-              client.indices.deleteAlias({alias: index + '_node_books'}, function (err) {
+              client.indices.deleteAlias({ alias: index + '_node_books' }, function (err) {
                 assert.ifError(err);
                 done();
               });
@@ -158,14 +164,14 @@ describe('Functional: indices', function () {
 
     afterEach(function (done) {
       this.timeout(5000);
-      client.cluster.health({wait_for_status: 'yellow'}, done);
+      client.cluster.health({ wait_for_status: 'yellow' }, done);
     });
 
     describe('#createIndex', function () {
       it('should be able to create an index', function (done) {
-        client.indices.createIndex({_index: index + '_foo'}, {}, function (err) {
+        client.indices.createIndex({ _index: index + '_foo' }, {}, function (err) {
           assert.ifError(err);
-          client.indices.createIndex({_index: index + '_foo'}, {}, function (err) {
+          client.indices.createIndex({ _index: index + '_foo' }, {}, function (err) {
             assert(err);
             done();
           });
@@ -175,9 +181,9 @@ describe('Functional: indices', function () {
 
     describe('#closeIndex', function () {
       it('should be able to close an index', function (done) {
-        client.indices.closeIndex({_index: index + '_foo'}, function (err) {
+        client.indices.closeIndex({ _index: index + '_foo' }, function (err) {
           assert.ifError(err);
-          client.index({_index: index + '_foo', _type: 'bar'}, {my: 'data'}, function (err) {
+          client.index({ _index: index + '_foo', _type: 'bar' }, { my: 'data' }, function (err) {
             assert.equal(err.statusCode, 403);
             done();
           });
@@ -187,9 +193,9 @@ describe('Functional: indices', function () {
 
     describe('#openIndex', function () {
       it('should be able to open an index', function (done) {
-        client.indices.openIndex({_index: index + '_foo'}, function (err) {
+        client.indices.openIndex({ _index: index + '_foo' }, function (err) {
           assert.ifError(err);
-          client.index({_index: index + '_foo', _type: 'bar', _id: 'thing'}, {my: 'data'}, function (err) {
+          client.index({ _index: index + '_foo', _type: 'bar', _id: 'thing' }, { my: 'data' }, function (err) {
             assert.ifError(err);
             done();
           });
@@ -199,9 +205,9 @@ describe('Functional: indices', function () {
 
     describe('#deleteIndex', function () {
       it('should be able to delete an index', function (done) {
-        client.indices.deleteIndex({_index: index + '_foo'}, function (err) {
+        client.indices.deleteIndex({ _index: index + '_foo' }, function (err) {
           assert.ifError(err);
-          client.indices.deleteIndex({_index: index + '_foo'}, function (err) {
+          client.indices.deleteIndex({ _index: index + '_foo' }, function (err) {
             assert(err);
             done();
           });
@@ -214,15 +220,15 @@ describe('Functional: indices', function () {
 
     describe('#createTemplate', function () {
       it('should be able to create a template', function (done) {
-        var template = {
+        let template = {
           template: 'test*',
           mappings: {
             widget: {
-              _source: {enabled: false}
+              _source: { enabled: false }
             }
           }
         };
-        client.indices.createTemplate({name: index + '_template'}, template, function (err) {
+        client.indices.createTemplate({ name: index + '_template' }, template, function (err) {
           assert.ifError(err);
           done();
         });
@@ -231,7 +237,7 @@ describe('Functional: indices', function () {
 
     describe('#templates', function () {
       it('should be able to list templates', function (done) {
-        client.indices.templates({name: index + '_template'}, function (err, result) {
+        client.indices.templates({ name: index + '_template' }, function (err, result) {
           assert.ifError(err);
           assert.equal(result[index + '_template'].template, 'test*');
           done();
@@ -241,7 +247,7 @@ describe('Functional: indices', function () {
 
     describe('#deleteTemplate', function () {
       it('should be able to delete a template', function (done) {
-        client.indices.deleteTemplate({name: index + '_template'}, function (err) {
+        client.indices.deleteTemplate({ name: index + '_template' }, function (err) {
           assert.ifError(err);
           client.cluster.state(function (err, result) {
             assert.ifError(err);
@@ -257,7 +263,7 @@ describe('Functional: indices', function () {
 
     describe('#putMapping', function () {
       it('should be able to put a mapping', function (done) {
-        var mapping = {
+        let mapping = {
           baz: {
             properties: {
               name: {
@@ -267,7 +273,7 @@ describe('Functional: indices', function () {
             }
           }
         };
-        client.indices.putMapping({_type: 'baz'}, mapping, function (err) {
+        client.indices.putMapping({ _type: 'baz' }, mapping, function (err) {
           assert.ifError(err);
           done();
         });
@@ -284,29 +290,13 @@ describe('Functional: indices', function () {
         });
       });
     });
-
-    // no longer works in Elasticsearch v2.3 and up
-    // see: https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-delete-mapping.html
-    /*
-    describe('#deleteMapping', function () {
-      it('should be able to delete mappings', function (done) {
-        client.indices.deleteMapping({_type: 'baz'}, function (err) {
-          assert.ifError(err);
-          client.indices.mappings({_type: 'baz'}, function (err, result) {
-            assert.equal(Object.keys(result).length, 0);
-            done();
-          });
-        });
-      });
-    });
-    //*/
   });
 
   describe('Misc.', function () {
 
     describe('#analyze', function () {
       it('should be able to analyze text with a specific analyzer', function (done) {
-        client.indices.analyze({analyzer: 'standard'}, 'this is a test', function (err, result) {
+        client.indices.analyze({ analyzer: 'standard' }, 'this is a test', function (err, result) {
           assert.ifError(err);
           assert.equal(result.tokens.length, 4);
           done();
@@ -325,11 +315,11 @@ describe('Functional: indices', function () {
     });
 
     describe('#exists', function () {
-      it('should be able to check if an index exists', function(done){
+      it('should be able to check if an index exists', function (done){
         client.indices.exists(function (err, result) {
           assert.ifError(err);
           assert(result.exists);
-          client.indices.exists({_index: index + '_doesnotexist'}, function (err, result) {
+          client.indices.exists({ _index: index + '_doesnotexist' }, function (err, result) {
             assert.ifError(err);
             assert(result.exists === false);
             done();
@@ -337,11 +327,11 @@ describe('Functional: indices', function () {
         });
       });
 
-      it('should be able to check if a type exists', function(done){
-        client.indices.exists({_type: 'book'}, function (err, result) {
+      it('should be able to check if a type exists', function (done){
+        client.indices.exists({ _type: 'book' }, function (err, result) {
           assert.ifError(err);
           assert(result.exists);
-          client.indices.exists({_type: index + '_doesnotexist'}, function (err, result) {
+          client.indices.exists({ _type: index + '_doesnotexist' }, function (err, result) {
             assert.ifError(err);
             assert(result.exists === false);
             done();
@@ -361,21 +351,21 @@ describe('Functional: indices', function () {
 
     describe('#refresh', function () {
       it('should be able to refresh an index', function (done) {
-        var
-          _id = 'short',
+        let
+          id = 'short',
           book = {
             title: 'Short book',
             author: 'Me',
             summary: 'Short summary'
           };
-        client.index({_type: 'book', _id: _id}, book, function (err) {
+        client.index({ '_type': 'book', '_id': id }, book, function (err) {
           assert.ifError(err);
-          client.search({_type: 'book'}, {query: {match: {title: 'Short book'}}}, function (err, result) {
+          client.search({ '_type': 'book' }, { query: { match: { title: 'Short book' } } }, function (err, result) {
             assert.ifError(err);
             assert.equal(result.hits.total, 0);
             client.indices.refresh(function (err) {
               assert.ifError(err);
-              client.search({_type: 'book'}, {query: {match: {title: 'Short book'}}}, function (err, result) {
+              client.search({ '_type': 'book' }, { query: { match: { title: 'Short book' } } }, function (err, result) {
                 assert.ifError(err);
                 assert.equal(result.hits.total, 1);
                 done();
@@ -422,7 +412,7 @@ describe('Functional: indices', function () {
 
     describe('#updateSettings', function () {
       it('should be able to update settings', function (done) {
-        var settings = {
+        let settings = {
           index: {
             refresh_interval: '24s'
           }

@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "@babel/runtime-corejs2": "^7.3.1",
-    "reqlib": "^1.0.3"
+    "reqlib": "^1.0.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

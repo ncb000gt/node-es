@@ -1,19 +1,25 @@
-var createClient = require('../../');
+/* eslint camelcase : 0 */
+/* eslint no-invalid-this : 0 */
+/* eslint no-magic-numbers : 0 */
+/* eslint sort-keys : 0 */
+/* eslint sort-vars : 0 */
+
+let createClient = require('../../');
 
 describe('Functional: cluster', function () {
   // upping default timeout for Travis-CI builds
   this.timeout(8000);
 
-  var
+  let
     index = 'elasticsearch_test_functional_cluster_' + Date.now(),
     client;
 
   before(function (done) {
-    clientOptions._index = index;
+    clientOptions['_index'] = index;
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {
       assert.ifError(err);
-      client.cluster.health({wait_for_status: 'yellow'}, function (err) {
+      client.cluster.health({ 'wait_for_status': 'yellow' }, function (err) {
         assert.ifError(err);
         done();
       });
@@ -31,7 +37,7 @@ describe('Functional: cluster', function () {
 
   describe('#fieldStats', function () {
     it('should be able to get field stats', function (done) {
-      client.cluster.fieldStats({field: '*'}, function (err, result) {
+      client.cluster.fieldStats({ field: '*' }, function (err, result) {
         assert.ifError(err);
         assert(result.indices);
         done();
@@ -41,7 +47,7 @@ describe('Functional: cluster', function () {
 
   describe('#health', function () {
     it('should be able to get the cluster health', function (done) {
-      client.cluster.health({wait_for_status: 'yellow'}, function (err, result) {
+      client.cluster.health({ 'wait_for_status': 'yellow' }, function (err, result) {
         assert.ifError(err);
         assert.equal(result.status, 'yellow');
         done();

@@ -1,3 +1,6 @@
+/* eslint camelcase : 0 */
+/* eslint no-magic-numbers : 0 */
+
 import chai from 'chai';
 import { Cluster } from '../../src/cluster';
 import nock from 'nock';
@@ -248,10 +251,10 @@ describe('API: cluster', () => {
 		let commands = {
 			commands : [{
 				move : {
+					'from_node' : 'node1',
 					index : 'test',
 					shard : 0,
-					from_node : 'node1',
-					to_node : 'node2'
+					'to_node' : 'node2'
 				}
 			}]
 		};
