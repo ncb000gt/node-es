@@ -4,8 +4,8 @@
 /* eslint sort-keys : 0 */
 /* eslint sort-vars : 0 */
 
-let
-  createClient = require('../../'),
+const
+  createClient = require('../../dist'),
   createStack = require('stact');
 
 describe('Functional: core', function () {
@@ -14,9 +14,11 @@ describe('Functional: core', function () {
 
   let
     index = 'elasticsearch_test_functional_core_' + Date.now(),
-    client;
+    client,
+    clientOptions;
 
   before(function (done) {
+    clientOptions = {};
     clientOptions['_index'] = index;
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {

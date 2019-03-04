@@ -4,7 +4,7 @@
 /* eslint sort-keys : 0 */
 /* eslint sort-vars : 0 */
 
-let createClient = require('../../');
+const createClient = require('../../dist');
 
 describe('Functional: cluster', function () {
   // upping default timeout for Travis-CI builds
@@ -12,9 +12,11 @@ describe('Functional: cluster', function () {
 
   let
     index = 'elasticsearch_test_functional_cluster_' + Date.now(),
-    client;
+    client,
+    clientOptions;
 
   before(function (done) {
+    clientOptions = {};
     clientOptions['_index'] = index;
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {

@@ -4,8 +4,8 @@
 /* eslint sort-keys : 0 */
 /* eslint sort-vars : 0 */
 
-let
-  createClient = require('../../'),
+const
+  createClient = require('../../dist'),
   createStack = require('stact');
 
 describe('Functional: indices', function () {
@@ -17,6 +17,7 @@ describe('Functional: indices', function () {
     client;
 
   before(function (done) {
+    clientOptions = {};
     clientOptions._index = index;
     client = createClient(clientOptions);
     client.indices.createIndex(function (err) {

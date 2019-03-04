@@ -34,7 +34,7 @@
     "prepublish": "gulp build",
     "pretest": "gulp clean && gulp lint",
     "test": "NODE_ENV=test nyc mocha ./test/src",
-    "test:functional": "NODE_ENV=test nyc mocha ./test/functional",
+    "test:functional": "gulp build && NODE_ENV=test nyc mocha ./test/functional",
     "test:unit": "NODE_ENV=test nyc mocha ./test/src"
   },
   "nyc": {
