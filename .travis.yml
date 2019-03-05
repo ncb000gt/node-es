@@ -4,8 +4,5 @@ node_js:
   - 8
   - 10
 services: elasticsearch
-before_install:
-  - sudo service elasticsearch stop
-  - sudo apt-get upgrade elasticsearch
 after_install:
   - npm run test:functional
