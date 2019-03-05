@@ -116,14 +116,14 @@ var config = {
 
 #### cluster support and failover
 
-Elasticsearch is pretty much rad at clustering. If you want to specify multiple servers to failover to, you may do so by either supplying an array as the value for the property `hosts` or `hostnames`:
+Elasticsearch is pretty much rad at clustering. If you want to specify multiple servers to failover to, you may do so by either supplying an array as the value for the property `host`, `hosts`, `hostname` or `hostnames`:
 
 ```Javascript
 var elasticsearch = require('es');
 var config = {
   _index : 'bawss',
   server : {
-    hostnames : ['es1.myhost.com', 'es2.myhost.com', 'es3.myhost.com']
+    hosts : ['es1.myhost.com', 'es2.myhost.com', 'es3.myhost.com']
     secure : true
   }
 };
@@ -131,14 +131,14 @@ var config = {
 var es = elasticsearch(config);
 ```
 
-If you run on different ports for each server, use the `hosts` property:
+If you run on different ports for each server, use the `hostnames` property:
 
 ```Javascript
 var elasticsearch = require('es');
 var config = {
   _index : 'bawss',
   server : {
-    hosts : ['localhost:9200', 'localhost:9201', 'localhost:9202']
+    hostnames : ['localhost:9200', 'localhost:9201', 'localhost:9202']
   }
 };
 

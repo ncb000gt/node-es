@@ -1,3 +1,20 @@
+import path from 'path';
+
+/*
+	Exclude keys from an object.
+*/
+export function exclude (source, excludes) {
+	let result = {};
+
+	Object.keys(source).forEach(function (key) {
+		if (excludes.indexOf(key) === -1) {
+			result[key] = source[key];
+		}
+	});
+
+	return result;
+}
+
 /*
 	Looks through request options and lib config data to determine
 	the index to use for an operation.
@@ -9,10 +26,8 @@
 
 	http://www.elasticsearch.org/guide/reference/api/multi-index/
 */
-exports.getIndexSyntax = function (options, config) {
-	'use strict';
-
-	var syntax = '';
+export function getIndexSyntax (options = {}, config = {}) {
+	let syntax = '';
 
 	if (options._indices && Array.isArray(options._indices)) {
 		syntax = options._indices.join(',');
@@ -25,8 +40,7 @@ exports.getIndexSyntax = function (options, config) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Looks through request options to determine the field to use for
@@ -37,10 +51,8 @@ exports.getIndexSyntax = function (options, config) {
 
 	Output is formatted as 'fieldName' or 'fieldName1,fieldName2' or ''
 */
-exports.getFieldSyntax = function (options) {
-	'use strict';
-
-	var syntax = '';
+export function getFieldSyntax (options = {}) {
+	let syntax = '';
 
 	if (options.fields && Array.isArray(options.fields)) {
 		syntax = options.fields.join(',');
@@ -55,8 +67,7 @@ exports.getFieldSyntax = function (options) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Looks through request options and lib config data to determine
@@ -67,10 +78,8 @@ exports.getFieldSyntax = function (options) {
 
 	Output is formatted as 'nodeName' or 'nodeName1,nodeName2' or ''
 */
-exports.getNodeSyntax = function (options, config) {
-	'use strict';
-
-	var syntax = '';
+export function getNodeSyntax (options = {}, config = {}) {
+	let syntax = '';
 
 	if (options.nodes && Array.isArray(options.nodes)) {
 		syntax = options.nodes.join(',');
@@ -83,8 +92,7 @@ exports.getNodeSyntax = function (options, config) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Looks through request options and lib config data to determine
@@ -95,10 +103,8 @@ exports.getNodeSyntax = function (options, config) {
 
 	Output is formatted as 'typeName' or 'typeName1,typeName2' or ''
 */
-exports.getTypeSyntax = function (options, config) {
-	'use strict';
-
-	var syntax = '';
+export function getTypeSyntax (options = {}, config = {}) {
+	let syntax = '';
 
 	if (options._types && Array.isArray(options._types)) {
 		syntax = options._types.join(',');
@@ -111,8 +117,7 @@ exports.getTypeSyntax = function (options, config) {
 	}
 
 	return syntax;
-};
-
+}
 
 /*
 	Convenience method for ensuring an expected key exists either in
@@ -127,10 +132,8 @@ exports.getTypeSyntax = function (options, config) {
 	pluralized versions of those properties without returning an
 	Error.
 */
-exports.optionsUndefined = function (options, config, keys) {
-	'use strict';
-
-	var error;
+export function optionsUndefined (options = {}, config = {}, keys) {
+	let error;
 
 	keys.every(function (key) {
 		if (key === '_index' &&
@@ -154,24 +157,23 @@ exports.optionsUndefined = function (options, config, keys) {
 	});
 
 	return error || false;
-};
+}
 
-/*
-	Exclude keys from an object.
-*/
-exports.exclude = function (obj, excludes) {
-	'use strict';
+export function promiseRejectOrCallback (err, callback) {
+	if (!callback) {
+		return Promise.reject(err);
+	}
 
-	var result = {};
+	return callback(err);
+}
 
-	Object.keys(obj).forEach(function (key) {
-		if (excludes.indexOf(key) === -1) {
-			result[key] = obj[key];
-		}
-	});
+export function promiseResolveOrCallback (result, callback) {
+	if (!callback) {
+		return Promise.resolve(result);
+	}
 
-	return result;
-};
+	return callback(null, result);
+}
 
 /*
 	Convenience method used for building path string used
@@ -185,12 +187,17 @@ exports.exclude = function (obj, excludes) {
 
 	Outputs: '/kitteh'
 */
-exports.pathAppend = function (resource) {
-	'use strict';
+export function pathAppend (...args) {
+	let filteredArgs = args.filter((arg) => {
+		let valid = (arg || arg === 0) && typeof arg !== 'undefined';
+		return valid;
+	});
 
-	if (resource || resource === 0) {
-		return '/' + resource;
+	if (filteredArgs && filteredArgs.length && filteredArgs[0].charAt(0) !== '/') {
+		filteredArgs[0] = ['/', filteredArgs[0]].join('');
 	}
 
-	return '';
-};
+	return path.join(...(filteredArgs.map((arg) => {
+		return (arg && arg.toString) ? arg.toString() : arg;
+	})));
+}

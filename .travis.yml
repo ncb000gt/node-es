@@ -1,13 +1,8 @@
 language: node_js
 node_js:
-  - "4.2"
+  - 6
+  - 8
+  - 10
 services: elasticsearch
-before_install:
-  - sudo service elasticsearch stop
-#  - sudo apt-get upgrade elasticsearch
-  - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb
-  - sudo dpkg -i --force-confnew elasticsearch-5.5.0.deb
-  - sudo service elasticsearch start
-after_success:
-  - npm install -g coveralls
-  - cat ./reports/lcov.info | coveralls
+after_install:
+  - npm run test:functional
