@@ -1,3 +1,7 @@
+# v0.7.1 / 2019-03-05
+
+* Adjusted `scroll` method to construct proper scroll payload when only the ID is specified
+
 # v0.7.0 / 2019-02-20
 
 * Replaced `thenify` and `bluebird` dependencies with `babel`
