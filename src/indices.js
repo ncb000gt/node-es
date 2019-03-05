@@ -15,7 +15,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
-	alias (options, data, callback) {
+	alias (options = {}, data, callback) {
 		if (!callback && typeof data === 'function') {
 			callback = data;
 			data = options;
@@ -40,7 +40,7 @@ class Indices {
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
 	// Disclaimer: does not currently support pre 0.90 ways of retrieving aliases
-	aliases (options, callback) {
+	aliases (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -63,7 +63,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-analyze/
-	analyze (options, data, callback) {
+	analyze (options = {}, data, callback) {
 		if (!callback && typeof data === 'function') {
 			callback = data;
 			data = options;
@@ -82,7 +82,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-clearcache/
-	clearCache (options, callback) {
+	clearCache (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -98,7 +98,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-open-close/
-	closeIndex (options, callback) {
+	closeIndex (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -118,7 +118,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-create-index/
-	createIndex (options, data, callback) {
+	createIndex (options = {}, data, callback) {
 		if (!callback && typeof data === 'function') {
 			callback = data;
 			data = options;
@@ -144,7 +144,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
-	createTemplate (options, template, callback) {
+	createTemplate (options = {}, template, callback) {
 		if (!callback && typeof template === 'function') {
 			callback = template;
 			template = options;
@@ -163,7 +163,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-aliases/
-	deleteAlias (options, callback) {
+	deleteAlias (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -186,7 +186,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-delete-index/
-	deleteIndex (options, callback) {
+	deleteIndex (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -206,7 +206,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-delete-mapping/
-	deleteMapping (options, callback) {
+	deleteMapping (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -228,7 +228,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
-	deleteTemplate (options, callback) {
+	deleteTemplate (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -248,7 +248,7 @@ class Indices {
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
 	// https://www.elastic.co/guide/en/elasticsearch/reference/5.5/indices-types-exists.html
 	// Also replicated (somewhat) in core... core.exists is more flexible, however
-	exists (options, callback) {
+	exists (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -294,7 +294,7 @@ class Indices {
 		});
 	}
 
-	flush (options, callback) {
+	flush (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -310,7 +310,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-get-mapping/
-	mappings (options, callback) {
+	mappings (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -331,7 +331,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-open-close/
-	openIndex (options, callback) {
+	openIndex (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -355,7 +355,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
-	putMapping (options, mapping, callback) {
+	putMapping (options = {}, mapping, callback) {
 		if (!callback && typeof mapping === 'function') {
 			callback = mapping;
 			mapping = options;
@@ -383,7 +383,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-refresh/
-	refresh (options, callback) {
+	refresh (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -399,7 +399,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-segments/
-	segments (options, callback) {
+	segments (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -415,7 +415,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-get-settings/
-	settings (options, callback) {
+	settings (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -437,7 +437,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-gateway-snapshot/
-	snapshot (options, callback) {
+	snapshot (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -451,7 +451,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-stats/
-	stats (options, callback) {
+	stats (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -472,7 +472,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-status/
-	status (options, callback) {
+	status (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -488,7 +488,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-templates/
-	templates (options, callback) {
+	templates (options = {}, callback) {
 		if (!callback && typeof options === 'function') {
 			callback = options;
 			options = {};
@@ -508,7 +508,7 @@ class Indices {
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
-	updateSettings (options, settings, callback) {
+	updateSettings (options = {}, settings, callback) {
 		if (!callback && typeof settings === 'function') {
 			callback = settings;
 			settings = options;

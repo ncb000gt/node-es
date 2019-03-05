@@ -28,7 +28,7 @@ function createClient (options = {}) {
 
 	let
 		client,
-		request = options.request || new Request(options);
+		request = options.request || new Request(options.server);
 
 	client = new Core(options, request);
 

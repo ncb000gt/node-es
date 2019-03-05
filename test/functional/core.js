@@ -4,51 +4,49 @@
 /* eslint sort-keys : 0 */
 /* eslint sort-vars : 0 */
 
-const
-  createClient = require('../../dist'),
-  createStack = require('stact');
+import chai from 'chai';
+import createClient from '../../src';
+import createStack from 'stact';
+
+const assert = chai.assert;
+
 
 describe('Functional: core', function () {
   // upping default timeout for Travis-CI builds
   this.timeout(8000);
 
   let
-    index = 'elasticsearch_test_functional_core_' + Date.now(),
+    indexBook = 'elasticsearch_test_functional_core_book_' + Date.now(),
+    indexNumber = 'elasticsearch_test_functional_core_number_' + Date.now(),
+    indexPerson = 'elasticsearch_test_functional_core_person_' + Date.now(),
+    indexReview = 'elasticsearch_test_functional_core_review_' + Date.now(),
     client,
     clientOptions;
 
-  before(function (done) {
+  before(async () => {
     clientOptions = {};
-    clientOptions['_index'] = index;
     client = createClient(clientOptions);
-    client.indices.createIndex(function (err) {
-      assert.ifError(err);
-      client.cluster.health({ 'wait_for_status': 'yellow' }, function (err) {
-        assert.ifError(err);
-        done();
-      });
-    });
+
+    await client.indices.createIndex({ _index : indexBook });
+    await client.indices.createIndex({ _index : indexPerson });
+    await client.cluster.health({ 'wait_for_status': 'yellow' });
   });
 
   before(function (done) {
-    client.indices.putMapping({ '_type' : 'person' }, {
-      person: {
-        properties: {
-          name: { type: 'string' },
-          color: { type: 'string', index: 'not_analyzed' }
-        }
+    client.indices.putMapping({ '_index': indexPerson, '_type' : 'person' }, {
+      properties: {
+        name: { type: 'text' },
+        color: { type: 'text', index: false }
       }
     }, done);
   });
 
   before(function (done) {
-    client.indices.putMapping({ '_type': 'book' }, {
-      book: {
-        properties: {
-          title: { type: 'text', store: 'yes' },
-          author: { type: 'keyword', store: 'yes', index: true },
-          summary: { type: 'text', index: true, term_vector: 'with_positions_offsets' }
-        }
+    client.indices.putMapping({ '_index': indexBook, '_type': 'book' }, {
+      properties: {
+        title: { type: 'text', store: true },
+        author: { type: 'keyword', store: true, index: true },
+        summary: { type: 'text', index: true, term_vector: 'with_positions_offsets' }
       }
     }, done);
   });
@@ -57,7 +55,7 @@ describe('Functional: core', function () {
     let stack = createStack(function (next) {
       let doc = JSON.parse(JSON.stringify(this));
       delete doc['_id'];
-      client.index({ '_type': 'book', '_id': this['_id'] }, doc, next);
+      client.index({ '_index': indexBook, '_type': 'book', '_id': this['_id'] }, doc, next);
     });
     stack.add({
       '_id': 'node1',
@@ -84,31 +82,44 @@ describe('Functional: core', function () {
       summary: 'Make fishing easier and more rewarding every time you pick up your rod and reel. No one can promise that you will catch fish all the time. For as long as we\'ve been catching fish, fish have been outsmarting us. But there are tips and pointers that even the most seasoned anglers can pick up! Fishing For Dummies helps you prepare for what awaits beyond the shore. From trout to carp and bass to bonefish, you\'ll get coverage of the latest and greatest techniques to fish like a pro. The latest in fishing line and equipment technology, including new electronics and gadgets An expanded section on casting methods for spinning tackle and bait casting 8 pages of full-color fish illustrations If you\'re one of the millions of people who enjoy fishing, whether for fun or sport, this hands-on, friendly guide gives you everything you need to keep "The Big One" from getting away!'
     });
     stack.run(function (err) {
-      assert.ifError(err);
+      if (err) {
+        return done(err);
+      }
+
       client.indices.refresh(done);
     });
   });
 
-  after(function (done) {
-    client.indices.deleteIndex(done);
+  after(async () => {
+    try {
+      await client.indices.deleteIndex({ '_index': indexBook });
+      await client.indices.deleteIndex({ '_index': indexNumber });
+      await client.indices.deleteIndex({ '_index': indexPerson });
+      await client.indices.deleteIndex({ '_index': indexReview });
+    } catch {
+      // ignore for now...
+    }
   });
 
   describe('request hosts in cluster', function () {
     it('works', function (done) {
       let failoverClient = createClient({
-        '_index' : index,
+        '_index' : indexPerson,
         server : {
-          hosts : ['localhost:9200', 'localhost:9200']
+          hostnames : ['localhost:9200', 'localhost:9200']
         }
       });
 
       failoverClient.search({ query: { 'match_all': {} } }, function (err) {
-        assert.ifError(err);
+        if (err) {
+          return done(err);
+        }
         done();
       });
     });
   });
 
+  /*
   describe('#bulk', function () {
     it('works');
   });
@@ -116,11 +127,12 @@ describe('Functional: core', function () {
   describe('#bulkIndex', function () {
     it('works');
   });
+  //*/
 
   describe('#count', function () {
     it('works', function (done) {
       let stack = createStack(function (next) {
-        client.index({ '_type': 'number', '_id': this }, { num: this }, next);
+        client.index({ '_index': indexNumber, '_type': 'number', '_id': this }, { num: this }, next);
       });
       stack.add(1);
       stack.add(2);
@@ -128,17 +140,19 @@ describe('Functional: core', function () {
       stack.add(4);
       stack.add(5);
       stack.run(function (err) {
-        assert.ifError(err);
+        if (err) {
+          return done(err);
+        }
         client.indices.refresh(function (err) {
-          assert.ifError(err);
-          client.count({ '_type': 'foo' }, null, function (err, result) {
-            assert.ifError(err);
-            assert.equal(result.count, 0);
-            client.count({ '_type': 'number' }, null, function (err, result) {
-              assert.ifError(err);
-              assert.equal(result.count, 5);
-              done();
-            });
+          if (err) {
+            return done(err);
+          }
+          client.count({ '_index': indexNumber, '_type': 'number' }, null, function (err, result) {
+            if (err) {
+              return done(err);
+            }
+            assert.equal(result.count, 5);
+            done();
           });
         });
       });
@@ -147,14 +161,20 @@ describe('Functional: core', function () {
 
   describe('#delete', function () {
     it('works', function (done) {
-      client.index({ '_type': 'person', '_id': 'joe' }, { name: 'Joe', color: 'red' }, function (err) {
-        assert.ifError(err);
-        client.get({ '_type': 'person', '_id': 'joe' }, function (err, result) {
-          assert.ifError(err);
+      client.index({ '_index': indexPerson, '_type': 'person', '_id': 'joe' }, { name: 'Joe', color: 'red' }, function (err) {
+        if (err) {
+          return done(err);
+        }
+        client.get({ '_index': indexPerson, '_type': 'person', '_id': 'joe' }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert.equal(result['_source'].name, 'Joe');
-          client.delete({ '_type': 'person', '_id': 'joe' }, function (err) {
-            assert.ifError(err);
-            client.get({ '_type': 'person', '_id': 'joe' }, function (err) {
+          client.delete({ '_index': indexPerson, '_type': 'person', '_id': 'joe' }, function (err) {
+            if (err) {
+              return done(err);
+            }
+            client.get({ '_index': indexPerson, '_type': 'person', '_id': 'joe' }, function (err) {
               assert(err);
               assert.equal(err.statusCode, 404);
               done();
@@ -167,10 +187,15 @@ describe('Functional: core', function () {
 
   describe('#exists', function () {
     it('works', function (done) {
-      client.index({ '_type': 'person', '_id': 'mary' }, { name: 'Mary', color: 'purple' }, function (err) {
-        assert.ifError(err);
-        client.exists({ '_type': 'person', '_id': 'mary' }, function (err, result) {
-          assert.ifError(err);
+      client.index({ '_index': indexPerson, '_type': 'person', '_id': 'mary' }, { name: 'Mary', color: 'purple' }, function (err) {
+        if (err) {
+          return done(err);
+        }
+
+        client.exists({ '_index': indexPerson, '_type': 'person', '_id': 'mary' }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert(result.exists);
           done();
         });
@@ -180,12 +205,21 @@ describe('Functional: core', function () {
 
   describe('#explain', function () {
     it('works', function (done) {
-      client.index({ '_type': 'person', '_id': 'mary' }, { name: 'Mary', color: 'purple' }, function (err) {
-        assert.ifError(err);
+      client.index({ '_index': indexPerson, '_type': 'person', '_id': 'mary' }, { name: 'Mary', color: 'purple' }, function (err) {
+        if (err) {
+          return done(err);
+        }
+
         client.indices.refresh(function (err) {
-          assert.ifError(err);
-          client.explain({ '_type' : 'person', '_id': 'mary' }, { query: { term: { color: 'purple' } } }, function (err, result) {
-            assert.ifError(err);
+          if (err) {
+            return done(err);
+          }
+
+          client.explain({ '_index': indexPerson, '_type' : 'person', '_id': 'mary' }, { query: { match: { name: 'mary' } } }, function (err, result) {
+            if (err) {
+              return done(err);
+            }
+
             assert.equal(result.matched, true);
             assert(result.explanation.value);
             done();
@@ -197,10 +231,14 @@ describe('Functional: core', function () {
 
   describe('#get', function () {
     it('works', function (done) {
-      client.index({ '_type': 'person', '_id': 'brian' }, { name: 'Brian', color: 'blue' }, function (err) {
-        assert.ifError(err);
-        client.get({ '_type': 'person', '_id': 'brian' }, function (err, result) {
-          assert.ifError(err);
+      client.index({ '_index': indexPerson, '_type': 'person', '_id': 'brian' }, { name: 'Brian', color: 'blue' }, function (err) {
+        if (err) {
+          return done(err);
+        }
+        client.get({ '_index': indexPerson, '_type': 'person', '_id': 'brian' }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert.equal(result._source.name, 'Brian');
           done();
         });
@@ -210,10 +248,14 @@ describe('Functional: core', function () {
 
   describe('#index', function () {
     it('works', function (done) {
-      client.index({ '_type': 'person', '_id': 'brian' }, { name: 'Brian', color: 'blue' }, function (err) {
-        assert.ifError(err);
-        client.get({ '_type': 'person', '_id': 'brian' }, function (err, result) {
-          assert.ifError(err);
+      client.index({ '_index': indexPerson, '_type': 'person', '_id': 'brian' }, { name: 'Brian', color: 'blue' }, function (err) {
+        if (err) {
+          return done(err);
+        }
+        client.get({ '_index': indexPerson, '_type': 'person', '_id': 'brian' }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert.equal(result._source.name, 'Brian');
           done();
         });
@@ -227,8 +269,10 @@ describe('Functional: core', function () {
 
   describe('#multiGet', function () {
     it('works', function (done) {
-      client.multiGet({ '_type': 'book' }, [{ '_id': 'node1' }, { '_id': 'fish1' }], function (err, result) {
-        assert.ifError(err);
+      client.multiGet({ '_index': indexBook, '_type': 'book' }, [{ '_id': 'node1' }, { '_id': 'fish1' }], function (err, result) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(result.docs.length, 2);
         assert.equal(result.docs[0]._source.title, 'What Is Node?');
         assert.equal(result.docs[1]._source.title, 'Fishing for Dummies');
@@ -245,9 +289,12 @@ describe('Functional: core', function () {
         {},
         { query: { match: { author: 'TJ Holowaychuk' } } }
       ];
-      client.multiSearch({ _index: index, '_type': 'book' }, queries, function (err, result) {
+      client.multiSearch({ '_index': indexBook, '_type': 'book' }, queries, function (err, result) {
         let books = [];
-        assert.ifError(err);
+        if (err) {
+          return done(err);
+        }
+
         assert.equal(result.responses.length, 2);
         assert.equal(result.responses[0].hits.total, 1);
         assert.equal(result.responses[1].hits.total, 1);
@@ -262,11 +309,15 @@ describe('Functional: core', function () {
 
   describe('#search', function () {
     it('works', function (done) {
-      client.search({ '_type': 'book' }, { query: { match: { summary: 'javascript' } } }, function (err, result) {
-        assert.ifError(err);
+      client.search({ '_index': indexBook, '_type': 'book' }, { query: { match: { summary: 'javascript' } } }, function (err, result) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(result.hits.total, 3);
-        client.search({ '_type': 'book' }, { query: { match: { summary: 'fish' } } }, function (err, result) {
-          assert.ifError(err);
+        client.search({ '_index': indexBook, '_type': 'book' }, { query: { match: { summary: 'fish' } } }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert.equal(result.hits.total, 1);
           done();
         });
@@ -275,8 +326,10 @@ describe('Functional: core', function () {
 
     // test for issue #48
     it('works with fields parameter', function (done) {
-      client.search({ '_type': 'book', stored_fields : ['title', 'author'] }, { query: { match_all: {} } }, function (err, result) {
-        assert.ifError(err);
+      client.search({ '_index': indexBook, '_type': 'book', stored_fields : ['title', 'author'] }, { query: { match_all: {} } }, function (err, result) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(Object.keys(result.hits.hits[0].fields).length, 2);
         done();
       });
@@ -285,11 +338,16 @@ describe('Functional: core', function () {
 
   describe('#scroll', function () {
     it('works', function (done) {
-      client.search({ scroll:'10m' }, { query:{ match_all:{} } }, function (err, result) {
-        assert.ifError(err);
+      client.search({ '_index': indexPerson, scroll:'10m' }, { query:{ match_all:{} } }, function (err, result) {
+        if (err) {
+          return done(err);
+        }
+
         assert.ok(result.hits.total > 0);
-        client.scroll({ scroll:'10m' }, result._scroll['_id'], function (err, result) {
-          assert.ifError(err);
+        client.scroll({ '_index': indexPerson, scroll:'10m' }, { 'scroll_id' : result['_scroll_id'] }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert.ok(result.hits.total > 0);
           done();
         });
@@ -299,13 +357,18 @@ describe('Functional: core', function () {
 
   describe('#suggest', function () {
     it('works', function (done) {
-      client.suggest({ 'test-suggest-1': { text: 'noed', term: { field: 'title' } } }, function (err, result) {
-        assert.ifError(err);
-        assert.ok(result['test-suggest-1']);
+      client.suggest({ suggest: { 'test-suggest-1': { text: 'noed', term: { field: 'title' } } } }, function (err, result) {
+        if (err) {
+          return done(err);
+        }
 
-        client.suggest({ 'test-suggest-2': { text: 'noed', term: { field: 'summary' } } }, function (err, result) {
-          assert.ifError(err);
-          assert.ok(result['test-suggest-2']);
+        assert.ok(result.suggest['test-suggest-1']);
+
+        client.suggest({ suggest: { 'test-suggest-2': { text: 'noed', term: { field: 'summary' } } } }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
+          assert.ok(result.suggest['test-suggest-2']);
 
           done();
         });
@@ -326,19 +389,27 @@ describe('Functional: core', function () {
         },
         doc;
 
-      client.index({ '_type': 'review', '_id': id }, review, function (err) {
-        assert.ifError(err);
-        client.get({ '_type': 'review', '_id': id }, function (err) {
-          assert.ifError(err);
+      client.index({ '_index': indexReview, '_type': 'review', '_id': id }, review, function (err) {
+        if (err) {
+          return done(err);
+        }
+        client.get({ '_index': indexReview, '_type': 'review', '_id': id }, function (err) {
+          if (err) {
+            return done(err);
+          }
           doc = {
             doc: {
               replies: ['Glad to hear it!']
             }
           };
-          client.update({ '_type': 'review', '_id': id }, doc, function (err) {
-            assert.ifError(err);
-            client.get({ '_type': 'review', '_id': id }, function (err, result) {
-              assert.ifError(err);
+          client.update({ '_index': indexReview, '_type': 'review', '_id': id }, doc, function (err) {
+            if (err) {
+              return done(err);
+            }
+            client.get({ '_index': indexReview, '_type': 'review', '_id': id }, function (err, result) {
+              if (err) {
+                return done(err);
+              }
               assert.equal(result._source.replies.length, 1);
               done();
             });
@@ -360,13 +431,19 @@ describe('Functional: core', function () {
           views: 0
         };
 
-      client.index({ '_type': 'review', '_id': id }, review, function (err) {
-        assert.ifError(err);
-        client.validate({ '_type': 'review' }, { query: { match: { author: 'Jeff' } } }, function (err, result) {
-          assert.ifError(err);
+      client.index({ '_index': indexReview, '_type': 'review', '_id': id }, review, function (err) {
+        if (err) {
+          return done(err);
+        }
+        client.validate({ '_index': indexReview, '_type': 'review' }, { query: { match: { author: 'Jeff' } } }, function (err, result) {
+          if (err) {
+            return done(err);
+          }
           assert(result.valid);
-          client.validate({ '_type': 'review', explain: true }, { query: { match: { date: 'foo' } } }, function (err, result) {
-            assert.ifError(err);
+          client.validate({ '_index': indexReview, '_type': 'review', explain: true }, { query: { match: { date: 'foo' } } }, function (err, result) {
+            if (err) {
+              return done(err);
+            }
             assert.equal(result.valid, false);
             assert.equal(result.explanations.length, 1);
             assert(result.explanations[0].error.indexOf('ElasticsearchParseException') > 0);

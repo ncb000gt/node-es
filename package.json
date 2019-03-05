@@ -34,7 +34,7 @@
     "prepublish": "gulp build",
     "pretest": "gulp clean && gulp lint",
     "test": "NODE_ENV=test nyc mocha ./test/src",
-    "test:functional": "gulp build && NODE_ENV=test nyc mocha ./test/functional",
+    "test:functional": "NODE_ENV=test nyc mocha ./test/functional",
     "test:unit": "NODE_ENV=test nyc mocha ./test/src"
   },
   "nyc": {
@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "@babel/runtime-corejs2": "^7.3.1",
-    "reqlib": "^1.0.5"
+    "reqlib": "^1.0.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

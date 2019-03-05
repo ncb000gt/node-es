@@ -3,6 +3,9 @@
 * Replaced `thenify` and `bluebird` dependencies with `babel`
 * Modified to support ElasticSearch 6.x.x
   * `suggest` method adjusted to use `_search` endpoint instead of deprecated `_suggest`
+* Fixed issue where `cluster.hotThreads` callback returned result as `err`
+* Adjusted failover behavior for `hosts` key, specifically to better align with the URL module in Node core
+* Adjusted mappings in the functional tests according to changes in Elasticsearch 6.x
 
 # v0.6.0 / 2017-10-02
 

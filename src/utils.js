@@ -26,7 +26,7 @@ export function exclude (source, excludes) {
 
 	http://www.elasticsearch.org/guide/reference/api/multi-index/
 */
-export function getIndexSyntax (options, config) {
+export function getIndexSyntax (options = {}, config = {}) {
 	let syntax = '';
 
 	if (options._indices && Array.isArray(options._indices)) {
@@ -51,7 +51,7 @@ export function getIndexSyntax (options, config) {
 
 	Output is formatted as 'fieldName' or 'fieldName1,fieldName2' or ''
 */
-export function getFieldSyntax (options) {
+export function getFieldSyntax (options = {}) {
 	let syntax = '';
 
 	if (options.fields && Array.isArray(options.fields)) {
@@ -78,7 +78,7 @@ export function getFieldSyntax (options) {
 
 	Output is formatted as 'nodeName' or 'nodeName1,nodeName2' or ''
 */
-export function getNodeSyntax (options, config) {
+export function getNodeSyntax (options = {}, config = {}) {
 	let syntax = '';
 
 	if (options.nodes && Array.isArray(options.nodes)) {
@@ -103,7 +103,7 @@ export function getNodeSyntax (options, config) {
 
 	Output is formatted as 'typeName' or 'typeName1,typeName2' or ''
 */
-export function getTypeSyntax (options, config) {
+export function getTypeSyntax (options = {}, config = {}) {
 	let syntax = '';
 
 	if (options._types && Array.isArray(options._types)) {
@@ -132,7 +132,7 @@ export function getTypeSyntax (options, config) {
 	pluralized versions of those properties without returning an
 	Error.
 */
-export function optionsUndefined (options, config, keys) {
+export function optionsUndefined (options = {}, config = {}, keys) {
 	let error;
 
 	keys.every(function (key) {
