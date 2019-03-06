@@ -577,6 +577,14 @@ class Core {
 		options.query = utils.exclude(options, this.paramExcludes);
 		options.path = utils.pathAppend('_search/scroll');
 
+		// re-map to payload expected by ES6
+		if (typeof scrollId === 'string') {
+			scrollId = {
+				scroll : options.scroll,
+				'scroll_id' : scrollId
+			};
+		}
+
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
 		return this.request.post(options, scrollId, callback);
