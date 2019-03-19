@@ -2,7 +2,7 @@
   "name": "es",
   "description": "API around the ElasticSearch RESTful API -- mostly convenience.",
   "main": "dist",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "author": "Nick Campbell (http://github.com/ncb000gt)",
   "contributors": [
     "Nick Campbell (http://github.com/ncb000gt)",
@@ -31,7 +31,7 @@
   "scripts": {
     "lint": "gulp lint",
     "posttest": "nyc report --reporter=text-lcov | coveralls",
-    "prepublish": "gulp build",
+    "prepare": "gulp build",
     "pretest": "gulp clean && gulp lint",
     "test": "NODE_ENV=test nyc mocha ./test/src",
     "test:functional": "NODE_ENV=test nyc mocha ./test/functional",
