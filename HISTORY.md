@@ -1,6 +1,7 @@
 # v0.7.3 / 2019-03-19
 
 * Modified `package.json` and moved to `prepare` instead of `prepublish`
+* Updated `reqlib` dependency with tighter request body handling
 
 # v0.7.2 / 2019-03-19
 
