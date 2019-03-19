@@ -159,19 +159,16 @@ describe('Functional: indices', function () {
       it('should be able to delete an alias', function (done) {
         client.indices.deleteAlias({ alias: index + '_test' }, function (err) {
           if (err) {
-            console.log(err);
             return done(err);
           }
           client.get({ _index: index + '_test', _type: 'book', _id: 'node2' }, function (err) {
             assert.equal(err.statusCode, 404);
             client.indices.deleteAlias({ alias: index + '_functional_tests_indices' }, function (err) {
               if (err) {
-                console.log(err);
                 return done(err);
               }
               client.indices.deleteAlias({ alias: index + '_node_books' }, function (err) {
                 if (err) {
-                  console.log(err);
                   return done(err);
                 }
                 done();
@@ -328,7 +325,6 @@ describe('Functional: indices', function () {
           };
         client.indices.putMapping({ _index: indexBaz, _type: 'baz' }, mappingBaz, function (err) {
           if (err) {
-            console.log(err);
             return done(err);
           }
           done();
@@ -357,7 +353,6 @@ describe('Functional: indices', function () {
       it('should be able to analyze text with a specific analyzer', function (done) {
         client.indices.analyze({ analyzer: 'standard', text : 'this is a test' }, function (err, result) {
           if (err) {
-            console.log(err);
             return done(err);
           }
           assert.equal(result.tokens.length, 4);

@@ -1,3 +1,7 @@
+# v0.7.2 / 2019-03-19
+
+* Removed extraneous `console.log` statements in functional test
+
 # v0.7.1 / 2019-03-05
 
 * Adjusted `scroll` method to construct proper scroll payload when only the ID is specified
