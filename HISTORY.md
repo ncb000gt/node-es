@@ -1,3 +1,7 @@
+# v0.7.4 / 2021-06-22
+
+* Updated dependencies
+
 # v0.7.3 / 2019-03-19
 
 * Modified `package.json` and moved to `prepare` instead of `prepublish`
