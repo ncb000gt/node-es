@@ -1,7 +1,6 @@
 # v0.8.0 / 2021-06-23
 
 * Adjustments to support Elasticsearch v7 and up (<https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html>)
-  * Updated indices.putMapping: removed `/_mapping/_type` from resource and eliminated `_type` parameter requirement
   * Updated core.add (core.index): added `/_doc` to path and eliminated `_type` parameter requirement
   * Updated core.delete: added `/_doc` to path
   * Updated core.get: added `/_doc` to path and eliminated `_type` parameter requirement
@@ -16,6 +15,12 @@
   * Updated core.multiSearch: removed `_type` from path
   * Updated core.deleteByQuery: removed `_type` from path
   * Removed core.exists: fully deprecated in ES 7.x
+  * Updated indices.putMapping: removed `/_mapping/_type` from resource and eliminated `_type` parameter requirement
+  * Updated indices.stats: removed `_type` from path
+  * Updated indices.deleteMapping: removed `_type` from path and elimited `_type` parameter requirement
+  * Updated indices.exists: removed `_type` from path
+  * Updated indices.mappings: removed `_type` from path
+
 # v0.7.4 / 2021-06-22
 
 * Updated dependencies

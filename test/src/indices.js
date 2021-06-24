@@ -17,7 +17,6 @@ describe('API: indices', () => {
 	beforeEach(() => {
 		defaultOptions = {
 			_index : 'dieties',
-			_type : 'kitteh',
 			auth : '',
 			hostname : 'localhost',
 			port : 9200,
@@ -421,19 +420,9 @@ describe('API: indices', () => {
 			});
 		});
 
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			indices.deleteMapping((err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have proper method and path when type is supplied', (done) => {
+		it('should have proper method and path when multiple indexes are supplied', (done) => {
 			nock('http://localhost:9200')
-				.delete('/dieties,devils/kitteh')
+				.delete('/dieties,devils')
 				.reply(200);
 
 			indices.deleteMapping({ _indices : ['dieties', 'devils'] }, (err) => {
@@ -482,27 +471,12 @@ describe('API: indices', () => {
 			});
 		});
 
-		it('should have proper method and path when type is omitted', (done) => {
+		it('should have proper method and path', (done) => {
 			nock('http://localhost:9200')
 				.head('/dieties')
 				.reply(200);
 
-			delete defaultOptions._type;
-			indices.exists((err) => {
-				if (err) {
-					return done(err);
-				}
-
-				done();
-			});
-		});
-
-		it('should have proper method and path', (done) => {
-			nock('http://localhost:9200')
-				.head('/dieties/_mapping/kitteh,cat')
-				.reply(200);
-
-			indices.exists({ _types : ['kitteh', 'cat'] }, (err) => {
+			indices.exists({}, (err) => {
 				if (err) {
 					return done(err);
 				}
@@ -564,22 +538,7 @@ describe('API: indices', () => {
 				.get('/dieties/_mapping')
 				.reply(200);
 
-			delete defaultOptions._type;
 			indices.mappings((err) => {
-				if (err) {
-					return done(err);
-				}
-
-				done();
-			});
-		});
-
-		it('should have proper method and path when type is supplied', (done) => {
-			nock('http://localhost:9200')
-				.get('/kitteh/evil,kind/_mapping')
-				.reply(200);
-
-			indices.mappings({ _index : 'kitteh', _types : ['evil', 'kind'] }, (err) => {
 				if (err) {
 					return done(err);
 				}
@@ -640,7 +599,7 @@ describe('API: indices', () => {
 			});
 		});
 
-		it('should have proper method and path when type is supplied', (done) => {
+		it('should have proper method and path', (done) => {
 			nock('http://localhost:9200')
 				.put('/dieties,devils')
 				.reply(200);
@@ -775,13 +734,12 @@ describe('API: indices', () => {
 	});
 
 	describe('#stats', () => {
-		it('should have proper index and path when index and type are omitted', (done) => {
+		it('should have proper index and path when index is omitted', (done) => {
 			nock('http://localhost:9200')
 				.get('/_stats')
 				.reply(200);
 
 			delete defaultOptions._index;
-			delete defaultOptions._type;
 			indices.stats((err) => {
 				if (err) {
 					return done(err);
@@ -793,7 +751,7 @@ describe('API: indices', () => {
 
 		it('should have proper method and path', (done) => {
 			nock('http://localhost:9200')
-				.get('/dieties,devils/_stats/kitteh?indexing=true&clear=true')
+				.get('/dieties,devils/_stats?indexing=true&clear=true')
 				.reply(200);
 
 			indices.stats({ _indices : ['dieties', 'devils'], indexing : true, clear : true }, (err) => {

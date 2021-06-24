@@ -6,7 +6,7 @@ class Core {
 		this.config = config;
 		this.paramExcludes = Object
 			.keys(config)
-			.concat(['_create', '_id', '_index', '_indices', '_source', '_type', '_types']);
+			.concat(['_create', '_id', '_index', '_indices', '_source']);
 		this.request = request || new Request(config);
 	}
 
