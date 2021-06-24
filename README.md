@@ -12,6 +12,10 @@ NOTE: `node-es` `v0.6` and newer work with ElasticSearch 5 and up.  For older ve
 npm install es
 ```
 
+### Elasticsearch Version Compatibility
+
+When working with Elasticsearch v7.x and up, use `v0.8.x` (latest `npm install es`). When using previous versions of Elasticsearch, please use `v0.7.4` of this module (`npm install es@v0.7.4`).
+
 ## Usage
 
 ```Javascript
@@ -33,7 +37,6 @@ es.search({
     // response data is according to ElasticSearch spec
   });
 ```
-
 
 ## API
 
