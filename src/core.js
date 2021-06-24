@@ -1,10 +1,6 @@
 import * as utils from './utils';
 import { Request } from 'reqlib';
 
-const
-	HTTP_STATUS_NOT_FOUND = 404,
-	HTTP_STATUS_SUCCESS = 200;
-
 class Core {
 	constructor (config, request) {
 		this.config = config;
@@ -29,23 +25,22 @@ class Core {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+		// check for _create
+		let endpointName = (options.create || options._create) ? '_create' : '';
+		endpointName = endpointName || '_doc';
 
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
-
 		options.path = utils.pathAppend(
 			index,
-			type,
-			options._id,
-			(options.create || options._create) ? '_create' : '');
+			endpointName,
+			options._id);
 
 		if (options._id) {
 			return this.request.put(options, doc, callback);
@@ -83,14 +78,11 @@ class Core {
 
 		let
 			index = utils.getIndexSyntax(options, null), // specifically don't want default settings
-			serializedCommands = '',
-			type = utils.getTypeSyntax(options, null);
-
+			serializedCommands = '';
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			(index ? type : null),
 			'_bulk');
 
 		commands.forEach((command) => {
@@ -125,14 +117,12 @@ class Core {
 		let
 			action = {},
 			commands = [],
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+			index = utils.getIndexSyntax(options, this.config);
 
 		documents.forEach((document) => {
 			action = {
 				index : {
-					_index : index,
-					_type : type
+					_index : index
 				}
 			};
 
@@ -175,15 +165,11 @@ class Core {
 			options = {};
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			(index ? type : null),
 			'_count');
 
 		if (query) {
@@ -206,15 +192,13 @@ class Core {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+		let index = utils.getIndexSyntax(options, this.config);
 
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			type,
+			'_doc',
 			options._id);
 
 		return this.request.delete(options, callback);
@@ -240,65 +224,14 @@ class Core {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			type,
 			'_query');
 
 		return this.request.delete(options, query, callback);
-	}
-
-	// http://www.elasticsearch.org/guide/reference/api/get/
-	exists (options = {}, callback) {
-		if (!callback && typeof options === 'function') {
-			callback = options;
-			options = {};
-		}
-
-		let err = utils.optionsUndefined(options, this.config, ['_index']);
-
-		if (err) {
-			return utils.promiseRejectOrCallback(err, callback);
-		}
-
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			statusCode,
-			type = utils.getTypeSyntax(options, this.config);
-
-		options.query = utils.exclude(options, this.paramExcludes);
-
-		options.path = utils.pathAppend(index, type, options._id);
-
-		this.request.once('response', (context) => (statusCode = context.state.statusCode));
-
-		return this.request.head(options, (err, data) => {
-			if (err) {
-				if (err.statusCode && err.statusCode === HTTP_STATUS_NOT_FOUND) {
-					data = {
-						exists : false,
-						statusCode : err.statusCode
-					};
-
-					return utils.promiseResolveOrCallback(data, callback);
-				}
-
-				return utils.promiseRejectOrCallback(err, callback);
-			}
-
-			// must listen to event...
-			data = {
-				exists : statusCode === HTTP_STATUS_SUCCESS
-			};
-
-			return utils.promiseResolveOrCallback(data, callback);
-		});
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/explain/
@@ -309,23 +242,19 @@ class Core {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_id']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			type,
-			options._id,
-			'_explain');
+			'_explain',
+			options._id);
 
 		// documentation indicates GET method...
 		// sending POST data via GET not typical, using POST instead
@@ -339,7 +268,7 @@ class Core {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_id']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
@@ -359,16 +288,13 @@ class Core {
 
 		let
 			includeSource = options._source && options._source !== false,
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+			index = utils.getIndexSyntax(options, this.config);
 
 		options.query = utils.exclude(options, this.paramExcludes);
-
 		options.path = utils.pathAppend(
 			index,
-			type,
-			options._id,
-			includeSource ? '_source' : null);
+			includeSource ? '_source' : '_doc',
+			options._id);
 
 		// optionally add source filters if _source is not a boolean value
 		if (includeSource && typeof options._source !== 'boolean') {
@@ -382,34 +308,6 @@ class Core {
 	// .add to ease backwards compatibility
 	index (...args) {
 		return this.add(...args);
-	}
-
-	// http://www.elasticsearch.org/guide/reference/api/more-like-this/
-	moreLikeThis (options = {}, callback) {
-		if (!callback && typeof options === 'function') {
-			callback = options;
-			options = {};
-		}
-
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
-
-		if (err) {
-			return utils.promiseRejectOrCallback(err, callback);
-		}
-
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
-		options.query = utils.exclude(options, this.paramExcludes);
-
-		options.path = utils.pathAppend(
-			index,
-			type,
-			options._id,
-			'_mlt');
-
-		return this.request.get(options, callback);
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/multi-get/
@@ -434,20 +332,13 @@ class Core {
 
 		let
 			missingIndex = false,
-			missingType = false,
 			self = this;
 
 		docs.forEach((doc) => {
 			doc._index = doc._index || options._index || self.config._index || null;
-			doc._type = doc._type || options._type || self.config._type || null;
 
 			if (!doc._index || doc._index === null) {
 				missingIndex = true;
-				return;
-			}
-
-			if (!doc._type) {
-				missingType = true;
 				return;
 			}
 		});
@@ -455,12 +346,6 @@ class Core {
 		if (missingIndex) {
 			return utils.promiseRejectOrCallback(
 				new Error('at least 1 or more docs supplied is missing index'),
-				callback);
-		}
-
-		if (missingType) {
-			return utils.promiseRejectOrCallback(
-				new Error('at least 1 or more docs supplied is missing type'),
 				callback);
 		}
 
@@ -499,14 +384,11 @@ class Core {
 
 		let
 			index = utils.getIndexSyntax(options, null), // specifically want to exclude defaults
-			serializedQueries = '',
-			type = utils.getTypeSyntax(options, null);
-
+			serializedQueries = '';
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			index ? type : null,
 			'_msearch');
 
 		queries.forEach((query) => {
@@ -538,15 +420,11 @@ class Core {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			type,
 			'_search');
 
 		// documentation indicates GET method...
@@ -605,17 +483,13 @@ class Core {
 			options = {};
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		// NOTE: in 5.0 _suggest deprecated in favor of _search endpoint
 		// https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
 		options.path = utils.pathAppend(
 			index,
-			type,
 			'_search');
 
 		return this.request.post(options, query, callback);
@@ -635,7 +509,7 @@ class Core {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type', '_id']);
+		let err = utils.optionsUndefined(options, this.config, ['_index', '_id']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
@@ -648,17 +522,13 @@ class Core {
 				callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			type,
-			options._id,
-			'_update');
+			'_update',
+			options._id);
 
 		return this.request.post(options, doc, callback);
 	}
@@ -683,15 +553,11 @@ class Core {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			type,
 			'_validate/query');
 
 		// documentation indicates GET method...

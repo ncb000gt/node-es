@@ -362,24 +362,28 @@ class Indices {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+		// prepare mapping if necessary
+		let outer = mapping;
+		if (outer.properties) {
+			outer = { 
+				mappings : {
+					_doc : mapping
+				}
+			};
+		}
 
+		// prepare URL
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
+		options.path = utils.pathAppend(index); 
 
-		options.path = utils.pathAppend(
-			index,
-			'_mapping',
-			index ? type : null);
-
-		return this.request.put(options, mapping, callback);
+		return this.request.put(options, outer, callback);
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-refresh/

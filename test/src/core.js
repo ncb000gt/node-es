@@ -18,7 +18,6 @@ describe('API: core', () => {
 	beforeEach(() => {
 		defaultOptions = {
 			_index : 'dieties',
-			_type : 'kitteh',
 			auth : '',
 			hostname : 'localhost',
 			port : 9200,
@@ -34,7 +33,7 @@ describe('API: core', () => {
 		core = new Core(defaultOptions);
 	});
 
-	describe('_index and _type syntax', () => {
+	describe('_index syntax', () => {
 		let query;
 
 		beforeEach(() => {
@@ -51,71 +50,42 @@ describe('API: core', () => {
 			};
 
 			nock('http://localhost:9200')
-				.post('/dieties,hellions/kitteh/_search')
+				.post('/dieties,hellions/_search')
 				.reply(200);
 
 			return core.search(options, query);
 		});
 
-		it('should favor _types over _type', async () => {
-			let options = {
-				_types : ['kitteh', 'squirrel']
-			};
-
-			nock('http://localhost:9200')
-				.post('/dieties/kitteh,squirrel/_search')
-				.reply(200);
-
-			await core.search(options, query);
-		});
-
 		it('should favor _indices over _index in defaultConfig if supplied', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties,hellions/kitteh/_search')
+				.post('/dieties,hellions/_search')
 				.reply(200);
 
 			defaultOptions._indices = ['dieties', 'hellions'];
 			await core.search(query);
 		});
 
-		it('should favor _types over _type in defaultConfig if supplied', async () => {
-			nock('http://localhost:9200')
-				.post('/dieties/kitteh,squirrel/_search')
-				.reply(200);
-
-			defaultOptions._types = ['kitteh', 'squirrel'];
-			await core.search(query);
-		});
-
-		it('should allow _types and _indices when requiring _type and _index', async () => {
-			nock('http://localhost:9200')
-				.get('/dieties/kitteh,squirrel/1/_source')
-				.reply(200);
-
-			core.get({ '_id' : 1, '_types' : ['kitteh', 'squirrel'], '_source' : true });
-		});
-
 		it('should properly handle when _source is not a boolean', async () => {
 			nock('http://localhost:9200')
-				.get('/dieties/kitteh/1/_source?_source=name%2Cbreed')
+				.get('/dieties/_source/1?_source=name%2Cbreed')
 				.reply(200);
 
-			await core.get({ '_id' : 1, '_type' : 'kitteh', '_source' : ['name', 'breed'] });
+			await core.get({ '_id' : 1, '_source' : ['name', 'breed'] });
 		});
 
-		it('should properly handle _index and _type override', async () => {
+		it('should properly handle _index override', async () => {
 			nock('http://localhost:9200')
-				.get('/non-dieties/dogs/_count')
+				.get('/non-dieties/_count')
 				.reply(200);
 
-			await core.count({ '_index' : 'non-dieties', '_type' : 'dogs' });
+			await core.count({ '_index' : 'non-dieties' });
 		});
 	});
 
 	describe('#add', () => {
 		it('should do what .index does (backwards compat check)', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh')
+				.post('/dieties/_doc')
 				.reply(200);
 
 			await core.add(doc);
@@ -127,11 +97,11 @@ describe('API: core', () => {
 
 		beforeEach(() => {
 			commands = [
-				{ index : { _index : 'dieties', _type : 'kitteh' } },
+				{ index : { _index : 'dieties' } },
 				{ name : 'hamish', breed : 'manx', color : 'tortoise' },
-				{ index : { _index : 'dieties', _type : 'kitteh' } },
+				{ index : { _index : 'dieties' } },
 				{ name : 'dugald', breed : 'siamese', color : 'white' },
-				{ index : { _index : 'dieties', _type : 'kitteh' } },
+				{ index : { _index : 'dieties' } },
 				{ name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
 			];
 		});
@@ -162,14 +132,6 @@ describe('API: core', () => {
 				.reply(200);
 
 			await core.bulk({ _index : 'dieties' }, commands);
-		});
-
-		it('should only apply type to url when index and type are passed with options', async () => {
-			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_bulk')
-				.reply(200);
-
-			await core.bulk({ _index : 'dieties', _type : 'kitteh' }, commands);
 		});
 
 		it('should properly format out as newline delimited text', async () => {
@@ -217,14 +179,6 @@ describe('API: core', () => {
 				.catch((err) => {
 					err.message.should.equal('documents provided must be in array format');
 				});
-		});
-
-		it('should only apply type to url when index and type are passed with options or config', async () => {
-			nock('http://localhost:9200')
-				.post('/test/test/_bulk')
-				.reply(200);
-
-			await core.bulkIndex({ _index : 'test', _type : 'test' }, documents);
 		});
 
 		it('should properly format out as newline delimited text', async () => {
@@ -282,7 +236,7 @@ describe('API: core', () => {
 
 		it('should allow options to be optional', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_count')
+				.post('/dieties/_count')
 				.reply(200);
 
 			await core.count({}, query);
@@ -298,23 +252,12 @@ describe('API: core', () => {
 			await core.count({}, query);
 		});
 
-		it('should allow count without type', async () => {
-			nock('http://localhost:9200')
-				.post('/dieties/_count')
-				.reply(200);
-
-			delete defaultOptions._type;
-
-			await core.count(query);
-		});
-
 		it('should allow count without query', async () => {
 			nock('http://localhost:9200')
 				.get('/_count')
 				.reply(200);
 
 			delete defaultOptions._index;
-			delete defaultOptions._type;
 
 			await core.count();
 		});
@@ -333,7 +276,7 @@ describe('API: core', () => {
 
 		it('should have correct path and method', async () => {
 			nock('http://localhost:9200')
-				.delete('/dieties/kitteh')
+				.delete('/dieties/_doc')
 				.reply(200);
 
 			await core.delete({});
@@ -341,7 +284,7 @@ describe('API: core', () => {
 
 		it('should have correct path and method when id is supplied', async () => {
 			nock('http://localhost:9200')
-				.delete('/dieties/kitteh/1')
+				.delete('/dieties/_doc/1')
 				.reply(200);
 
 			await core.delete({ _id : 1 });
@@ -349,7 +292,7 @@ describe('API: core', () => {
 
 		it('should treat options as optional', async () => {
 			nock('http://localhost:9200')
-				.delete('/dieties/kitteh')
+				.delete('/dieties/_doc')
 				.reply(200);
 
 			await core.delete();
@@ -379,47 +322,10 @@ describe('API: core', () => {
 
 		it('should have correct path and method', async () => {
 			nock('http://localhost:9200')
-				.delete('/dieties/kitteh/_query')
-				.reply(200);
-
-			await core.deleteByQuery(query);
-		});
-
-		it('should have correct path and method when type is not supplied', async () => {
-			nock('http://localhost:9200')
 				.delete('/dieties/_query')
 				.reply(200);
 
-			delete defaultOptions._type;
 			await core.deleteByQuery(query);
-		});
-	});
-
-	describe('#exists', () => {
-		it('should require index', (done) => {
-			delete defaultOptions._index;
-			core.exists({}, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have correct path and method when id is supplied', async () => {
-			nock('http://localhost:9200')
-				.head('/dieties/kitteh/1')
-				.reply(200);
-
-			await core.exists({ _id : 1 });
-		});
-
-		it('should allow options to be optional', async () => {
-			nock('http://localhost:9200')
-				.head('/dieties/kitteh')
-				.reply(200);
-
-			await core.exists();
 		});
 	});
 
@@ -446,16 +352,6 @@ describe('API: core', () => {
 			});
 		});
 
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			core.explain({}, query, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
 		it('should require id', (done) => {
 			core.explain(query, (err, data) => {
 				should.exist(err);
@@ -467,7 +363,7 @@ describe('API: core', () => {
 
 		it('should have correct path and method when id is supplied', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/1/_explain')
+				.post('/dieties/_explain/1')
 				.reply(200);
 
 			await core.explain({ _id : 1 }, query);
@@ -477,16 +373,6 @@ describe('API: core', () => {
 	describe('#get', () => {
 		it('should require index', (done) => {
 			delete defaultOptions._index;
-			core.get({}, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require type', (done) => {
-			delete defaultOptions._type;
 			core.get({}, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
@@ -506,7 +392,7 @@ describe('API: core', () => {
 
 		it('should have correct path and method when id is supplied', (done) => {
 			nock('http://localhost:9200')
-				.get('/dieties/kitteh/1')
+				.get('/dieties/_doc/1')
 				.reply(200);
 
 			core.get({ _id : 1 }, (err) => {
@@ -537,19 +423,9 @@ describe('API: core', () => {
 			});
 		});
 
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			core.index({}, doc, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
 		it('should have correct path and method', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh')
+				.post('/dieties/_doc')
 				.reply(200);
 
 			await core.index({}, doc);
@@ -557,7 +433,7 @@ describe('API: core', () => {
 
 		it('should have correct path and method when id is supplied', async () => {
 			nock('http://localhost:9200')
-				.put('/dieties/kitteh/1')
+				.put('/dieties/_doc/1')
 				.reply(200);
 
 			await core.index({ _id : 1 }, doc);
@@ -565,7 +441,7 @@ describe('API: core', () => {
 
 		it('should correctly append querystring options', async () => {
 			nock('http://localhost:9200')
-				.post(/\/dieties\/kitteh\?[a-z0-9\&\*\=\_]*/i)
+				.post(/\/dieties\/\_doc\?[a-z0-9\&\*\=\_]*/i)
 				.reply(200);
 
 			let
@@ -590,7 +466,7 @@ describe('API: core', () => {
 
 			await core.index(options, doc);
 
-			requestPath.should.contain('dieties/kitteh?');
+			requestPath.should.contain('dieties/_doc?');
 			requestPath.should.contain('consistency=quorum');
 			requestPath.should.contain('distributed=true');
 			requestPath.should.contain('op_type=create');
@@ -606,7 +482,7 @@ describe('API: core', () => {
 
 		it('should support _create as parameter', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_create')
+				.post('/dieties/_create')
 				.reply(200);
 
 			let options = {
@@ -618,49 +494,10 @@ describe('API: core', () => {
 
 		it('should treat options as optional', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh')
+				.post('/dieties/_doc')
 				.reply(200);
 
 			await core.index(doc);
-		});
-	});
-
-	describe('#moreLikeThis', () => {
-		it('should require index', (done) => {
-			delete defaultOptions._index;
-			core.moreLikeThis({}, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			core.moreLikeThis({}, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require id', (done) => {
-			core.moreLikeThis((err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should have correct path and method when id is supplied', async () => {
-			nock('http://localhost:9200')
-				.get('/dieties/kitteh/1/_mlt')
-				.reply(200);
-
-			await core.moreLikeThis({ _id : 1 });
 		});
 	});
 
@@ -670,33 +507,19 @@ describe('API: core', () => {
 		beforeEach(() => {
 			docs = [{
 				_id : 1,
-				_index : 'testIndex',
-				_type : 'testType'
+				_index : 'testIndex'
 			}, {
 				_id : 2,
-				_index : 'testIndex',
-				_type : 'testType'
+				_index : 'testIndex'
 			}, {
 				_id : 3,
-				_index : 'testIndex',
-				_type : 'testType'
+				_index : 'testIndex'
 			}];
 		});
 
 		it('should require index', (done) => {
 			delete defaultOptions._index;
 			delete docs[0]._index;
-			core.multiGet(docs, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			delete docs[0]._type;
 			core.multiGet(docs, (err, data) => {
 				should.exist(err);
 				should.not.exist(data);
@@ -719,14 +542,11 @@ describe('API: core', () => {
 			await core.multiGet(docs);
 
 			requestBody.docs[0]._index.should.equals('testIndex');
-			requestBody.docs[0]._type.should.equals('testType');
 			requestBody.docs[1]._index.should.equals('testIndex');
-			requestBody.docs[1]._type.should.equals('testType');
 			requestBody.docs[2]._index.should.equals('testIndex');
-			requestBody.docs[2]._type.should.equals('testType');
 		});
 
-		it('should have correct index and type when omitted', async () => {
+		it('should have correct index when omitted', async () => {
 			let requestBody;
 
 			nock('http://localhost:9200')
@@ -738,20 +558,14 @@ describe('API: core', () => {
 				});
 
 			delete docs[0]._index;
-			delete docs[0]._type;
 			delete docs[1]._index;
-			delete docs[1]._type;
 			delete docs[2]._index;
-			delete docs[2]._type;
 
 			await core.multiGet(docs);
 
 			requestBody.docs[0]._index.should.equals('dieties');
-			requestBody.docs[0]._type.should.equals('kitteh');
 			requestBody.docs[1]._index.should.equals('dieties');
-			requestBody.docs[1]._type.should.equals('kitteh');
 			requestBody.docs[2]._index.should.equals('dieties');
-			requestBody.docs[2]._type.should.equals('kitteh');
 		});
 	});
 
@@ -792,14 +606,6 @@ describe('API: core', () => {
 			await core.multiSearch({ _index : 'dieties' }, queries);
 		});
 
-		it('should only apply type to url when index and type are passed with options', async () => {
-			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_msearch')
-				.reply(200);
-
-			await core.multiSearch({ _index : 'dieties', _type : 'kitteh' }, queries);
-		});
-
 		it('should properly format out as newline delimited text', async () => {
 			nock('http://localhost:9200')
 				.post('/_msearch')
@@ -830,7 +636,7 @@ describe('API: core', () => {
 
 		it('should do what .search does (backwards compat check)', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_search')
+				.post('/dieties/_search')
 				.reply(200);
 
 			await core.query(query);
@@ -860,20 +666,10 @@ describe('API: core', () => {
 
 		it('should allow options to be optional', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_search')
-				.reply(200);
-
-			await core.search({}, query);
-		});
-
-		it('should allow search without type', async () => {
-			nock('http://localhost:9200')
 				.post('/dieties/_search')
 				.reply(200);
 
-			delete defaultOptions._type;
-
-			await core.search(query);
+			await core.search({}, query);
 		});
 	});
 
@@ -925,27 +721,16 @@ describe('API: core', () => {
 				.reply(200);
 
 			delete defaultOptions._index;
-			delete defaultOptions._type;
 
 			core.suggest({}, query, done);
 		});
 
 		it('should allow options to be optional', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_search')
-				.reply(200);
-
-			await core.suggest(query);
-		});
-
-		it('should allow suggest without type', async () => {
-			nock('http://localhost:9200')
 				.post('/dieties/_search')
 				.reply(200);
 
-			delete defaultOptions._type;
-
-			await core.suggest({}, query);
+			await core.suggest(query);
 		});
 	});
 
@@ -979,16 +764,6 @@ describe('API: core', () => {
 			});
 		});
 
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			core.update({ _id : 1 }, doc1, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
 		it ('should require id', (done) => {
 			core.update(doc1, (err, data) => {
 				should.exist(err);
@@ -1012,7 +787,7 @@ describe('API: core', () => {
 
 		it ('should accept script', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/1/_update')
+				.post('/dieties/_update/1')
 				.reply(200);
 
 			await core.update({ _id : 1 }, doc1);
@@ -1020,7 +795,7 @@ describe('API: core', () => {
 
 		it ('should accept blank script', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/1/_update')
+				.post('/dieties/_update/1')
 				.reply(200);
 
 			doc1.script = '';
@@ -1030,7 +805,7 @@ describe('API: core', () => {
 
 		it ('should accept doc', async () => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/2/_update')
+				.post('/dieties/_update/2')
 				.reply(200);
 
 			await core.update({ _id : 2 }, doc2);
@@ -1060,20 +835,10 @@ describe('API: core', () => {
 
 		it('should allow options to be optional', (done) => {
 			nock('http://localhost:9200')
-				.post('/dieties/kitteh/_validate/query')
-				.reply(200);
-
-			core.validate({}, query, done);
-		});
-
-		it('should allow validate without type', async () => {
-			nock('http://localhost:9200')
 				.post('/dieties/_validate/query')
 				.reply(200);
 
-			delete defaultOptions._type;
-
-			await core.validate(query);
+			core.validate({}, query, done);
 		});
 	});
 });

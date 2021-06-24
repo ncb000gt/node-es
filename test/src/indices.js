@@ -640,19 +640,9 @@ describe('API: indices', () => {
 			});
 		});
 
-		it('should require type', (done) => {
-			delete defaultOptions._type;
-			indices.putMapping(mapping, (err, data) => {
-				should.exist(err);
-				should.not.exist(data);
-
-				done();
-			});
-		});
-
 		it('should have proper method and path when type is supplied', (done) => {
 			nock('http://localhost:9200')
-				.put('/dieties,devils/_mapping/kitteh')
+				.put('/dieties,devils')
 				.reply(200);
 
 			indices.putMapping({ _indices : ['dieties', 'devils'] }, mapping, (err) => {
