@@ -10,7 +10,7 @@ class Indices {
 		this.config = config;
 		this.paramExcludes = Object
 			.keys(config)
-			.concat(['_index', '_indices', '_type', '_types', 'alias']);
+			.concat(['_index', '_indices', 'alias']);
 		this.request = request || new Request(config);
 	}
 
@@ -212,17 +212,14 @@ class Indices {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
-		options.path = utils.pathAppend(index, type);
+		let index = utils.getIndexSyntax(options, this.config);
+		options.path = utils.pathAppend(index);
 
 		return this.request.delete(options, callback);
 	}
@@ -262,12 +259,9 @@ class Indices {
 
 		let
 			index = utils.getIndexSyntax(options, this.config),
-			statusCode,
-			type = utils.getTypeSyntax(options, this.config);
+			statusCode;
 
-		options.path = type ?
-			utils.pathAppend(index, '/_mapping', type) :
-			utils.pathAppend(index);
+		options.path = utils.pathAppend(index);
 
 		this.request.once('response', (context) => (statusCode = context.state.statusCode));
 
@@ -316,15 +310,12 @@ class Indices {
 			options = {};
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+		let index = utils.getIndexSyntax(options, this.config);
 
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			(index ? utils.pathAppend(type) : null),
 			'_mapping');
 
 		return this.request.get(options, callback);
@@ -362,24 +353,28 @@ class Indices {
 			options = {};
 		}
 
-		let err = utils.optionsUndefined(options, this.config, ['_index', '_type']);
+		let err = utils.optionsUndefined(options, this.config, ['_index']);
 
 		if (err) {
 			return utils.promiseRejectOrCallback(err, callback);
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
+		// prepare mapping if necessary
+		let outer = mapping;
+		if (outer.properties) {
+			outer = { 
+				mappings : {
+					_doc : mapping
+				}
+			};
+		}
 
+		// prepare URL
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
+		options.path = utils.pathAppend(index); 
 
-		options.path = utils.pathAppend(
-			index,
-			'_mapping',
-			index ? type : null);
-
-		return this.request.put(options, mapping, callback);
+		return this.request.put(options, outer, callback);
 	}
 
 	// http://www.elasticsearch.org/guide/reference/api/admin-indices-refresh/
@@ -457,16 +452,12 @@ class Indices {
 			options = {};
 		}
 
-		let
-			index = utils.getIndexSyntax(options, this.config),
-			type = utils.getTypeSyntax(options, this.config);
-
+		let index = utils.getIndexSyntax(options, this.config);
 		options.query = utils.exclude(options, this.paramExcludes);
 
 		options.path = utils.pathAppend(
 			index,
-			'_stats',
-			type);
+			'_stats');
 
 		return this.request.get(options, callback);
 	}

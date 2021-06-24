@@ -15,7 +15,6 @@ describe('API: cluster', () => {
 	beforeEach(() => {
 		defaultOptions = {
 			_index : 'dieties',
-			_type : 'kitteh',
 			auth : '',
 			hostname : 'localhost',
 			port : 9200,
