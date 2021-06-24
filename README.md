@@ -51,25 +51,23 @@ var
 
 ##### config._index
 
-When initializing the library, you may choose to specify an index and/or type to work with at the start to save from having to supply this information in the options for each operation request:
+When initializing the library, you may choose to specify an index to work with at the start to save from having to supply this information in the options for each operation request:
 
 ```Javascript
 var config = {
-  _index : 'pet',
-  _type : 'kitteh'
+  _index : 'pet'
 };
 ```
 
-Additionally, if working with multiple indexes or types, you may specify them as arrays:
+Additionally, if working with multiple indexes, you may specify them as arrays:
 
 ```Javascript
 var config = {
   _indices : ['pet', 'family'],
-  _types : ['kitteh', 'canine']
 };
 ```
 
-*Note:* When index, indices, type or types are supplied via operation options, those settings will take precedent over the base configuration for the library:
+*Note:* When index or indices are supplied via operation options, those settings will take precedent over the base configuration for the library:
 
 ```Javascript
 
@@ -193,7 +191,6 @@ Additionally, if there are extra option keys supplied beyond what is required fo
 ```
 var options = {
   _index : 'bawss',
-  _type : 'man',
   refresh : true
 };
 
@@ -214,24 +211,24 @@ For more specifics and details regarding the core API for ElasticSearch, please 
 
 *Please Note:* The default timeout is set at 30 seconds... if you are performing a large bulk insert you may need to increase this limit by specifying a higher value for `timeout` in the options parameter.
 
-This method doesn't take into account the underlying config that was used when instantiating the client. It requires index and type to be specified via the commands array or via the options parameter. Conflict will occur if one specifies a different index and type in the options than what is specified via the commands parameter.
+This method doesn't take into account the underlying config that was used when instantiating the client. It requires index to be specified via the commands array or via the options parameter. Conflict will occur if one specifies a different index in the options than what is specified via the commands parameter.
 
 At a high level, when performing a bulk update, you must supply an array with an action object followed by the object that the action will use during execution. In the following example, the first item in the array specifies the action is `index` and the second item represents the data to index:
 
 ```Javascript
 [
-  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { index : { _index : 'dieties' } },
   { name : 'hamish', breed : 'manx', color : 'tortoise' }
 ]
 ```
 
-In this example, two `index` actions will be performed on the 'dieties' index and 'kitteh' type in ElasticSearch:
+In this example, two `index` actions will be performed on the 'dieties' index in ElasticSearch:
 
 ```Javascript
 [
-  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { index : { _index : 'dieties' } },
   { name : 'dugald', breed : 'siamese', color : 'white' },
-  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { index : { _index : 'dieties' } },
   { name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
 ]
 ```
@@ -246,11 +243,11 @@ var
   es = elasticsearch();
 
 var commands = [
-  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { index : { _index : 'dieties' } },
   { name : 'hamish', breed : 'manx', color : 'tortoise' },
-  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { index : { _index : 'dieties' } },
   { name : 'dugald', breed : 'siamese', color : 'white' },
-  { index : { _index : 'dieties', _type : 'kitteh' } },
+  { index : { _index : 'dieties' } },
   { name : 'keelin', breed : 'domestic long-hair', color : 'russian blue' }
 ];
 
@@ -277,8 +274,7 @@ var documents = [
 ];
 
 var options = {
-  _index : 'dieties',
-  _type : 'kitteh'
+  _index : 'dieties'
 }
 
 es.bulkIndex(options, documents, function (err, data) {
@@ -299,10 +295,9 @@ es.count(function (err, data) {
   // teh datas
 });
 
-// count docs in a specific index/type
+// count docs in a specific index
 var options = {
-  _index : 'bawss',
-  _type : 'kitteh'
+  _index : 'bawss'
 }
 
 es.count(options, function (err, data) {
@@ -379,34 +374,34 @@ es.exists({ _index : 'kitteh' }, function (err, data) {
 
 ##### Explain
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 Also requires `_id`, but this must be specified via options.
 
 `es.explain(options, query, callback)`
 
 ##### Get
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 Also requires `_id`, but this must be specified via options.
 
 `es.get(options, callback)`
 
 ##### Index
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 
 `es.index(options, doc, callback)`
 
 ##### More Like This
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 Also requires `_id`, but this must be specified via options.
 
 `es.moreLikeThis(options, callback)`
 
 ##### Multi Get
 
-If `_index` and/or `_type` are supplied via options (or lib config), the will applied to the doc that is transmitted for the operation.
+If `_index` is supplied via options (or lib config), the will applied to the doc that is transmitted for the operation.
 
 `es.multiGet(options, docs, callback)`
 
@@ -451,7 +446,7 @@ es.search({
 
 ##### Update
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 Also requires `_id`, but this must be specified via options.
 
 `es.update(options, doc, callback)`
@@ -516,7 +511,7 @@ Requires `_index` be specified either via lib config or via options when calling
 
 ##### Delete Mapping
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 
 `es.indices.deleteMapping(options, callback)`
 
@@ -548,7 +543,7 @@ Requires `_index` be specified either via lib config or via options when calling
 
 ##### Put Mapping
 
-Requires `_index` and `_type` be specified either via lib config or via options when calling the operation.
+Requires `_index` be specified either via lib config or via options when calling the operation.
 
 `es.indices.putMapping(options, mapping, callback)`
 
